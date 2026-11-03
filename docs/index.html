@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurta sets from India's best ethnic brands</title>
+<meta name="description" content="Kurta sets from Jaipur Handblock, Label Kanupriya, Zlaata and more, in one place. Filter by price, size, colour and discount.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+  :root {
+    --ink: #14172B; --muted: #4A4F63; --soft: #5A5F73; --line: #E3E5EE; --field: #C9CCD8;
+    --bg: #FFFFFF; --tint: #F5F6FA; --accent: #2B3A8C; --accent-dark: #1A2566; --badge: #F2B632;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  a { color: var(--accent); } a:hover { color: var(--accent-dark); }
+  button, input, select { font: inherit; color: inherit; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+
+  header { border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; padding-top: 14px; padding-bottom: 14px; }
+  .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+  nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 15px; font-weight: 500; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 0; color: var(--muted); cursor: pointer; min-height: 44px; }
+  nav button[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .search { flex: 1 1 260px; display: flex; justify-content: flex-end; }
+  .search input { width: 100%; max-width: 380px; height: 44px; border: 1px solid var(--field); border-radius: 22px; padding: 0 18px; background: var(--tint); font-size: 15px; }
+
+  main { padding: 28px 0 64px; display: flex; flex-direction: column; gap: 24px; }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+  h1 { margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
+  .sub { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .tools label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+  select { height: 44px; border: 1px solid var(--field); border-radius: 10px; padding: 0 12px; font-size: 14px; background: var(--bg); }
+  .filter-toggle { display: none; height: 44px; padding: 0 18px; border: 1px solid var(--accent); border-radius: 22px; background: var(--bg); color: var(--accent); font-weight: 600; cursor: pointer; }
+
+  .layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; }
+  aside { flex: 1 1 240px; max-width: 100%; display: flex; flex-direction: column; gap: 20px; }
+  .results { flex: 999 1 560px; min-width: 0; }
+  .ftop { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
+  .ftop h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .linkbtn { background: none; border: 0; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; padding: 0 4px; }
+  fieldset { border: 0; margin: 0; padding: 0 0 18px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+  legend { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0 0 8px; }
+  .opt { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 15px; cursor: pointer; }
+  .opt input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; flex: none; }
+  .opt .n { margin-left: auto; color: var(--soft); font-size: 13px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
+  .sizes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .sizes .opt { justify-content: center; gap: 6px; min-height: 44px; border: 1px solid var(--field); border-radius: 10px; font-size: 14px; font-weight: 500; }
+  .sizes .opt input { width: 16px; height: 16px; }
+  .note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--soft); }
+  .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #9A9EB0; flex: none; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 32px 20px; }
+  .card { display: flex; flex-direction: column; gap: 6px; }
+  .img { position: relative; aspect-ratio: 3 / 4; background: #EEF0F6; border-radius: 12px; overflow: hidden; display: block; }
+  .img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--soft); }
+  .badge { position: absolute; top: 10px; left: 10px; background: var(--badge); color: var(--ink); font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+  .oos { position: absolute; left: 10px; right: 10px; bottom: 10px; text-align: center; background: rgba(20,23,43,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 6px; border-radius: 6px; }
+  .card.sold .img img { opacity: 0.55; }
+  .src { margin-top: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+  .card h3 { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card h3 a { color: var(--ink); text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
+  .price strong { font-size: 17px; font-weight: 600; }
+  .price s { font-size: 14px; color: var(--soft); }
+  .price .off { font-size: 13px; font-weight: 600; color: #A8410C; }
+  .meta { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--soft); }
+  .meta .dot { width: 12px; height: 12px; }
+  .go { margin-top: 6px; display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--accent); border-radius: 22px; font-size: 14px; font-weight: 600; text-decoration: none; }
+  .go:hover { background: var(--accent); color: #fff; }
+  .more { display: flex; justify-content: center; margin-top: 36px; }
+  .more button { min-height: 48px; padding: 0 28px; border-radius: 24px; border: 0; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+  .empty { border: 1px dashed var(--field); border-radius: 16px; padding: 48px 24px; text-align: center; }
+  .empty p { margin: 0 0 12px; font-size: 17px; font-weight: 600; }
+  footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--soft); font-size: 13px; line-height: 1.6; }
+
+  @media (max-width: 860px) {
+    .filter-toggle { display: inline-flex; align-items: center; }
+    aside { display: none; flex-basis: 100%; }
+    aside.open { display: flex; }
+    h1 { font-size: 32px; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 0 16px; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+    .card h3 { font-size: 14px; }
+    .go { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="./" id="logo">[SITE NAME]</a>
+    <nav aria-label="Categories" id="tabs"></nav>
+    <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
+  </div>
+</header>
+
+<div class="wrap">
+<main>
+  <div class="head">
+    <div>
+      <h1 id="title">Loading…</h1>
+      <p class="sub" id="sub"></p>
+    </div>
+    <div class="tools">
+      <button type="button" class="filter-toggle" id="ftoggle" aria-expanded="false" aria-controls="filters">Filters</button>
+      <label>Sort by
+        <select id="sort">
+          <option value="rel">Recommended</option>
+          <option value="lo">Price: low to high</option>
+          <option value="hi">Price: high to low</option>
+          <option value="disc">Biggest discount</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside id="filters" aria-label="Filters">
+      <div class="ftop"><h2>Filters</h2><button type="button" class="linkbtn" id="clear" hidden>Clear all</button></div>
+      <fieldset><legend>Brand</legend><div id="f-brand"></div></fieldset>
+      <fieldset><legend>Price</legend><div id="f-price"></div></fieldset>
+      <fieldset><legend>Discount</legend><div id="f-disc"></div></fieldset>
+      <fieldset><legend>Size</legend><div class="sizes" id="f-size"></div><p class="note" id="size-note"></p></fieldset>
+      <fieldset><legend>Colour</legend><div class="grid2" id="f-colour"></div></fieldset>
+      <label class="opt"><input type="checkbox" id="stock" checked> In stock only</label>
+    </aside>
+    <section class="results" aria-label="Products">
+      <div class="cards" id="cards"></div>
+      <div class="more" id="more" hidden><button type="button">Show more</button></div>
+    </section>
+  </div>
+</main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span id="updated"></span>
+    Prices and stock are refreshed every few hours. Always check the final price on the brand's site.
+  </div>
+</footer>
+
+<script>
+/* ------------------------------------------------------------------
+   SETTINGS - edit these
+------------------------------------------------------------------- */
+const SITE_NAME = "[SITE NAME]";
+const CATEGORY_LABELS = { kurta_set: "Kurta sets", co_ord_set: "Co-ord sets", kurta: "Kurtas" };
+const PAGE_SIZE = 48;
+// When you get affiliate links, wrap product URLs here, e.g.
+// return "https://your-network.example/track?url=" + encodeURIComponent(url);
+function outLink(url, product) { return url; }
+
+const COLOUR_HEX = {
+  Black: "#1B1B1F", White: "#FFFFFF", Beige: "#E8D9BC", Brown: "#7B4A2D", Red: "#C62828",
+  Maroon: "#7A1F2B", Pink: "#E58FAE", Orange: "#F08A3C", Yellow: "#E8B931", Green: "#2E7D4F",
+  Blue: "#2F4A9E", Purple: "#6B3FA0", Grey: "#9096A3", Gold: "#C9A23F",
+  Multicolour: "conic-gradient(#E58FAE, #E8B931, #2E7D4F, #2F4A9E, #6B3FA0, #E58FAE)", Other: "#EEF0F6"
+};
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL", "XXXL", "4XL", "5XL", "6XL", "FREE SIZE"];
+const PRICE_BUCKETS = [
+  { k: "all", label: "Any price", test: () => true },
+  { k: "u1000", label: "Under ₹1,000", test: p => p.price < 1000 },
+  { k: "1000", label: "₹1,000 – ₹1,999", test: p => p.price >= 1000 && p.price < 2000 },
+  { k: "2000", label: "₹2,000 – ₹2,999", test: p => p.price >= 2000 && p.price < 3000 },
+  { k: "3000", label: "₹3,000 and above", test: p => p.price >= 3000 }
+];
+const DISCOUNTS = [[0, "Any discount"], [20, "20% off or more"], [40, "40% off or more"], [60, "60% off or more"]];
+
+/* ------------------------------------------------------------------ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "#";
+const rs = n => "₹" + Math.round(n).toLocaleString("en-IN");
+const split = s => (s || "").split("|").map(x => x.trim()).filter(Boolean);
+
+let ALL = [];
+const st = { cat: null, brands: new Set(), price: "all", disc: 0, sizes: new Set(), colours: new Set(), stock: true, q: "", sort: "rel", shown: PAGE_SIZE };
+
+function sizeKey(z) { const i = SIZE_ORDER.indexOf(z.toUpperCase()); return i < 0 ? 100 + parseFloat(z) || 999 : i; }
+
+async function load() {
+  $("logo").textContent = SITE_NAME;
+  try {
+    const r = await fetch("listings.json?t=" + Date.now());
+    if (!r.ok) throw new Error(r.status);
+    ALL = (await r.json()).filter(p => p.price).map((p, i) => ({
+      ...p, i,
+      price: +p.price, mrp: +(p.mrp || p.price),
+      disc: +p.discount_pct || 0,
+      sizesAvail: split(p.sizes_available).map(z => z.toUpperCase()),
+      colour: p.colour || "Other",
+      inStock: p.in_stock === true || p.in_stock === "True" || p.in_stock === "true"
+    }));
+  } catch (e) {
+    $("title").textContent = "Couldn't load products";
+    $("sub").textContent = "listings.json is missing or unreadable.";
+    return;
+  }
+  const cats = [...new Set(ALL.map(p => p.category))];
+  st.cat = cats[0];
+  $("tabs").innerHTML = cats.map(c => `<button type="button" data-cat="${esc(c)}">${esc(CATEGORY_LABELS[c] || c)}</button>`).join("");
+  $("tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; st.cat = b.dataset.cat; resetFilters(); };
+  const last = ALL.map(p => p.scraped_at).filter(Boolean).sort().pop();
+  if (last) $("updated").textContent = "Last updated " + new Date(last).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) + ". ";
+  bind();
+  render();
+}
+
+function resetFilters() {
+  st.brands.clear(); st.sizes.clear(); st.colours.clear();
+  st.price = "all"; st.disc = 0; st.q = ""; $("q").value = ""; st.shown = PAGE_SIZE;
+  render();
+}
+
+function bind() {
+  $("q").addEventListener("input", e => { st.q = e.target.value; st.shown = PAGE_SIZE; render(); });
+  $("sort").addEventListener("change", e => { st.sort = e.target.value; render(); });
+  $("stock").addEventListener("change", e => { st.stock = e.target.checked; st.shown = PAGE_SIZE; render(); });
+  $("clear").addEventListener("click", () => { st.stock = true; $("stock").checked = true; resetFilters(); });
+  $("more").querySelector("button").addEventListener("click", () => { st.shown += PAGE_SIZE; render(); });
+  $("ftoggle").addEventListener("click", () => {
+    const open = $("filters").classList.toggle("open");
+    $("ftoggle").setAttribute("aria-expanded", open);
+  });
+  $("filters").addEventListener("change", e => {
+    const t = e.target, v = t.value;
+    const sets = { brand: st.brands, size: st.sizes, colour: st.colours };
+    if (sets[t.name]) { t.checked ? sets[t.name].add(v) : sets[t.name].delete(v); }
+    else if (t.name === "price") st.price = v;
+    else if (t.name === "disc") st.disc = +v;
+    else return;
+    st.shown = PAGE_SIZE; render();
+  });
+}
+
+function matches(p, skip) {
+  if (p.category !== st.cat) return false;
+  if (skip !== "brand" && st.brands.size && !st.brands.has(p.source)) return false;
+  if (skip !== "price" && !PRICE_BUCKETS.find(b => b.k === st.price).test(p)) return false;
+  if (skip !== "disc" && p.disc < st.disc) return false;
+  if (skip !== "size" && st.sizes.size && !p.sizesAvail.some(z => st.sizes.has(z))) return false;
+  if (skip !== "colour" && st.colours.size && !st.colours.has(p.colour)) return false;
+  if (st.stock && !p.inStock) return false;
+  const q = st.q.trim().toLowerCase();
+  if (q && !q.split(/\s+/).every(w => (p.title + " " + p.source + " " + p.colour + " " + (p.tags || "")).toLowerCase().includes(w))) return false;
+  return true;
+}
+
+// counts reflect the other active filters, so users never pick a dead end
+function counts(key, fn) {
+  const m = {};
+  ALL.forEach(p => { if (matches(p, key)) [].concat(fn(p)).forEach(v => m[v] = (m[v] || 0) + 1); });
+  return m;
+}
+
+function opt(type, name, value, label, n, checked, extra = "") {
+  return `<label class="opt"><input type="${type}" name="${name}" value="${esc(value)}"${checked ? " checked" : ""}>${extra}<span>${esc(label)}</span>${n !== null ? `<span class="n">${n}</span>` : ""}</label>`;
+}
+
+function renderFilters() {
+  const inCat = ALL.filter(p => p.category === st.cat);
+  const brands = [...new Set(inCat.map(p => p.source))].sort();
+  const bc = counts("brand", p => p.source);
+  $("f-brand").innerHTML = brands.map(b => opt("checkbox", "brand", b, b, bc[b] || 0, st.brands.has(b))).join("");
+
+  $("f-price").innerHTML = PRICE_BUCKETS.map(b => opt("radio", "price", b.k, b.label, null, st.price === b.k)).join("");
+  $("f-disc").innerHTML = DISCOUNTS.map(([v, l]) => opt("radio", "disc", v, l, null, st.disc === v)).join("");
+
+  const sizes = [...new Set(inCat.flatMap(p => p.sizesAvail))].sort((a, b) => sizeKey(a) - sizeKey(b));
+  const sc = counts("size", p => p.sizesAvail);
+  $("f-size").innerHTML = sizes.map(z => opt("checkbox", "size", z, z, null, st.sizes.has(z))).join("") || '<span class="note">No size data</span>';
+  const noSize = [...new Set(inCat.filter(p => !p.sizesAvail.length).map(p => p.source))];
+  $("size-note").textContent = noSize.length ? `${noSize.join(", ")} list sizes only on their own site, so their items are hidden when you pick a size.` : "";
+
+  const cc = counts("colour", p => p.colour);
+  const colours = Object.keys(COLOUR_HEX).filter(c => inCat.some(p => p.colour === c));
+  $("f-colour").innerHTML = colours.map(c => opt("checkbox", "colour", c, c, cc[c] || 0, st.colours.has(c),
+    `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c]}"></span>`)).join("");
+
+  const active = st.brands.size + st.sizes.size + st.colours.size + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
+  $("clear").hidden = !active;
+  $("clear").textContent = `Clear all (${active})`;
+  $("ftoggle").textContent = active ? `Filters (${active})` : "Filters";
+}
+
+function card(p) {
+  const url = safeUrl(outLink(p.url, p));
+  return `<article class="card${p.inStock ? "" : " sold"}">
+    <a class="img" href="${esc(url)}" target="_blank" rel="noopener sponsored" tabindex="-1" aria-hidden="true">
+      <span class="ph">${esc(p.source)}</span>
+      ${p.image ? `<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" onerror="this.remove()">` : ""}
+      ${p.disc > 0 ? `<span class="badge">${p.disc}% off</span>` : ""}
+      ${p.inStock ? "" : '<span class="oos">Out of stock</span>'}
+    </a>
+    <span class="src">${esc(p.source)}</span>
+    <h3><a href="${esc(url)}" target="_blank" rel="noopener sponsored">${esc(p.title)}</a></h3>
+    <div class="price"><strong>${rs(p.price)}</strong>${p.disc > 0 ? `<s>${rs(p.mrp)}</s><span class="off">${p.disc}% off</span>` : ""}</div>
+    <span class="meta"><span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[p.colour] || COLOUR_HEX.Other}"></span>${esc(p.colour)}</span>
+    <span class="meta">${p.sizesAvail.length ? "Sizes: " + esc(p.sizesAvail.join(" · ")) : "Sizes on brand site"}</span>
+    <a class="go" href="${esc(url)}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
+  </article>`;
+}
+
+function render() {
+  [...$("tabs").children].forEach(b => b.dataset.cat === st.cat ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  renderFilters();
+  let list = ALL.filter(p => matches(p));
+  const by = { lo: (a, b) => a.price - b.price, hi: (a, b) => b.price - a.price, disc: (a, b) => b.disc - a.disc, rel: (a, b) => a.i - b.i };
+  list.sort((a, b) => (b.inStock - a.inStock) || by[st.sort](a, b));
+
+  const label = CATEGORY_LABELS[st.cat] || st.cat;
+  $("title").textContent = label;
+  document.title = `${label} from ${new Set(ALL.filter(p => p.category === st.cat).map(p => p.source)).size} brands | ${SITE_NAME}`;
+  const nb = new Set(list.map(p => p.source)).size;
+  $("sub").textContent = `${list.length} ${list.length === 1 ? "style" : "styles"} from ${nb} ${nb === 1 ? "brand" : "brands"}`;
+
+  $("cards").innerHTML = list.length
+    ? list.slice(0, st.shown).map(card).join("")
+    : `<div class="empty"><p>Nothing matches these filters</p><button type="button" class="linkbtn" onclick="document.getElementById('clear').click()">Clear filters</button></div>`;
+  $("cards").style.display = list.length ? "" : "block";
+  $("more").hidden = list.length <= st.shown;
+}
+
+load();
+</script>
+</body>
+</html>

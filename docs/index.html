@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kurta sets from India's best ethnic brands</title>
-<meta name="description" content="Kurta sets from Jaipur Handblock, Label Kanupriya, Zlaata and more, in one place. Filter by price, size, colour and discount.">
+<title>Ethnic wear from India's best brands, in one place</title>
+<meta name="description" content="Kurta sets, co-ords, kurtas and more from Jaipur Handblock, Label Kanupriya, Zlaata and other brands, in one place. Filter by category, price, size, colour and discount.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
@@ -99,7 +99,6 @@
 <header>
   <div class="wrap bar">
     <a class="logo" href="./" id="logo">[SITE NAME]</a>
-    <nav aria-label="Categories" id="tabs"></nav>
     <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
   </div>
 </header>
@@ -127,6 +126,7 @@
   <div class="layout">
     <aside id="filters" aria-label="Filters">
       <div class="ftop"><h2>Filters</h2><button type="button" class="linkbtn" id="clear" hidden>Clear all</button></div>
+      <fieldset><legend>Category</legend><div id="f-cat"></div></fieldset>
       <fieldset><legend>Brand</legend><div id="f-brand"></div></fieldset>
       <fieldset><legend>Price</legend><div id="f-price"></div></fieldset>
       <fieldset><legend>Discount</legend><div id="f-disc"></div></fieldset>
@@ -154,7 +154,9 @@
    SETTINGS - edit these
 ------------------------------------------------------------------- */
 const SITE_NAME = "[SITE NAME]";
-const CATEGORY_LABELS = { kurta_set: "Kurta sets", co_ord_set: "Co-ord sets", kurta: "Kurtas" };
+// Order the categories appear in the filter (must match the scraper's names)
+const CATEGORY_ORDER = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts", "Bottoms",
+  "Lehengas", "Sarees", "Jackets & overlays", "Nightwear & loungewear", "Menswear", "Kidswear", "Accessories", "Other"];
 const PAGE_SIZE = 48;
 // When you get affiliate links, wrap product URLs here, e.g.
 // return "https://your-network.example/track?url=" + encodeURIComponent(url);
@@ -184,7 +186,7 @@ const rs = n => "₹" + Math.round(n).toLocaleString("en-IN");
 const split = s => (s || "").split("|").map(x => x.trim()).filter(Boolean);
 
 let ALL = [];
-const st = { cat: null, brands: new Set(), price: "all", disc: 0, sizes: new Set(), colours: new Set(), stock: true, q: "", sort: "rel", shown: PAGE_SIZE };
+const st = { cats: new Set(), brands: new Set(), price: "all", disc: 0, sizes: new Set(), colours: new Set(), stock: true, q: "", sort: "rel", shown: PAGE_SIZE };
 
 function sizeKey(z) { const i = SIZE_ORDER.indexOf(z.toUpperCase()); return i < 0 ? 100 + parseFloat(z) || 999 : i; }
 
@@ -206,10 +208,9 @@ async function load() {
     $("sub").textContent = "listings.json is missing or unreadable.";
     return;
   }
-  const cats = [...new Set(ALL.map(p => p.category))];
-  st.cat = cats[0];
-  $("tabs").innerHTML = cats.map(c => `<button type="button" data-cat="${esc(c)}">${esc(CATEGORY_LABELS[c] || c)}</button>`).join("");
-  $("tabs").onclick = e => { const b = e.target.closest("button"); if (!b) return; st.cat = b.dataset.cat; resetFilters(); };
+  // a link like ?category=Kurta%20sets opens with that category ticked
+  const pre = new URLSearchParams(location.search).get("category");
+  if (pre && ALL.some(p => p.category === pre)) st.cats.add(pre);
   const last = ALL.map(p => p.scraped_at).filter(Boolean).sort().pop();
   if (last) $("updated").textContent = "Last updated " + new Date(last).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) + ". ";
   bind();
@@ -217,7 +218,7 @@ async function load() {
 }
 
 function resetFilters() {
-  st.brands.clear(); st.sizes.clear(); st.colours.clear();
+  st.cats.clear(); st.brands.clear(); st.sizes.clear(); st.colours.clear();
   st.price = "all"; st.disc = 0; st.q = ""; $("q").value = ""; st.shown = PAGE_SIZE;
   render();
 }
@@ -234,7 +235,7 @@ function bind() {
   });
   $("filters").addEventListener("change", e => {
     const t = e.target, v = t.value;
-    const sets = { brand: st.brands, size: st.sizes, colour: st.colours };
+    const sets = { category: st.cats, brand: st.brands, size: st.sizes, colour: st.colours };
     if (sets[t.name]) { t.checked ? sets[t.name].add(v) : sets[t.name].delete(v); }
     else if (t.name === "price") st.price = v;
     else if (t.name === "disc") st.disc = +v;
@@ -244,7 +245,7 @@ function bind() {
 }
 
 function matches(p, skip) {
-  if (p.category !== st.cat) return false;
+  if (skip !== "category" && st.cats.size && !st.cats.has(p.category)) return false;
   if (skip !== "brand" && st.brands.size && !st.brands.has(p.source)) return false;
   if (skip !== "price" && !PRICE_BUCKETS.find(b => b.k === st.price).test(p)) return false;
   if (skip !== "disc" && p.disc < st.disc) return false;
@@ -268,7 +269,11 @@ function opt(type, name, value, label, n, checked, extra = "") {
 }
 
 function renderFilters() {
-  const inCat = ALL.filter(p => p.category === st.cat);
+  const pc = counts("category", p => p.category);
+  const present = [...new Set(ALL.map(p => p.category))];
+  const cats = [...CATEGORY_ORDER.filter(c => present.includes(c)), ...present.filter(c => !CATEGORY_ORDER.includes(c))];
+  $("f-cat").innerHTML = cats.map(c => opt("checkbox", "category", c, c, pc[c] || 0, st.cats.has(c))).join("");
+  const inCat = st.cats.size ? ALL.filter(p => st.cats.has(p.category)) : ALL;
   const brands = [...new Set(inCat.map(p => p.source))].sort();
   const bc = counts("brand", p => p.source);
   $("f-brand").innerHTML = brands.map(b => opt("checkbox", "brand", b, b, bc[b] || 0, st.brands.has(b))).join("");
@@ -287,7 +292,7 @@ function renderFilters() {
   $("f-colour").innerHTML = colours.map(c => opt("checkbox", "colour", c, c, cc[c] || 0, st.colours.has(c),
     `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c]}"></span>`)).join("");
 
-  const active = st.brands.size + st.sizes.size + st.colours.size + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
+  const active = st.cats.size + st.brands.size + st.sizes.size + st.colours.size + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
   $("clear").hidden = !active;
   $("clear").textContent = `Clear all (${active})`;
   $("ftoggle").textContent = active ? `Filters (${active})` : "Filters";
@@ -312,15 +317,15 @@ function card(p) {
 }
 
 function render() {
-  [...$("tabs").children].forEach(b => b.dataset.cat === st.cat ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   renderFilters();
   let list = ALL.filter(p => matches(p));
   const by = { lo: (a, b) => a.price - b.price, hi: (a, b) => b.price - a.price, disc: (a, b) => b.disc - a.disc, rel: (a, b) => a.i - b.i };
   list.sort((a, b) => (b.inStock - a.inStock) || by[st.sort](a, b));
 
-  const label = CATEGORY_LABELS[st.cat] || st.cat;
+  const sel = CATEGORY_ORDER.filter(c => st.cats.has(c)).concat([...st.cats].filter(c => !CATEGORY_ORDER.includes(c)));
+  const label = !sel.length ? "All styles" : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
   $("title").textContent = label;
-  document.title = `${label} from ${new Set(ALL.filter(p => p.category === st.cat).map(p => p.source)).size} brands | ${SITE_NAME}`;
+  document.title = `${label} from ${new Set(ALL.map(p => p.source)).size} brands | ${SITE_NAME}`;
   const nb = new Set(list.map(p => p.source)).size;
   $("sub").textContent = `${list.length} ${list.length === 1 ? "style" : "styles"} from ${nb} ${nb === 1 ? "brand" : "brands"}`;
 

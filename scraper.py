@@ -430,6 +430,13 @@ def scrape_zlaata(f, cfg, max_pages=150):
 
 # ---------------------------------------------------------------------------
 def write_out(rows, out):
+    seen, uniq = set(), []
+    for r in rows:  # never write the same product twice
+        key = (r["source"], str(r["product_id"]))
+        if key not in seen:
+            seen.add(key)
+            uniq.append(r)
+    rows = uniq
     order = {c: i for i, c in enumerate(CATEGORIES)}
     rows = sorted(rows, key=lambda r: (r["source"], order.get(r["category"], 99)))
     with open(out + ".csv", "w", newline="", encoding="utf-8") as fh:

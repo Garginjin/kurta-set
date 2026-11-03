@@ -60,6 +60,13 @@ SOURCES = [
     {"source": "Aykaa", "type": "shopify", "base": "https://aykaa.in"},
     {"source": "Ethenika", "type": "shopify", "base": "https://ethenika.com"},
     {"source": "Mokosh", "type": "shopify", "base": "https://mokosh.in"},
+    {"source": "Resha", "type": "shopify", "base": "https://www.reshaindia.in"},
+    # Below: blocked AI readers, not checked yet. If one isn't Shopify, or its
+    # robots.txt blocks all bots, the log says so and the run carries on.
+    {"source": "Narayani Vastra", "type": "shopify", "base": "https://narayanivastra.in"},
+    {"source": "House of Shrusha", "type": "shopify", "base": "https://houseofshrusha.com"},
+    {"source": "Anayna", "type": "shopify", "base": "https://anayna.com"},
+    {"source": "Idaho-o", "type": "shopify", "base": "https://idaho-o.com"},
     {"source": "Zlaata", "type": "zlaata",
      "urls": ["https://www.zlaata.com/zlaata-india/all",
               "https://www.zlaata.com/zlaata-india/all-accessories"]},
@@ -139,6 +146,49 @@ def classify(title, product_type="", tags="", hint=None):
 FIELDS = ["source", "category", "product_type", "product_id", "title", "brand", "url",
           "price", "mrp", "discount_pct", "sizes_available", "sizes_all",
           "colour", "colour_raw", "in_stock", "image", "tags", "scraped_at"]
+
+
+# ---------------------------------------------------------------------------
+# Size normalisation: "S (36)", "S - 36", "SMALL", "36" -> "S".
+# "Set of 3", "Unstitched", kids' ages etc. are not sizes and are dropped.
+# ---------------------------------------------------------------------------
+SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "Free size"]
+_BUST = {30: "XXS", 32: "XXS", 34: "XS", 36: "S", 38: "M", 40: "L", 42: "XL", 44: "XXL",
+         46: "3XL", 48: "4XL", 50: "5XL", 52: "6XL", 54: "7XL", 56: "8XL"}
+
+
+def normalise_size(raw):
+    t = re.sub(r"[^A-Z0-9]+", " ", str(raw).upper()).strip()
+    if not t:
+        return None
+    if re.search(r"\bFREE\b|\bONE SIZE\b|\bFS\b|\bFREESIZE\b", t):
+        return "Free size"
+    if re.search(r"\bSET\b|STITCH|\bYRS?\b|\bYEARS?\b|\bMONTHS?\b|\bKIDS?\b", t):
+        return None
+    m = re.search(r"\b([2-8])\s?XL\b", t)
+    if m:
+        return "XXL" if m.group(1) == "2" else m.group(1) + "XL"
+    m = re.search(r"\b(X{3,8})L\b", t)
+    if m:
+        return f"{len(m.group(1))}XL"
+    for pat, size in [(r"\bXXL\b|\bXX L\b|\bDOUBLE XL\b", "XXL"), (r"\bXL\b|\bEXTRA LARGE\b|\bX LARGE\b", "XL"),
+                      (r"\bXXS\b", "XXS"), (r"\bXS\b|\bEXTRA SMALL\b|\bX SMALL\b", "XS"),
+                      (r"\bS\b|\bSMALL\b", "S"), (r"\bM\b|\bMEDIUM\b", "M"), (r"\bL\b|\bLARGE\b", "L")]:
+        if re.search(pat, t):
+            return size
+    m = re.search(r"\b(\d{2})\b", t)
+    if m and int(m.group(1)) in _BUST:
+        return _BUST[int(m.group(1))]
+    return None
+
+
+def normalise_sizes(values):
+    out = []
+    for v in values:
+        z = normalise_size(v)
+        if z and z not in out:
+            out.append(z)
+    return sorted(out, key=SIZE_ORDER.index)
 
 
 def is_size_option(name):
@@ -309,8 +359,8 @@ def parse_shopify_product(p, base, source):
         "price": price,
         "mrp": mrp,
         "discount_pct": disc(price, mrp),
-        "sizes_available": "|".join(sizes_avail),
-        "sizes_all": "|".join(sizes_all),
+        "sizes_available": "|".join(normalise_sizes(sizes_avail)),
+        "sizes_all": "|".join(normalise_sizes(sizes_all)),
         "colour": colour_for(colours[0] if colours else "", p.get("title", "")),
         "colour_raw": "|".join(colours),
         "in_stock": any(v.get("available") for v in variants),
@@ -476,6 +526,8 @@ def renormalise(rows):
             raw = r.get("colour", "")
         r["colour_raw"] = raw
         r["colour"] = colour_for(raw.split("|")[0] if raw else "", r["title"])
+        for k in ("sizes_available", "sizes_all"):
+            r[k] = "|".join(normalise_sizes((r.get(k) or "").split("|")))
         ptype = r.get("product_type", "")
         if r["source"] == "Zlaata":
             if not ptype:
@@ -491,6 +543,7 @@ def renormalise(rows):
 
 
 def main():
+    sys.stdout.reconfigure(line_buffering=True)  # show progress live in the GitHub log
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="docs/listings",
                     help="output path without extension (default docs/listings)")

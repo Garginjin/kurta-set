@@ -1,0 +1,3 @@
+{
+  "_readme": "Hand fixes for crafts. Key = the product's full URL on the brand site. add/remove = craft ids from CRAFT_RULES in scraper.py (e.g. chikankari, hand-block, ajrakh). Applied after the automatic matching. Example: \"https://brand.com/products/xyz\": {\"add\": [\"kantha\"], \"remove\": [\"hand-block\"]}"
+}

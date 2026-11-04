@@ -396,7 +396,7 @@ ATTR_RULES = {
         ("Mirror work", r"mirror|sheesha|shisha|abla"),
         ("Sequins", r"sequin\w*|sequen\w*|sitara|mukaish|mukesh|badla"),
         ("Thread & resham", r"thread\s?work|resham|aari|kashidakari|kashida|kantha|phulkari|kutch\w* work|sozni|parsi|cross[- ]?stitch"),
-        ("Beads & pearls", r"bead\w*|pearl\w*|moti|stone\s?work|cut\s?dana|cutdana|kundan|crystal\w*"),
+        ("Beads & pearls", r"bead\w*|pearl\w*|moti\b|stone\s?work|cut\s?dana|cutdana|kundan|crystal\w*"),
         ("Lace & trims", r"lace\w*|tassel\w*|piping|pompom|pom[- ]pom|fringe"),
         ("Pintucks & pleats", r"pin\s?tuck\w*|pleat\w*|smock\w*|shirr\w*"),
         ("Cutwork & applique", r"cut\s?work|applique|appliqu\w*|patch\s?work|schiffli|eyelet|hakoba"),
@@ -547,7 +547,7 @@ _FABRIC_LINE = re.compile(r"(?:fabric|material|composition)\s*[:\-–]?\s*([^.;\
 
 
 def desc_attrs(html):
-    """Neckline / sleeves / fabric stated in a product description -> 'group:value|...'."""
+    """Neckline / sleeves / fabric / crafts stated in a product description -> 'group:value|...'."""
     if not html:
         return ""
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)[:3000]
@@ -556,6 +556,7 @@ def desc_attrs(html):
         found += [f"{g}:{v}" for v in match_group(g, text)]
     fab = " ".join(m.group(1) for m in _FABRIC_LINE.finditer(text))
     found += [f"fabric:{v}" for v in match_group("fabric", fab)]
+    found += [f"craft:{i}" for i in match_crafts(text)]
     return "|".join(found)
 
 
@@ -579,7 +580,121 @@ def product_attrs(r):
         if g == "stitch" and not vals and r.get("category") in ("Kurta sets", "Kurtas", "Co-ord sets"):
             vals = ["Ready to wear"]
         out += [f"{g}:{v}" for v in vals]
+    out += [f"craft:{CRAFT_NAME[i]}" for i in product_crafts(r)]
     return out
+
+
+# ---------------------------------------------------------------------------
+# CRAFTS: one fixed id per craft. Every clothing style gets one or more crafts,
+# or exactly one bucket (embroidered / printed / solid / not specified).
+# Matched on title + product type; the description is used only when the title
+# names no craft. Brand tags and brand-wide defaults are NOT used.
+# Hand fixes: data/craft_overrides.json  {"<product url>": {"add": [ids], "remove": [ids]}}
+# Names / write-ups for each id: data/crafts.json
+# ---------------------------------------------------------------------------
+CRAFT_RULES = [  # (id, name, family, regex) - order = display order
+    ("chikankari", "Chikankari", "Embroidery", r"chikan\w*|lucknowi"),
+    ("gota-patti", "Gota patti", "Embroidery", r"gota|gotta"),
+    ("zardozi", "Zari & zardozi", "Embroidery", r"zardo[sz]i|dabka|dabaka|tilla|marodi|kasab|zari\s?(?:work|embroider\w*)|zari\b(?!\s?(?:woven|weave|border|butti|buti))"),
+    ("mukaish", "Mukaish & badla", "Embroidery", r"mukaish|mukesh|badla"),
+    ("mirror-work", "Mirror work", "Embroidery", r"mirror|sheesha|shisha|abla\b"),
+    ("aari", "Aari", "Embroidery", r"aari\b"),
+    ("kantha", "Kantha", "Embroidery", r"kantha"),
+    ("phulkari", "Phulkari", "Embroidery", r"phulkari"),
+    ("kashmiri", "Kashmiri (sozni & kashida)", "Embroidery", r"sozni|kashida\w*|kashmiri"),
+    ("kutch", "Kutch & Banjara", "Embroidery", r"kutch\w*|kachchh\w*|banjara|rabari"),
+    ("thread-resham", "Thread & resham", "Embroidery", r"thread\s?work|resham|cross[- ]?stitch|french\s?knot"),
+    ("sequins", "Sequins", "Embroidery", r"sequin\w*|sequen\w*|sitara"),
+    ("beads-stones", "Beads, pearls & stones", "Embroidery", r"bead\w*|pearl\w*|moti\b|cut\s?dana|cutdana|kundan|crystal\w*|stone\s?work"),
+    ("cutwork-applique", "Cutwork, applique & schiffli", "Embroidery", r"cut\s?work|appliqu\w*|patch\s?work|schiffli|eyelet|hakoba"),
+    ("hand-block", "Hand block print", "Print & dye", r"hand[- ]?block|block[- ]?print\w*|blockprint\w*"),
+    ("sanganeri", "Sanganeri", "Print & dye", r"sanganer\w*"),
+    ("bagru", "Bagru", "Print & dye", r"bagru"),
+    ("dabu", "Dabu", "Print & dye", r"dabu\b|daboo"),
+    ("kalamkari", "Kalamkari", "Print & dye", r"kalamkari|kalmkari"),
+    ("ajrakh", "Ajrakh", "Print & dye", r"ajrakh?\b"),
+    ("bagh", "Bagh print", "Print & dye", r"bagh\s?print"),
+    ("bandhani", "Bandhani", "Print & dye", r"bandhan[ie]|bandhej|bandej"),
+    ("leheriya", "Leheriya", "Print & dye", r"lehe?riya|leheria|lehriya"),
+    ("shibori", "Shibori & tie-dye", "Print & dye", r"tie[- ]?(?:and[- ])?dye\w*|shibori|clamp[- ]dye"),
+    ("hand-painted", "Hand painted", "Print & dye", r"hand[- ]?paint\w*"),
+    ("madhubani", "Madhubani", "Print & dye", r"madhubani"),
+    ("pichwai", "Pichwai", "Print & dye", r"pichwai"),
+    ("ikat", "Ikat", "Weave", r"ikat|ikkat|pochampall?y"),
+    ("patola", "Patola", "Weave", r"patola"),
+    ("banarasi", "Banarasi", "Weave", r"banaras\w*|benaras\w*"),
+    ("kanjeevaram", "Kanjeevaram", "Weave", r"kanj[ie]e?varam|kanchipuram|kanchi\s?pattu"),
+    ("paithani", "Paithani", "Weave", r"paithani"),
+    ("jamdani", "Jamdani", "Weave", r"jamdani"),
+    ("chanderi", "Chanderi", "Weave", r"chanderi"),
+    ("maheshwari", "Maheshwari", "Weave", r"maheshwari"),
+    ("kota-doria", "Kota doria", "Weave", r"kota\s?doriy?a|kota\b"),
+    ("khadi", "Khadi", "Weave", r"khadi"),
+    ("handloom", "Handloom (other)", "Weave", r"handloom|hand[- ]?woven"),
+    ("jacquard-brocade", "Jacquard & brocade", "Weave", r"jacquard|jaquard|brocade"),
+]
+CRAFT_BUCKETS = [  # only when no craft matched; first match wins
+    ("embroidered", "Embroidered (other)", r"embroider\w*|embelli\w*|hand\s?work|handwork"),
+    ("printed", "Printed (other)", r"print\w*|floral|paisley|geometric|abstract|stripe\w*|check\w*|polka|motif\w*"),
+    ("solid", "Solid & plain", r"solid|plain"),
+]
+NOT_SPECIFIED = ("not-specified", "Not specified")
+# "Bandhani print", "Ajrakh pattern" = printed imitations: not the craft, goes to Printed (other)
+_CRAFT_IMITATION = re.compile(r"\b(?:bandhan[ie]|bandhej|bandej|lehe?riya|leheria|ajrakh?|ikat|ikkat|patola|kalamkari|kalmkari|"
+                              r"shibori|tie[- ]?dye\w*|chikan\w*|madhubani|pichwai|banaras\w*|benaras\w*)\s?(?:style\s)?"
+                              r"(?:print\w*|pattern\w*|design\w*|inspired)\b", re.I)
+_CRAFT_RX = [(i, re.compile(r"\b(?:" + p + r")", re.I)) for i, _, _, p in CRAFT_RULES]
+_BUCKET_RX = [(i, re.compile(r"\b(?:" + p + r")", re.I)) for i, _, p in CRAFT_BUCKETS]
+CRAFT_IDS = [i for i, _, _, _ in CRAFT_RULES]
+CRAFT_NAME = {i: n for i, n, _, _ in CRAFT_RULES}
+CRAFT_NAME.update({i: n for i, n, _ in CRAFT_BUCKETS})
+CRAFT_NAME[NOT_SPECIFIED[0]] = NOT_SPECIFIED[1]
+CRAFT_ORDER = [CRAFT_NAME[i] for i in CRAFT_NAME]
+CRAFT_OVERRIDES_FILE = "data/craft_overrides.json"
+CRAFT_INFO_FILE = "data/crafts.json"
+
+
+def match_crafts(text):
+    """Craft ids named in a piece of text (imitation prints removed first)."""
+    text = _CRAFT_IMITATION.sub(" print ", text or "")
+    return [i for i, rx in _CRAFT_RX if rx.search(text)]
+
+
+def _load_json(path, default):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        return default
+
+
+_OVERRIDES = None
+
+
+def product_crafts(r):
+    """Craft ids for one record: title/type first, then description, then hand fixes, else one bucket."""
+    global _OVERRIDES
+    if _OVERRIDES is None:
+        _OVERRIDES = {k: v for k, v in _load_json(CRAFT_OVERRIDES_FILE, {}).items() if not k.startswith("_")}
+    if r.get("category") not in GROUPS_FOR:
+        return []
+    text = NOISE.sub(" ", f"{r.get('title', '')} ; {r.get('product_type', '')}")
+    ids = match_crafts(text)
+    if not ids:  # crafts found in the description at scrape time, stored as craft:<id>
+        ids = [v for g, _, v in (x.partition(":") for x in (r.get("desc_attrs") or "").split("|"))
+               if g == "craft" and v in CRAFT_NAME]
+    fix = _OVERRIDES.get(r.get("url") or "")
+    if fix:
+        drop = set(fix.get("remove", []))
+        ids = [i for i in ids if i not in drop] + [i for i in fix.get("add", []) if i not in ids]
+    ids = [i for i in ids if i in CRAFT_IDS]
+    if ids:
+        return ids
+    bucket_text = _CRAFT_IMITATION.sub(" print ", text)
+    for i, rx in _BUCKET_RX:
+        if rx.search(bucket_text):
+            return [i]
+    return [NOT_SPECIFIED[0]]
 
 
 def to_num(x):
@@ -1002,9 +1117,9 @@ def write_site_data(rows, path):
                          mrp if mrp > price else 0, col_ix.get(r.get("colour") or "Other", len(colours) - 1),
                          mask, stock, img, ai, vs])
     data = {"v": 2, "updated": now(), "sources": sources, "cats": cats, "colours": colours,
-            "sizes": SIZE_ORDER, "attrs": attrs, "attr_labels": ATTR_LABELS,
-            "attr_order": {g: [v for v, _ in rules] + (["Ready to wear"] if g == "stitch" else [])
-                           for g, rules in ATTR_RULES.items()},
+            "sizes": SIZE_ORDER, "attrs": attrs, "attr_labels": dict(ATTR_LABELS, craft="Craft"),
+            "attr_order": dict({g: [v for v, _ in rules] + (["Ready to wear"] if g == "stitch" else [])
+                                for g, rules in ATTR_RULES.items()}, craft=CRAFT_ORDER),
             "groups_for": GROUPS_FOR,
             "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image", "attrs", "colour_versions"],
             "p": products}
@@ -1050,7 +1165,7 @@ def write_brand_data(rows, path="docs/brands.json"):
             cats[r["category"]] = cats.get(r["category"], 0) + 1
             for a in product_attrs(r):
                 g, v = a.split(":", 1)
-                if v in CRAFTS:
+                if g != "craft" and v in CRAFTS:
                     crafts[v] = crafts.get(v, 0) + 1
         imgs, seen_cat = [], set()
         for r in sorted(live, key=lambda r: _neg_date(r.get("published_at"))):

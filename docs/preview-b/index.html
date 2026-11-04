@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>saubag | Indian ethnic wear from the brands you love, in one place</title>
+<meta name="description" content="saubag brings kurta sets, co-ords, kurtas, sarees and more from India's best ethnic-wear brands into one place. Filter, compare and shop direct from each brand.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../css/site.css">
+<link rel="stylesheet" href="filters.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#/" id="logo">saubag</a>
+    <nav class="top" aria-label="Main">
+      <a href="#/" data-nav="home">Home</a><a href="#/shop" data-nav="shop">Shop</a><a href="#/brands" data-nav="brands">Brands</a>
+    </nav>
+    <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="view home" id="view-home" hidden>
+  <section class="hero festive">
+    <div class="lights-slot" data-lights="hero" aria-hidden="true"></div>
+    <div class="hcopy">
+      <p class="eyebrow">The festive edit</p>
+      <h1>Light up <em>the festive season</em></h1>
+      <p>Kurta sets, sarees, lehengas and more from independent Indian labels. Compare across brands, then buy straight from the brand.</p>
+      <div class="stats" id="hstats"></div>
+      <div class="ctas" id="hctas"><a class="btnp" href="#/shop?cat=Kurta%20sets">Shop kurta sets</a><a class="btns" href="#/brands">Explore the brands</a></div>
+    </div>
+    <div class="arches" id="hcollage"></div>
+    <div class="base" aria-hidden="true"></div>
+  </section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by category</h2></div><a href="#/shop">See all styles</a></div><div class="tiles" id="hcats"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by craft</h2><p>Chikankari, block prints, bandhani and more, across every brand.</p></div></div><div class="tiles round" id="hcrafts"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by budget</h2></div></div><div class="prices" id="hprices"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Meet the brands</h2><p id="hbrandsub"></p></div><a href="#/brands">All brands</a></div><div class="bgrid" id="hbrands"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Just in</h2><p>Newest styles from across the brands.</p></div><a href="#/shop">Shop all</a></div><div class="rail cards" id="hnew"></div></section>
+</div>
+
+<div class="view home" id="view-brands" hidden>
+  <div class="head"><div><h1>The brands</h1><p class="sub" id="bsub"></p></div></div>
+  <div class="az" id="az"></div>
+  <div class="bgrid" id="ball"></div>
+</div>
+
+<main class="view" id="view-shop">
+  <div class="bhead" id="bhead" hidden></div>
+  <div class="head">
+    <div>
+      <h1 id="title">Loading…</h1>
+      <p class="sub" id="sub"></p>
+      <p class="sub" id="loading" hidden>Loading all styles… filters and counts will update in a moment.</p>
+    </div>
+    <div class="tools">
+      <button type="button" class="filter-toggle" id="ftoggle" aria-expanded="false" aria-controls="filters">Filters</button>
+      <label>Sort by
+        <select id="sort">
+          <option value="rel" selected hidden>Select</option>
+          <option value="lo">Price: low to high</option>
+          <option value="hi">Price: high to low</option>
+          <option value="disc">Biggest discount</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside id="filters" aria-label="Filters"></aside>
+    <section class="results" aria-label="Products">
+      <div class="cards" id="cards"></div>
+      <div class="more" id="more" hidden><button type="button">Show more</button></div>
+    </section>
+  </div>
+</main>
+</div>
+
+<div class="cmpbar" id="cmpbar" role="region" aria-label="Compare" hidden>
+  <div class="cmpthumbs" id="cmpthumbs"></div>
+  <span class="cmpmsg" id="cmpmsg"></span>
+  <button type="button" class="btn ghost" id="cmpclear">Clear</button>
+  <button type="button" class="btn primary" id="cmpgo">Compare</button>
+</div>
+<dialog id="cmp" aria-labelledby="cmptitle">
+  <div class="dhead"><h2 id="cmptitle">Compare styles</h2>
+    <button type="button" class="xbtn" id="cmpclose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="ctable-wrap" id="cmptable"></div>
+</dialog>
+
+<dialog id="sim" aria-labelledby="simtitle">
+  <div class="dhead"><h2 id="simtitle">Similar styles</h2>
+    <button type="button" class="xbtn" id="simclose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="simtop" id="simtop"></div>
+  <div class="simgrid cards" id="simgrid"></div>
+</dialog>
+
+<footer>
+  <div class="wrap">
+    <span class="logo">saubag</span><br>
+    <span id="updated"></span>
+    Prices and stock are refreshed every few hours. Always check the final price on the brand's site.
+  </div>
+</footer>
+
+<script>
+// Preview B: data files live one folder up
+(() => { const f = window.fetch; window.fetch = (u, o) => f(typeof u === "string" && /^(products[\w-]*|brands|crafts)\.json/.test(u) ? "../" + u : u, o); })();
+</script>
+<script src="filters.js"></script>
+<script src="../js/layout.js"></script>
+<script src="home-crafts.js"></script>
+<script src="../js/core.js"></script>
+</body>
+</html>

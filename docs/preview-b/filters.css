@@ -1,0 +1,48 @@
+/* Filter column styles. Owned by the filters/search workstream (B). */
+  /* collapsible filter sections */
+  details.fs { border-top: 1px solid var(--line); }
+  details.fs:last-of-type { border-bottom: 1px solid var(--line); }
+  details.fs summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 52px; cursor: pointer;
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
+  details.fs summary::-webkit-details-marker { display: none; }
+  details.fs summary .sel { font-weight: 600; letter-spacing: 0; text-transform: none; color: #fff; background: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 12px; }
+  details.fs summary .chev { margin-left: auto; width: 18px; height: 18px; transition: transform .2s; color: var(--soft); }
+  details.fs[open] summary .chev { transform: rotate(180deg); }
+  details.fs summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .fbody { padding: 0 0 18px; display: flex; flex-direction: column; gap: 2px; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .opt { display: flex; align-items: center; gap: 10px; min-height: 38px; font-size: 15px; cursor: pointer; }
+  .opt input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; flex: none; }
+  .opt .n { margin-left: auto; color: var(--soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .stock { padding: 14px 0; }
+  /* pills: sizes and colours */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pills .opt { position: relative; flex: 0 0 auto; max-width: 100%; min-height: 40px; padding: 0 14px; gap: 8px;
+    justify-content: center; border: 1px solid var(--field); border-radius: 20px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .pills .opt span { overflow: hidden; text-overflow: ellipsis; }
+  .pills .opt .n { margin-left: 0; font-size: 12px; color: var(--soft); }
+  .pills .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .pills .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); font-weight: 700; box-shadow: inset 0 0 0 1px var(--accent); }
+  .pills .opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pills .opt:hover { border-color: var(--accent); }
+  .bq { height: 40px; border: 1px solid var(--field); border-radius: 20px; padding: 0 14px; margin-bottom: 6px; font-size: 14px; background: var(--tint); }
+  #bmore { align-self: flex-start; padding: 0; }
+  .note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--soft); }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); flex: none; }
+
+
+/* ---- Preview B: craft pages ---- */
+.crafthead { background: var(--banner); border: 1px solid var(--line); border-radius: 24px; padding: 28px 32px; margin: 8px 0 20px; max-width: 880px; }
+.crafthead[hidden] { display: none; }
+.crafthead .eyebrow { margin-bottom: 8px; }
+.crafthead h2 { font-family: var(--serif); font-size: 44px; line-height: 1.05; margin: 0 0 12px; color: var(--ink); }
+.crafthead .cblurb { font-size: 16px; line-height: 1.65; margin: 0 0 10px; color: var(--ink); max-width: 68ch; }
+.crafthead .csrc { font-size: 12px; color: var(--soft); margin: 0 0 14px; }
+.crafthead .csrc a { margin-right: 4px; }
+.crafthead .cmore { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.crafthead .cmore span { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.crafthead .cmore a { font-size: 13px; padding: 6px 12px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-decoration: none; }
+.crafthead .cmore a:hover { border-color: var(--accent); }
+.cfam { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+.cfam:first-child { margin-top: 2px; }
+@media (max-width: 700px) { .crafthead { padding: 20px; } .crafthead h2 { font-size: 34px; } }

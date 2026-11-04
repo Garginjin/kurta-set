@@ -132,6 +132,7 @@
 <script>
 (() => {
   const P = {
+    "Garima's palette": { bg: "#FFFBFA", card: "#FFFFFF", banner: "#FFF3F1", accent: "#AA1D5F", gold: "#E69B0F", arch: "#3C05A3", ink: "#24121A", muted: "#66505A", line: "#E3D8F8" },
     "Ivory and plum":   { bg: "#FCF9F4", card: "#FFFFFF", banner: "#FBF6EE", accent: "#5B1A45", gold: "#C9A04A", arch: "#4A1238", ink: "#1E1520", muted: "#5B4F5A", line: "#ECE4DA" },
     "Ivory and ink":    { bg: "#FAF8F4", card: "#FFFFFF", banner: "#FBF6EE", accent: "#1F1B16", gold: "#B8892B", arch: "#2A241D", ink: "#1F1B16", muted: "#5E574E", line: "#E8E2D8" },
     "Marigold, maroon": { bg: "#FFFCF7", card: "#FFFFFF", banner: "#FFF4E4", accent: "#7A1F2B", gold: "#E08A1E", arch: "#6B1A24", ink: "#2A1A16", muted: "#6A564F", line: "#F0E4D6" },
@@ -139,15 +140,15 @@
     "Indigo":           { bg: "#F8F8F5", card: "#FFFFFF", banner: "#F3F1EA", accent: "#23356B", gold: "#C8902C", arch: "#1B2954", ink: "#161B2B", muted: "#525A6E", line: "#E2E3E8" },
     "Rani pink":        { bg: "#FFFBFA", card: "#FFFFFF", banner: "#FFF3F1", accent: "#B0185E", gold: "#D9A13B", arch: "#7E1144", ink: "#24121A", muted: "#66505A", line: "#F1E2E6" },
   };
-  let cur = "Ivory and plum";
-  try { const s = localStorage.getItem("saubag-preview-palette"); if (P[s]) cur = s; } catch (e) {}
+  let cur = "Garima's palette";
+  try { const s = localStorage.getItem("saubag-preview-palette-2"); if (P[s]) cur = s; } catch (e) {}
   const list = document.getElementById("pvlist");
   list.innerHTML = Object.entries(P).map(([n, c]) => `<button type="button" data-n="${n}"><span class="sw">${["bg","banner","accent","gold","arch","ink"].map(k => `<i style="background:${c[k]}"></i>`).join("")}</span>${n}</button>`).join("");
   function apply() {
     for (const [k, v] of Object.entries(P[cur])) document.documentElement.style.setProperty("--" + k, v);
     document.getElementById("pvname").textContent = cur;
     list.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.n === cur));
-    try { localStorage.setItem("saubag-preview-palette", cur); } catch (e) {}
+    try { localStorage.setItem("saubag-preview-palette-2", cur); } catch (e) {}
   }
   list.addEventListener("click", e => { const b = e.target.closest("button"); if (b) { cur = b.dataset.n; apply(); } });
   const btn = document.getElementById("pvbtn"), box = document.getElementById("pvbox");

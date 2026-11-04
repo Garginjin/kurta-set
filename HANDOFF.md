@@ -38,7 +38,14 @@ A. Design/layout – LIVE 4 Nov: Garima's palette (bg #FFFBFA, card #FFF, banner
    brand cards = logo on off-white with lights. Banner copy "Light up the festive season" is seasonal: swap after the festive period.
    Design previews go in `docs/preview/` (own site.css + layout.js, loads shared files from ../, noindex) before changing live files.
 B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles in `similar()`; search is plain substring.
-   Open: Style Union (mostly non-ethnic) keep-or-remove; neck/sleeve coverage low until descriptions are scraped.
+   4 Nov: Kidswear, Menswear and Style Union removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES in scraper.py).
+   Crafts: fixed ids in CRAFT_RULES (scraper.py); every clothing style gets 1+ crafts or exactly one bucket
+   (Embroidered/Printed/Solid/Not specified). Title + type first, description only if the title names none.
+   No brand tags, no brand-wide defaults (Garima: check every style). "Bandhani print" etc. -> Printed (other).
+   Hand fixes: data/craft_overrides.json. Write-ups: data/crafts.json (casual, <=100 words, sourced) -> docs/crafts.json.
+   Craft pages = #/shop?a=craft:<Name>; craft pages need 20+ in-stock styles.
+   PREVIEW (not live yet): docs/preview-b/ (own filters.js/filters.css + home-crafts.js). On approval: copy filters
+   files to live; workstream A moves home-crafts.js logic into renderHome() in layout.js.
 C. Going live – custom domain saubag.in (Hostinger suggested; needs 4 A records 185.199.108-111.153 + CNAME www,
    `docs/CNAME`, Enforce HTTPS), affiliate links via `outLink()` in index.html (Cuelinks/vCommission/Shopify Collabs),
    About/privacy/disclosure/takedown pages, SEO pages + sitemap, analytics.

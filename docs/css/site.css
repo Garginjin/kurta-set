@@ -1,8 +1,8 @@
 /* Site styles: layout, colours, cards, home, brands. Owned by the design workstream (A). */
   :root {
     /* palette: the nine colours from the saubag colour picker */
-    --bg: #FCF9F4; --card: #FFFFFF; --banner: #FBF6EE; --accent: #5B1A45; --gold: #C9A04A; --arch: #4A1238;
-    --ink: #1E1520; --muted: #5B4F5A; --line: #ECE4DA;
+    --bg: #FFFBFA; --card: #FFFFFF; --banner: #FFF3F1; --accent: #AA1D5F; --gold: #E69B0F; --arch: #3C05A3;
+    --ink: #24121A; --muted: #66505A; --line: #E3D8F8;
     /* derived */
     --soft: color-mix(in srgb, var(--muted) 88%, var(--bg)); --field: color-mix(in srgb, var(--line) 72%, var(--muted));
     --tint: color-mix(in srgb, var(--banner) 55%, var(--line)); --accent-dark: color-mix(in srgb, var(--accent) 76%, #000);

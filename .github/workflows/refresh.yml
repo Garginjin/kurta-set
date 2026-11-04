@@ -36,14 +36,27 @@ jobs:
         if: github.event_name != 'push'
         run: python scraper.py
 
+      - name: Rebuild site data (uploads only, no scraping)
+        if: github.event_name == 'push'
+        run: python scraper.py --renormalise
+
       - name: Save updated data to the repo
         if: github.event_name != 'push'
         run: |
           git config user.name "product-refresh-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/listings.json docs/listings.csv
+          git rm -q --ignore-unmatch docs/listings.json docs/listings.csv
+          git add data/listings.json.gz
           git diff --cached --quiet || git commit -m "Refresh products $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push
+
+      - name: Attach spreadsheet of all products (download from this run's page)
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: products-spreadsheet
+          path: data/listings.csv
+          retention-days: 7
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

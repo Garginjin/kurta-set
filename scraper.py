@@ -149,6 +149,22 @@ SOURCES = [
     {"source": "Palam Silk", "type": "shopify", "base": "https://www.palamsilk.com"},
     {"source": "Neerus", "type": "shopify", "base": "https://www.neerus.com"},
     {"source": "Store No 6", "type": "shopify", "base": "https://www.storeno6.com"},
+    # added 4 Nov: shawls, dupattas, phulkari (platform not checked; the run log shows OK/FAILED per brand)
+    {"source": "The Shawl Studio", "type": "shopify", "base": "https://theshawlstudio.in"},
+    {"source": "Pashtush", "type": "shopify", "base": "https://pashtush.in"},
+    {"source": "Sikh Accessories", "type": "woocommerce", "base": "https://sikhaccessories.com"},  # WordPress URLs
+    {"source": "Dupatta Bazaar", "type": "shopify", "base": "https://www.dupattabazaar.com"},
+    {"source": "Gaatha", "type": "shopify", "base": "https://shop.gaatha.com"},
+    {"source": "Rana Phulkari", "type": "shopify", "base": "https://ranaphulkari.com"},
+    {"source": "The Amritsar Store", "type": "shopify", "base": "https://theamritsarstore.com"},
+    {"source": "The Yarn Story", "type": "shopify", "base": "https://theyarnstory.com"},
+    {"source": "Vastrasar", "type": "shopify", "base": "https://vastrasar.com"},
+    {"source": "Gulbhahar", "type": "shopify", "base": "https://www.gulbhahar.com"},
+    {"source": "Pashmoda", "type": "shopify", "base": "https://pashmoda.com"},
+    {"source": "Teenbaan", "type": "shopify", "base": "https://teenbaan.com"},
+    {"source": "Kinche", "type": "shopify", "base": "https://www.kinche.com"},
+    {"source": "Odhni", "type": "shopify", "base": "https://shopodhni.in"},
+    {"source": "Phulkari Store", "type": "woocommerce", "base": "https://phulkari.store"},  # /shop URL: likely WordPress
     {"source": "Zlaata", "type": "zlaata",
      "urls": ["https://www.zlaata.com/zlaata-india/all",
               "https://www.zlaata.com/zlaata-india/all-accessories"]},

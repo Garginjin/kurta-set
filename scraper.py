@@ -1218,14 +1218,44 @@ def update_brand_info(f):
         json.dump(brands, fh, ensure_ascii=False, indent=1, sort_keys=True)
 
 
+def probe(urls):
+    """Which platform each site runs on (no scraping): python scraper.py --probe URL ..."""
+    f = Fetcher()
+    for u in urls:
+        base = u.strip().strip("/").lstrip("/")
+        if not base.startswith("http"):
+            base = "https://" + base
+        base = re.match(r"https?://[^/]+", base).group(0)
+        res = "unknown"
+        for kind, path, key in (("shopify", "/products.json?limit=3", "products"),
+                                ("woocommerce", "/wp-json/wc/store/v1/products?per_page=3", None)):
+            try:
+                r = f.get(base + path)
+                d = r.json()
+                items = d.get(key) if key else d
+                if isinstance(items, list) and items:
+                    p = items[0]
+                    price = (p.get("variants") or [{}])[0].get("price") if kind == "shopify" else (p.get("prices") or {}).get("price")
+                    res = f"{kind.upper()} OK  e.g. {(p.get('title') or p.get('name') or '')[:50]!r} price={price}"
+                    break
+                res = f"{kind}: empty"
+            except Exception as e:
+                res = f"{kind}: {str(e)[:90]}"
+        print(f"PROBE {base} -> {res}")
+
+
 def main():
     sys.stdout.reconfigure(line_buffering=True)  # show progress live in the GitHub log
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="data/listings",
                     help="record path without extension (default data/listings)")
+    ap.add_argument("--probe", nargs="+", help="only check which platform these sites use")
     ap.add_argument("--renormalise", action="store_true",
                     help="don't scrape; re-apply category + colour rules to the existing file")
     args = ap.parse_args()
+    if args.probe:
+        probe(args.probe)
+        return
     previous = load_previous(args.out)
 
     if args.renormalise:

@@ -83,7 +83,7 @@ function logoTag(b) {
 function brandCard(b) {
   const facts = brandFacts(b);
   return `<article class="bcard">
-    <a class="blogo" href="#/brand/${esc(b.slug)}" aria-hidden="true" tabindex="-1">${logoTag(b)}</a>
+    <a class="blogo" href="#/brand/${esc(b.slug)}" aria-hidden="true" tabindex="-1">${LIGHTS_CARD}${logoTag(b)}</a>
     <div class="bbody">
       ${facts ? `<span class="bmeta">${esc(facts)}</span>` : ""}
       <h3><a href="#/brand/${esc(b.slug)}">${esc(b.n)}</a></h3>
@@ -99,8 +99,14 @@ function renderHome() {
   const inStock = ALL.filter(p => p.inStock);
   const nb = new Set(inStock.map(p => p.source)).size;
   $("hstats").innerHTML = `<div><b>${nf(inStock.length)}</b><span>styles in stock</span></div><div><b>${nb}</b><span>brands</span></div><div><b>6 hrs</b><span>prices refreshed</span></div>`;
-  const col = ["Kurta sets", "Sarees", "Lehengas"].map(c => pickImg(p => p.category === c, used)).filter(Boolean);
-  $("hcollage").innerHTML = col.map(p => `<a href="${shopLink({ cat: p.category })}" aria-label="${esc(p.category)}">${imgTag(p.image, p.category)}</a>`).join("");
+  const fest = p => p.A.occasion && (p.A.occasion.includes("Festive") || p.A.occasion.includes("Wedding & bridal"));
+  const col = ["Sarees", "Kurta sets", "Lehengas"].map(c => pickImg(p => p.category === c && fest(p), used) || pickImg(p => p.category === c, used)).filter(Boolean);
+  $("hcollage").innerHTML = col.map((p, i) => `<a class="arch${i === 1 ? " mid" : ""}" href="${shopLink({ cat: p.category })}"><span class="in">${imgTag(p.image, "")}</span><span class="lbl">${esc(p.category)}</span></a>`).join("") +
+    `<div class="diyas" aria-hidden="true">${[33.6, 66.4].map(x => `<span style="position:absolute;left:${x}%;bottom:10px">${DIYA}</span>`).join("")}</div>`;
+  const occ = v => inStock.reduce((k, p) => k + (p.A.occasion && p.A.occasion.includes(v) ? 1 : 0), 0);
+  const nFest = occ("Festive"), nWed = occ("Wedding & bridal");
+  $("hctas").innerHTML = (nFest ? `<a class="btnp" href="${shopLink({ a: "occasion:Festive" })}">Shop ${nf(nFest)} festive styles</a>` : `<a class="btnp" href="${shopLink({ cat: "Kurta sets" })}">Shop kurta sets</a>`) +
+    (nWed ? `<a class="btns" href="${shopLink({ a: "occasion:Wedding & bridal" })}">Wedding and bridal</a>` : "") + `<a class="btns" href="#/brands">Explore the brands</a>`;
   const cc = {}; for (const p of inStock) cc[p.category] = (cc[p.category] || 0) + 1;
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
     return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles</span></a>`; }).join("");
@@ -145,7 +151,7 @@ function renderBrandHead(b) {
   let src = "";
   try { src = b.story_source ? new URL(b.story_source).hostname.replace(/^www\./, "") : ""; } catch (e) {}
   h.hidden = false;
-  h.innerHTML = `<div><a class="crumb" href="#/brands">← All brands</a><h1>${esc(b.n)}</h1>
+  h.innerHTML = LIGHTS.hero + `<div><a class="crumb" href="#/brands">← All brands</a><h1>${esc(b.n)}</h1>
       <p class="bstory">${esc(b.story || autoLine(b))}</p>
       ${src ? `<p class="src2">Story written from <a href="${esc(safeUrl(b.story_source))}" target="_blank" rel="noopener">${esc(src)}</a>.</p>` : ""}
       <div class="ctas">${b.site ? `<a class="btns" href="${esc(safeUrl(b.site))}" target="_blank" rel="noopener">Visit ${esc(b.n)} ↗</a>` : ""}
@@ -153,3 +159,45 @@ function renderBrandHead(b) {
     <div class="facts">${facts.map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join("")}</div>`;
 }
 
+
+
+/* ---------------- festive decoration (workstream A) ---------------- */
+const BULBS = ["#FFC247", "#FFE29A", "#FFB547", "#FFD36B"];
+// strings of lights hanging across the top: [startY, endY, sag, bulbs] per strand, in a 1440-wide box
+function lightsSVG(w, h, strands) {
+  let out = "", k = 0;
+  for (const [y0, y1, sag, n] of strands) {
+    const pt = t => { const x = -10 + (w + 20) * t; const y = y0 + (y1 - y0) * t + sag * 4 * t * (1 - t); return [x, y]; };
+    const [cx, cy] = [w / 2, (y0 + y1) / 2 + sag * 2];
+    out += `<path class="wire" d="M-10 ${y0} Q ${cx} ${cy} ${w + 10} ${y1}"/>`;
+    for (let i = 1; i < n; i++) {
+      const [x, y] = pt(i / n), c = BULBS[(i + k) % 4], d = ((i * 37 + k * 11) % 30) / 10;
+      out += `<g class="bulb" style="animation-delay:${d}s"><circle cx="${x.toFixed(1)}" cy="${(y + 9).toFixed(1)}" r="11" fill="url(#glow)" opacity=".55"/>` +
+        `<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${x.toFixed(1)}" y2="${(y + 5).toFixed(1)}" stroke="#7A5A35" stroke-opacity=".45"/>` +
+        `<ellipse cx="${x.toFixed(1)}" cy="${(y + 9).toFixed(1)}" rx="2.8" ry="3.4" fill="${c}"/>` +
+        `<ellipse cx="${(x - 0.9).toFixed(1)}" cy="${(y + 7.6).toFixed(1)}" rx="1.2" ry="1.6" fill="#FFFBEA" opacity=".9"/></g>`;
+    }
+    k++;
+  }
+  return `<svg class="lights" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">${out}</svg>`;
+}
+const LIGHT_DEFS = `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <radialGradient id="glow"><stop offset="0" stop-color="#FFD36B" stop-opacity=".9"/><stop offset="1" stop-color="#FFC247" stop-opacity="0"/></radialGradient>
+  <radialGradient id="flame" cx=".5" cy=".7" r=".6"><stop offset="0" stop-color="#FFFBEA"/><stop offset=".45" stop-color="#FFD36B"/><stop offset="1" stop-color="#F08A24"/></radialGradient>
+  <radialGradient id="dglow"><stop offset="0" stop-color="#FFC247" stop-opacity=".6"/><stop offset="1" stop-color="#FFC247" stop-opacity="0"/></radialGradient></defs></svg>`;
+const LIGHTS_CARD = lightsSVG(420, 150, [[-6, -6, 34, 13]]);
+const LIGHTS = { hero: lightsSVG(1440, 180, [[24, 6, 60, 34], [6, 40, 52, 30]]), card: LIGHTS_CARD };
+const DIYA = `<svg class="diya" viewBox="0 0 44 44" aria-hidden="true" focusable="false"><circle cx="22" cy="22" r="21" fill="url(#dglow)"/>
+  <path d="M22 9c4 6 5 10 0 15-5-5-4-9 0-15z" fill="url(#flame)"/><path d="M6 27h32c-2 8-9 12-16 12S8 35 6 27z" fill="#B4501E"/><path d="M6 27h32" stroke="#E8B54A" stroke-width="2"/></svg>`;
+const GARLAND = n => `<svg viewBox="0 0 22 ${n * 18 + 20}" preserveAspectRatio="xMidYMin meet" aria-hidden="true" focusable="false">` +
+  Array.from({ length: n }, (_, i) => `<circle cx="11" cy="${9 + i * 18}" r="8.5" fill="${i % 3 === 2 ? "#FFE08A" : "#F08A24"}"/><circle cx="11" cy="${9 + i * 18}" r="3" fill="${i % 3 === 2 ? "#E8B54A" : "#FFB347"}"/>`).join("") +
+  `<path d="M7 ${n * 18 + 2}h8l-4 10z" fill="#C08A2B"/></svg>`;
+function decorate(root = document) {
+  root.querySelectorAll("[data-lights]").forEach(el => { if (!el.dataset.done) { el.innerHTML = LIGHTS[el.dataset.lights] || ""; el.dataset.done = 1; } });
+}
+document.body.insertAdjacentHTML("afterbegin", LIGHT_DEFS);
+(() => {
+  const hero = document.querySelector(".hero.festive");
+  hero.insertAdjacentHTML("beforeend", `<div class="garland l" aria-hidden="true">${GARLAND(12)}</div><div class="garland r" aria-hidden="true">${GARLAND(12)}</div>`);
+  decorate();
+})();

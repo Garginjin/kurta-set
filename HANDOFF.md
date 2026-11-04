@@ -32,9 +32,11 @@ Show a preview/mockup BEFORE changing the live site's look.
 - Test locally: `python3 scraper.py --renormalise` then serve `docs/` and check in a headless browser.
 
 ## Workstreams
-A. Design/layout – colours not chosen yet (colour picker: https://claude.ai/artifact/LCBcZcQ552bnryQDjG7mR7);
-   festive banner options on canvas https://claude.ai/artifact/94y3KauxE4vFjN4sXVxrgk (Garima rejected purple-everything,
-   wants off-white with lights, brand cards simple with logos).
+A. Design/layout – LIVE 4 Nov: Garima's palette (bg #FFFBFA, card #FFF, banner #FFF3F1, main #AA1D5F, gold #E69B0F,
+   arch #3C05A3, text #24121A, soft #66505A, lines #E3D8F8; Cormorant Garamond + Manrope). Colours are the 9 vars at the top of
+   `css/site.css`; the rest derive from them. Festive banner = canvas option A (string lights, garlands, diyas, products in gold arches);
+   brand cards = logo on off-white with lights. Banner copy "Light up the festive season" is seasonal: swap after the festive period.
+   Design previews go in `docs/preview/` (own site.css + layout.js, loads shared files from ../, noindex) before changing live files.
 B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles in `similar()`; search is plain substring.
    Open: Style Union (mostly non-ethnic) keep-or-remove; neck/sleeve coverage low until descriptions are scraped.
 C. Going live – custom domain saubag.in (Hostinger suggested; needs 4 A records 185.199.108-111.153 + CNAME www,

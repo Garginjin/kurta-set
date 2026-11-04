@@ -138,6 +138,7 @@ SOURCES = [
     {"source": "Ganga Fashions", "type": "shopify", "base": "https://gangafashions.com"},
     {"source": "Krami", "type": "shopify", "base": "https://www.kramiindia.com"},
     {"source": "Heritage", "type": "shopify", "base": "https://www.heritageofficial.com"},
+    {"source": "Saadaa", "type": "shopify", "base": "https://saadaa.in"},
     {"source": "Zlaata", "type": "zlaata",
      "urls": ["https://www.zlaata.com/zlaata-india/all",
               "https://www.zlaata.com/zlaata-india/all-accessories"]},
@@ -216,7 +217,7 @@ def classify(title, product_type="", tags="", hint=None):
 
 FIELDS = ["source", "category", "product_type", "product_id", "title", "brand", "url",
           "price", "mrp", "discount_pct", "sizes_available", "sizes_all",
-          "colour", "colour_raw", "in_stock", "image", "tags", "published_at", "scraped_at"]
+          "colour", "colour_raw", "in_stock", "image", "tags", "desc_attrs", "published_at", "scraped_at"]
 
 
 # ---------------------------------------------------------------------------
@@ -366,6 +367,205 @@ class Fetcher:
         raise RuntimeError(f"failed: {url}")
 
 
+# ---------------------------------------------------------------------------
+# Indian-wear attributes: work, print, fabric, shape, bottom, dupatta,
+# neckline, sleeves, occasion, stitching. Matched from product text.
+# ---------------------------------------------------------------------------
+# group -> list of (value, regex). Order inside a group = display order.
+ATTR_RULES = {
+    "work": [
+        ("Chikankari", r"chikan\w*|lucknowi"),
+        ("Gota patti", r"gota|gotta"),
+        ("Zari & zardozi", r"zari|zardo[sz]i|zardozi|dabka|dabaka|tilla|marodi|kasab"),
+        ("Mirror work", r"mirror|sheesha|shisha|abla"),
+        ("Sequins", r"sequin\w*|sequen\w*|sitara|mukaish|mukesh|badla"),
+        ("Thread & resham", r"thread\s?work|resham|aari|kashidakari|kashida|kantha|phulkari|kutch\w* work|sozni|parsi|cross[- ]?stitch"),
+        ("Beads & pearls", r"bead\w*|pearl\w*|moti|stone\s?work|cut\s?dana|cutdana|kundan|crystal\w*"),
+        ("Lace & trims", r"lace\w*|tassel\w*|piping|pompom|pom[- ]pom|fringe"),
+        ("Pintucks & pleats", r"pin\s?tuck\w*|pleat\w*|smock\w*|shirr\w*"),
+        ("Cutwork & applique", r"cut\s?work|applique|appliqu\w*|patch\s?work|schiffli|eyelet|hakoba"),
+        ("Embroidered & embellished", r"embroider\w*|embelli\w*|handwork|hand\s?work|work(?:ed)?\s+(?:kurta|set|suit)"),
+    ],
+    "print": [
+        ("Hand block print", r"hand[- ]?block|block[- ]?print\w*|blockprint\w*|sanganeri|bagru|dabu|daboo|indigo dabu|kalamkari|kalmkari"),
+        ("Ajrakh", r"ajrakh|ajrak"),
+        ("Bandhani & leheriya", r"bandhan[ie]|bandhej|bandej|lehe?riya|leheria"),
+        ("Tie-dye & shibori", r"tie[- ]?(?:and[- ])?dye|tie[- ]dyed|shibori|clamp[- ]dye"),
+        ("Ikat", r"ikat|ikkat|pochampally|patola"),
+        ("Hand painted", r"hand[- ]?paint\w*|pichwai|madhubani"),
+        ("Woven & jacquard", r"woven|jacquard|jaquard|brocade|banaras\w*|benaras\w*|jamdani|kota\s?doria|zari\s?woven"),
+        ("Floral", r"floral\w*|flower\w*|bloom\w*|botanical|roses|lotus"),
+        ("Paisley", r"paisley|buta|butti|booti|keri|kairi"),
+        ("Geometric & abstract", r"geometric|abstract|chevron|polka|dots?\b|dotted"),
+        ("Stripes & checks", r"stripe\w*|striped|check\w*|plaid|gingham|houndstooth"),
+        ("Motifs & animals", r"animal|bird\w*|elephant|parrot|leopard|motif\w*|ethnic motif"),
+        ("Solid", r"\bsolid\b|\bplain\b"),
+        ("Printed", r"print\w*"),
+    ],
+    "fabric": [
+        ("Chanderi", r"chanderi"),
+        ("Maheshwari", r"maheshwari"),
+        ("Banarasi", r"banaras\w*|benaras\w*"),
+        ("Silk", r"silk"),
+        ("Cotton", r"cotton|mul\s?mul|mal\s?mal|khadi|cambric|poplin|voile|lawn|kota\b"),
+        ("Linen", r"linen"),
+        ("Georgette", r"georgette|gorgette"),
+        ("Chiffon", r"chiffon|chinon"),
+        ("Organza", r"organza|organdy"),
+        ("Crepe", r"crepe|crape"),
+        ("Rayon & viscose", r"rayon|viscose|liva\b|lyocell|tencel"),
+        ("Modal", r"modal"),
+        ("Muslin", r"muslin"),
+        ("Satin", r"satin|charmeuse|shantoon|shantung"),
+        ("Velvet", r"velvet|velour"),
+        ("Net & tulle", r"\bnet\b|tulle|mesh"),
+        ("Tissue", r"tissue"),
+        ("Tussar", r"tussar|tussah|tussore"),
+        ("Denim", r"denim"),
+        ("Polyester & blends", r"polyester|poly\s?blend|lycra|spandex|nylon"),
+    ],
+    "silhouette": [
+        ("Anarkali", r"anarkali|anarakali|kalidar|kalidaar|kalis?\b|panelled|paneled|panel\b"),
+        ("A-line", r"a[- ]?line|aline"),
+        ("Straight", r"straight"),
+        ("Angrakha", r"angrakha|angarkha|wrap|overlap"),
+        ("Kaftan & choga", r"kaftan|caftan|choga|chauga"),
+        ("Flared", r"flare\w*|flair\w*|umbrella|ghera|gher"),
+        ("Peplum", r"peplum"),
+        ("Short kurti", r"short\s?kurt\w*|kurti\s?top|tunic"),
+        ("Asymmetric & high-low", r"asymmetr\w*|high[- ]low|hi[- ]lo"),
+        ("Tiered", r"tier\w*"),
+        ("Empire & gathered", r"empire|gather\w*"),
+        ("Pathani", r"pathani"),
+        ("Jacket & layered", r"jacket|shrug|cape\b|layered"),
+    ],
+    "bottom": [
+        ("Palazzo", r"pal+az+o\w*|palaz+o|pallazo"),
+        ("Sharara", r"sharara"),
+        ("Gharara", r"gharara|garara"),
+        ("Farshi salwar", r"farshi"),
+        ("Salwar & patiala", r"salwar|shalwar|patiala|dhoti\s?salwar|afghani"),
+        ("Churidar", r"churidar|churidaar|leggings?"),
+        ("Dhoti", r"dhoti"),
+        ("Skirt", r"skirt|lehenga|ghagra|ghaghra"),
+        ("Pants & trousers", r"pant\w*|trouser\w*|cigarette|straight\s?bottom|bottoms?\b"),
+    ],
+    "dupatta": [
+        ("With dupatta", r"dupatta|dupata|duppatta|stole|odhni|\b3\s?-?\s?(?:pc|pcs|piece)s?\b|three[- ]piece"),
+    ],
+    "neck": [
+        ("V-neck", r"v[- ]?neck"),
+        ("Round neck", r"round\s?neck"),
+        ("Collar & mandarin", r"collar\w*|mandarin|band\s?neck|chinese\s?neck"),
+        ("Sweetheart", r"sweetheart"),
+        ("Square neck", r"square\s?neck"),
+        ("Boat neck", r"boat\s?neck|bateau"),
+        ("Keyhole & notch", r"key\s?hole|notch\w*|placket"),
+        ("Halter & off-shoulder", r"halter|off[- ]?shoulder|strap\w*|spaghetti"),
+        ("U-neck & scoop", r"u[- ]?neck|scoop"),
+    ],
+    "sleeve": [
+        ("Sleeveless", r"sleeveless|sleeve\s?less|strappy"),
+        ("Short sleeves", r"short\s?sleeve\w*|half\s?sleeve\w*|cap\s?sleeve\w*"),
+        ("3/4 sleeves", r"3\s?/\s?4|three[- ]quarter|elbow"),
+        ("Full sleeves", r"full\s?sleeve\w*|long\s?sleeve\w*"),
+        ("Bell & flared sleeves", r"bell\s?sleeve\w*|flared\s?sleeve\w*|bell\b"),
+        ("Puff sleeves", r"puff\w*\s?sleeve\w*|puff\b|bishop|balloon"),
+    ],
+    "occasion": [
+        ("Wedding & bridal", r"wedding|bridal|bride\w*|trousseau|sangeet|haldi|mehendi|mehndi|cocktail"),
+        ("Festive", r"festive|festival|diwali|eid|puja|pooja|navratri|garba|rakhi|karwa|teej|onam|pongal|celebration"),
+        ("Party", r"\bparty\b|evening|occasion"),
+        ("Office", r"office|work\s?wear|workwear|formal"),
+        ("Casual & daily", r"casual|daily|everyday|lounge|comfort|summer essential|basics?"),
+    ],
+    "stitch": [
+        ("Unstitched", r"unstitch\w*|un-stitch\w*|dress\s?material|ready\s?to\s?stitch|semi[- ]stitch\w*|fabric\s?set"),
+    ],
+}
+COMPILED = {g: [(v, re.compile(r"\b(?:" + p + r")", re.I)) for v, p in rules] for g, rules in ATTR_RULES.items()}
+
+# Which groups are shown / computed for which categories
+GROUPS_FOR = {
+    "Kurta sets": ["work", "print", "fabric", "silhouette", "bottom", "dupatta", "neck", "sleeve", "occasion", "stitch"],
+    "Kurtas": ["work", "print", "fabric", "silhouette", "neck", "sleeve", "occasion"],
+    "Co-ord sets": ["work", "print", "fabric", "bottom", "neck", "sleeve", "occasion"],
+    "Dresses": ["work", "print", "fabric", "neck", "sleeve", "occasion"],
+    "Tops & shirts": ["work", "print", "fabric", "neck", "sleeve", "occasion"],
+    "Lehengas": ["work", "print", "fabric", "occasion"],
+    "Sarees": ["work", "print", "fabric", "occasion"],
+    "Bottoms": ["work", "print", "fabric", "bottom"],
+    "Jackets & overlays": ["work", "print", "fabric", "sleeve", "occasion"],
+}
+
+# Words that read like attributes but name a collection/person; strip before matching
+NOISE = re.compile(r"\b(?:sheetal batra|silsila|gulshan bagh|rose\s?gold)\b", re.I)
+
+
+def match_group(group, text):
+    found = []
+    for v, rx in COMPILED[group]:
+        if rx.search(text):
+            found.append(v)
+    # "Embroidered"/"Printed" are catch-alls: drop them when a specific value matched
+    if group == "work" and len(found) > 1 and "Embroidered & embellished" in found:
+        found.remove("Embroidered & embellished")
+    if group == "print":
+        specific = [f for f in found if f not in ("Printed", "Solid")]
+        if specific:
+            found = specific
+    return found
+
+
+# Which groups count for which categories (others get no attributes)
+ATTR_LABELS = {"work": "Work & embroidery", "print": "Print & craft", "fabric": "Fabric",
+               "silhouette": "Shape", "bottom": "Bottom style", "dupatta": "Dupatta",
+               "neck": "Neckline", "sleeve": "Sleeves", "occasion": "Occasion", "stitch": "Stitching"}
+# From the title + product type only. Brand tags are too often store-wide
+# collection labels ("Gota Patti Kurtis" on a plain kurta), so they are used
+# only for occasion and unstitched.
+_TAG_GROUPS = ("occasion", "stitch")
+# Description text is used for these when the title doesn't say
+_DESC_GROUPS = ("neck", "sleeve", "fabric")
+_FABRIC_LINE = re.compile(r"(?:fabric|material|composition)\s*[:\-–]?\s*([^.;\n]{2,80})", re.I)
+
+
+def desc_attrs(html):
+    """Neckline / sleeves / fabric stated in a product description -> 'group:value|...'."""
+    if not html:
+        return ""
+    text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)[:3000]
+    found = []
+    for g in ("neck", "sleeve"):
+        found += [f"{g}:{v}" for v in match_group(g, text)]
+    fab = " ".join(m.group(1) for m in _FABRIC_LINE.finditer(text))
+    found += [f"fabric:{v}" for v in match_group("fabric", fab)]
+    return "|".join(found)
+
+
+def product_attrs(r):
+    """All Indian-wear attributes for one record -> list of 'group:value'."""
+    groups = GROUPS_FOR.get(r.get("category"))
+    if not groups:
+        return []
+    base = NOISE.sub(" ", f"{r.get('title', '')} ; {r.get('product_type', '')}")
+    tagtext = base + " ; " + (r.get("tags") or "").replace("|", " ; ")
+    from_desc = {}
+    for item in (r.get("desc_attrs") or "").split("|"):
+        if ":" in item:
+            g, v = item.split(":", 1)
+            from_desc.setdefault(g, []).append(v)
+    out = []
+    for g in groups:
+        vals = match_group(g, tagtext if g in _TAG_GROUPS else base)
+        if not vals and g in _DESC_GROUPS:
+            vals = from_desc.get(g, [])
+        if g == "stitch" and not vals and r.get("category") in ("Kurta sets", "Kurtas", "Co-ord sets"):
+            vals = ["Ready to wear"]
+        out += [f"{g}:{v}" for v in vals]
+    return out
+
+
 def to_num(x):
     if x in (None, ""):
         return None
@@ -437,6 +637,7 @@ def parse_shopify_product(p, base, source):
         "in_stock": any(v.get("available") for v in variants),
         "image": imgs[0]["src"] if imgs else "",
         "tags": "|".join(tags),
+        "desc_attrs": desc_attrs(p.get("body_html")),
         "published_at": p.get("published_at") or p.get("created_at") or "",
         "scraped_at": now(),
     }
@@ -446,8 +647,15 @@ def scrape_shopify(f, cfg):
     base = cfg["base"].rstrip("/")
     out, page = [], 1
     while True:
-        r = f.get(f"{base}/products.json", params={"limit": 250, "page": page})
-        products = r.json().get("products", [])
+        try:
+            r = f.get(f"{base}/products.json", params={"limit": 250, "page": page})
+            products = r.json().get("products", [])
+        except Exception as e:
+            if page == 1:
+                raise
+            # Shopify stops paging after page 100 (25,000 products); keep what we have
+            print(f"  stopped at page {page} ({e}); keeping {len(out)} products")
+            break
         if not products:
             break
         for p in products:
@@ -510,6 +718,7 @@ def parse_woo_product(p, source):
         "in_stock": in_stock,
         "image": imgs[0].get("src", "") if imgs else "",
         "tags": "|".join(t.get("name", "") for t in p.get("tags") or []),
+        "desc_attrs": desc_attrs((p.get("short_description") or "") + " " + (p.get("description") or "")),
         "published_at": "",
         "scraped_at": now(),
     }
@@ -695,6 +904,7 @@ def write_site_data(rows, path):
     cat_ix = {c: i for i, c in enumerate(cats)}
     colours = list(COLOUR_WORDS) + ["Other"]
     col_ix = {c: i for i, c in enumerate(colours)}
+    attrs, attr_ix = [], {}
     products = []
     for r in mixed_order([r for r in rows if r.get("price")]):
         si = src_ix[r["source"]]
@@ -710,12 +920,21 @@ def write_site_data(rows, path):
                 mask |= 1 << SIZE_ORDER.index(z)
         price = round(float(r["price"]))
         mrp = round(float(r.get("mrp") or price))
+        ai = []
+        for a in product_attrs(r):
+            if a not in attr_ix:
+                attr_ix[a] = len(attrs)
+                attrs.append(a)
+            ai.append(attr_ix[a])
         products.append([si, cat_ix.get(r["category"], len(cats) - 1), r["title"], url, price,
                          mrp if mrp > price else 0, col_ix.get(r.get("colour") or "Other", len(colours) - 1),
-                         mask, 1 if r.get("in_stock") else 0, img])
-    data = {"v": 1, "updated": now(), "sources": sources, "cats": cats, "colours": colours,
-            "sizes": SIZE_ORDER,
-            "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image"],
+                         mask, 1 if r.get("in_stock") else 0, img, ai])
+    data = {"v": 2, "updated": now(), "sources": sources, "cats": cats, "colours": colours,
+            "sizes": SIZE_ORDER, "attrs": attrs, "attr_labels": ATTR_LABELS,
+            "attr_order": {g: [v for v, _ in rules] + (["Ready to wear"] if g == "stitch" else [])
+                           for g, rules in ATTR_RULES.items()},
+            "groups_for": GROUPS_FOR,
+            "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image", "attrs"],
             "p": products}
     data["total"] = len(products)
     with open(path, "w", encoding="utf-8") as fh:

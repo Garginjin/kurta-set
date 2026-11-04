@@ -99,14 +99,7 @@ function renderHome() {
   const inStock = ALL.filter(p => p.inStock);
   const nb = new Set(inStock.map(p => p.source)).size;
   $("hstats").innerHTML = `<div><b>${nf(inStock.length)}</b><span>styles in stock</span></div><div><b>${nb}</b><span>brands</span></div><div><b>6 hrs</b><span>prices refreshed</span></div>`;
-  const fest = p => p.A.occasion && (p.A.occasion.includes("Festive") || p.A.occasion.includes("Wedding & bridal"));
-  const col = ["Sarees", "Kurta sets", "Lehengas"].map(c => pickImg(p => p.category === c && fest(p), used) || pickImg(p => p.category === c, used)).filter(Boolean);
-  $("hcollage").innerHTML = col.map((p, i) => `<a class="arch${i === 1 ? " mid" : ""}" href="${shopLink({ cat: p.category })}"><span class="in">${imgTag(p.image, "")}</span><span class="lbl">${esc(p.category)}</span></a>`).join("") +
-    `<div class="diyas" aria-hidden="true">${[33.6, 66.4].map(x => `<span style="position:absolute;left:${x}%;bottom:10px">${DIYA}</span>`).join("")}</div>`;
-  const occ = v => inStock.reduce((k, p) => k + (p.A.occasion && p.A.occasion.includes(v) ? 1 : 0), 0);
-  const nFest = occ("Festive"), nWed = occ("Wedding & bridal");
-  $("hctas").innerHTML = (nFest ? `<a class="btnp" href="${shopLink({ a: "occasion:Festive" })}">Shop ${nf(nFest)} festive styles</a>` : `<a class="btnp" href="${shopLink({ cat: "Kurta sets" })}">Shop kurta sets</a>`) +
-    (nWed ? `<a class="btns" href="${shopLink({ a: "occasion:Wedding & bridal" })}">Wedding and bridal</a>` : "") + `<a class="btns" href="#/brands">Explore the brands</a>`;
+
   const cc = {}; for (const p of inStock) cc[p.category] = (cc[p.category] || 0) + 1;
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
     return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles</span></a>`; }).join("");
@@ -198,6 +191,5 @@ function decorate(root = document) {
 document.body.insertAdjacentHTML("afterbegin", LIGHT_DEFS);
 (() => {
   const hero = document.querySelector(".hero.festive");
-  hero.insertAdjacentHTML("beforeend", `<div class="garland l" aria-hidden="true">${GARLAND(12)}</div><div class="garland r" aria-hidden="true">${GARLAND(12)}</div>`);
   decorate();
 })();

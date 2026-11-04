@@ -34,8 +34,8 @@ Show a preview/mockup BEFORE changing the live site's look.
 ## Workstreams
 A. Design/layout – LIVE 4 Nov: Garima's palette (bg #FFFBFA, card #FFF, banner #FFF3F1, main #AA1D5F, gold #E69B0F,
    arch #3C05A3, text #24121A, soft #66505A, lines #E3D8F8; Cormorant Garamond + Manrope). Colours are the 9 vars at the top of
-   `css/site.css`; the rest derive from them. Festive banner = canvas option A (string lights, garlands, diyas, products in gold arches);
-   brand cards = logo on off-white with lights. Banner copy "Light up the festive season" is seasonal: swap after the festive period.
+   `css/site.css`; the rest derive from them. Festive banner = canvas option A artwork inlined in index.html (one arch, mandala, diyas, lights, garlands; no buttons);
+   brand cards = logo on off-white with lights. Banner copy "Light up your Diwali · Diwali 2026" is seasonal: swap after the festive period.
    Design previews go in `docs/preview/` (own site.css + layout.js, loads shared files from ../, noindex) before changing live files.
 B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles in `similar()`; search is plain substring.
    4 Nov: Kidswear, Menswear, Style Union, Kisah, Kalpraag removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES); styles whose

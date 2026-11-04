@@ -3,110 +3,169 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ethnic wear from India's best brands, in one place</title>
-<meta name="description" content="Kurta sets, co-ords, kurtas and more from Jaipur Handblock, Label Kanupriya, Zlaata and other brands, in one place. Filter by category, price, size, colour and discount.">
+<title>saubag | Indian ethnic wear from the brands you love, in one place</title>
+<meta name="description" content="saubag brings kurta sets, co-ords, kurtas, sarees and more from India's best ethnic-wear brands into one place. Filter, compare and shop direct from each brand.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
   :root {
-    --ink: #14172B; --muted: #4A4F63; --soft: #5A5F73; --line: #E3E5EE; --field: #C9CCD8;
-    --bg: #FFFFFF; --tint: #F5F6FA; --accent: #2B3A8C; --accent-dark: #1A2566; --badge: #F2B632;
+    --ink: #1E1520; --muted: #5B4F5A; --soft: #6E6370; --line: #ECE6EA; --field: #D9CFD6;
+    --bg: #FFFFFF; --tint: #F8F4F6; --accent: #5B1A45; --accent-dark: #3F1030; --accent-tint: #F4E9EF;
+    --serif: 'Cormorant Garamond', Georgia, serif; --sans: Manrope, system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: Inter, system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
   a { color: var(--accent); } a:hover { color: var(--accent-dark); }
   button, input, select { font: inherit; color: inherit; }
-  .wrap { max-width: 1320px; margin: 0 auto; padding: 0 24px; }
+  .wrap { max-width: 1360px; margin: 0 auto; padding: 0 28px; }
 
-  header { border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+  header { border-bottom: 1px solid var(--line); background: rgba(255,255,255,0.96); position: sticky; top: 0; z-index: 20; backdrop-filter: saturate(1.2) blur(6px); }
   .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; padding-top: 14px; padding-bottom: 14px; }
-  .logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
-  nav { display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 15px; font-weight: 500; }
-  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 10px 0; color: var(--muted); cursor: pointer; min-height: 44px; }
-  nav button[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .logo { font-family: var(--serif); font-weight: 700; font-size: 34px; line-height: 1; letter-spacing: 0.01em; color: var(--accent); text-decoration: none; }
+  .tagline { font-size: 13px; color: var(--soft); letter-spacing: 0.02em; }
   .search { flex: 1 1 260px; display: flex; justify-content: flex-end; }
-  .search input { width: 100%; max-width: 380px; height: 44px; border: 1px solid var(--field); border-radius: 22px; padding: 0 18px; background: var(--tint); font-size: 15px; }
+  .search input { width: 100%; max-width: 420px; height: 46px; border: 1px solid var(--field); border-radius: 23px; padding: 0 20px; background: var(--tint); font-size: 15px; }
+  .search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: #fff; }
 
-  main { padding: 28px 0 64px; display: flex; flex-direction: column; gap: 24px; }
+  main { padding: 32px 0 72px; display: flex; flex-direction: column; gap: 28px; }
   .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
-  h1 { margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 40px; font-weight: 700; letter-spacing: -0.02em; }
-  .sub { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  h1 { margin: 0; font-family: var(--serif); font-size: 48px; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
+  .sub { margin: 8px 0 0; color: var(--muted); font-size: 15px; }
   .tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .tools label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
-  select { height: 44px; border: 1px solid var(--field); border-radius: 10px; padding: 0 12px; font-size: 14px; background: var(--bg); }
-  .filter-toggle { display: none; height: 44px; padding: 0 18px; border: 1px solid var(--accent); border-radius: 22px; background: var(--bg); color: var(--accent); font-weight: 600; cursor: pointer; }
+  select { height: 44px; border: 1px solid var(--field); border-radius: 22px; padding: 0 16px; font-size: 14px; background: var(--bg); cursor: pointer; }
+  .filter-toggle { display: none; height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 22px; background: var(--bg); color: var(--accent); font-weight: 600; cursor: pointer; }
 
-  .layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px; }
-  aside { flex: 1 1 240px; max-width: 100%; display: flex; flex-direction: column; gap: 20px; }
+  .layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 40px; }
+  aside { flex: 1 1 250px; max-width: 100%; display: flex; flex-direction: column; }
   .results { flex: 999 1 560px; min-width: 0; }
-  .ftop { display: flex; justify-content: space-between; align-items: center; min-height: 44px; }
-  .ftop h2 { margin: 0; font-size: 16px; font-weight: 600; }
-  .linkbtn { background: none; border: 0; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; padding: 0 4px; }
-  fieldset { border: 0; margin: 0; padding: 0 0 18px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
-  legend { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0 0 8px; }
-  .opt { display: flex; align-items: center; gap: 10px; min-height: 40px; font-size: 15px; cursor: pointer; }
+  .ftop { display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding-bottom: 6px; }
+  .ftop h2 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 600; }
+  .linkbtn { background: none; border: 0; color: var(--accent); font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px; padding: 0 4px; }
+
+  /* collapsible filter sections */
+  details.fs { border-top: 1px solid var(--line); }
+  details.fs:last-of-type { border-bottom: 1px solid var(--line); }
+  details.fs summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 52px; cursor: pointer;
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
+  details.fs summary::-webkit-details-marker { display: none; }
+  details.fs summary .sel { font-weight: 600; letter-spacing: 0; text-transform: none; color: #fff; background: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 12px; }
+  details.fs summary .chev { margin-left: auto; width: 18px; height: 18px; transition: transform .2s; color: var(--soft); }
+  details.fs[open] summary .chev { transform: rotate(180deg); }
+  details.fs summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .fbody { padding: 0 0 18px; display: flex; flex-direction: column; gap: 2px; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  .opt { display: flex; align-items: center; gap: 10px; min-height: 38px; font-size: 15px; cursor: pointer; }
   .opt input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; flex: none; }
-  .opt .n { margin-left: auto; color: var(--soft); font-size: 13px; }
-  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
-  /* sizes: wrapping pills that grow with their label and never overlap */
-  .sizes { display: flex; flex-wrap: wrap; gap: 8px; }
-  .sizes .opt { position: relative; flex: 0 0 auto; max-width: 100%; min-width: 52px; min-height: 40px; padding: 0 14px;
+  .opt .n { margin-left: auto; color: var(--soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .stock { padding: 14px 0; }
+  /* pills: sizes and colours */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pills .opt { position: relative; flex: 0 0 auto; max-width: 100%; min-height: 40px; padding: 0 14px; gap: 8px;
     justify-content: center; border: 1px solid var(--field); border-radius: 20px; font-size: 14px; font-weight: 500; white-space: nowrap; }
-  .sizes .opt span { overflow: hidden; text-overflow: ellipsis; }
-  .sizes .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
-  .sizes .opt:has(input:checked) { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .sizes .opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
-  .sizes .opt:hover { border-color: var(--accent); }
-  .bq { height: 40px; border: 1px solid var(--field); border-radius: 10px; padding: 0 12px; margin-bottom: 6px; font-size: 14px; background: var(--tint); }
+  .pills .opt span { overflow: hidden; text-overflow: ellipsis; }
+  .pills .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .pills .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); font-weight: 700; box-shadow: inset 0 0 0 1px var(--accent); }
+  .pills .opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pills .opt:hover { border-color: var(--accent); }
+  .bq { height: 40px; border: 1px solid var(--field); border-radius: 20px; padding: 0 14px; margin-bottom: 6px; font-size: 14px; background: var(--tint); }
   #bmore { align-self: flex-start; padding: 0; }
   .note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--soft); }
-  .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #9A9EB0; flex: none; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.25); flex: none; }
 
-  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 32px 20px; }
+  /* product cards */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 40px 22px; }
   .card { display: flex; flex-direction: column; gap: 6px; }
-  .img { position: relative; aspect-ratio: 3 / 4; background: #EEF0F6; border-radius: 12px; overflow: hidden; display: block; }
-  .img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .media { position: relative; }
+  .img { position: relative; aspect-ratio: 3 / 4; background: var(--tint); border-radius: 14px; overflow: hidden; display: block; }
+  .img img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+  .card:hover .img img { transform: scale(1.03); }
   .img .ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--soft); }
-  .badge { z-index: 2; position: absolute; top: 10px; left: 10px; background: var(--badge); color: var(--ink); font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; }
-  .oos { z-index: 2; position: absolute; left: 10px; right: 10px; bottom: 10px; text-align: center; background: rgba(20,23,43,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 6px; border-radius: 6px; }
+  .oos { z-index: 2; position: absolute; left: 10px; right: 10px; bottom: 10px; text-align: center; background: rgba(30,21,32,0.86); color: #fff; font-size: 12px; font-weight: 600; padding: 6px; border-radius: 8px; }
   .card.sold .img img { opacity: 0.55; }
-  .src { margin-top: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent); }
+  .cmpbtn { position: absolute; z-index: 3; top: 10px; right: 10px; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px;
+    border-radius: 17px; border: 0; background: rgba(255,255,255,0.94); color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+  .cmpbtn svg { width: 14px; height: 14px; }
+  .cmpbtn[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .cmpbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .src { margin-top: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
   .card h3 { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .card h3 a { color: var(--ink); text-decoration: none; }
   .card h3 a:hover { text-decoration: underline; }
   .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
-  .price strong { font-size: 17px; font-weight: 600; }
+  .price strong { font-size: 17px; font-weight: 700; }
   .price s { font-size: 14px; color: var(--soft); }
-  .price .off { font-size: 13px; font-weight: 600; color: #A8410C; }
-  .meta { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--soft); }
-  .meta .dot { width: 12px; height: 12px; }
-  .go { margin-top: 6px; display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--accent); border-radius: 22px; font-size: 14px; font-weight: 600; text-decoration: none; }
+  .price .off { font-size: 13px; font-weight: 700; color: #9A3412; }
+  .go { margin-top: 8px; display: flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid var(--accent); border-radius: 22px; font-size: 14px; font-weight: 700; text-decoration: none; }
   .go:hover { background: var(--accent); color: #fff; }
-  .more { display: flex; justify-content: center; margin-top: 36px; }
-  .more button { min-height: 48px; padding: 0 28px; border-radius: 24px; border: 0; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+  .more { display: flex; justify-content: center; margin-top: 44px; }
+  .more button { min-height: 50px; padding: 0 32px; border-radius: 25px; border: 0; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; }
   .empty { border: 1px dashed var(--field); border-radius: 16px; padding: 48px 24px; text-align: center; }
   .empty p { margin: 0 0 12px; font-size: 17px; font-weight: 600; }
-  footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--soft); font-size: 13px; line-height: 1.6; }
+  footer { border-top: 1px solid var(--line); padding: 28px 0 120px; color: var(--soft); font-size: 13px; line-height: 1.6; }
+  footer .logo { font-size: 24px; display: inline-block; margin-bottom: 6px; }
+
+  /* compare bar + dialog */
+  .cmpbar { position: fixed; z-index: 30; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(720px, calc(100% - 24px));
+    display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; padding: 10px 12px 10px 14px; background: var(--ink); color: #fff; border-radius: 18px; box-shadow: 0 10px 30px rgba(30,21,32,0.3); }
+  .cmpbar[hidden] { display: none; }
+  .cmpthumbs { display: flex; gap: 8px; flex: none; }
+  .cmpthumbs img, .cmpthumbs .empty-slot { width: 40px; height: 52px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.12); flex: none; }
+  .cmpthumbs .empty-slot { border: 1px dashed rgba(255,255,255,0.35); }
+  .cmpmsg { flex: 1 1 auto; min-width: 0; font-size: 13px; line-height: 1.35; color: rgba(255,255,255,0.85); }
+  .cmpbar .btn { flex: none; white-space: nowrap; }
+  @media (max-width: 560px) {
+    .cmpmsg { display: none; }
+    .cmpbar { gap: 8px; padding: 8px 8px 8px 10px; }
+    .cmpthumbs { flex: 1 1 auto; gap: 6px; min-width: 0; overflow: hidden; }
+    .cmpthumbs img, .cmpthumbs .empty-slot { width: 28px; height: 38px; border-radius: 6px; }
+    .cmpbar .btn { padding: 0 14px; }
+  }
+  .cmpbar .btn { min-height: 44px; padding: 0 18px; border-radius: 22px; border: 0; font-weight: 700; cursor: pointer; }
+  .cmpbar .primary { background: #fff; color: var(--ink); }
+  .cmpbar .primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .cmpbar .ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+  dialog#cmp { width: min(1100px, calc(100% - 24px)); max-height: calc(100% - 40px); border: 0; border-radius: 20px; padding: 0; color: var(--ink); }
+  dialog#cmp::backdrop { background: rgba(30,21,32,0.55); }
+  .dhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 2; }
+  .dhead h2 { margin: 0; font-family: var(--serif); font-size: 30px; font-weight: 600; }
+  .xbtn { width: 44px; height: 44px; border-radius: 22px; border: 1px solid var(--field); background: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .ctable-wrap { overflow-x: auto; }
+  table.ctable { width: 100%; border-collapse: collapse; min-width: 640px; table-layout: fixed; }
+  .ctable th, .ctable td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; font-size: 14px; }
+  .ctable th { width: 130px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: var(--tint); position: sticky; left: 0; }
+  .ctable td img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 12px; background: var(--tint); display: block; }
+  .ctable .cname { font-weight: 600; line-height: 1.4; }
+  .ctable .cprice { font-size: 18px; font-weight: 700; }
+  .best { display: inline-block; margin-top: 4px; font-size: 11px; font-weight: 700; color: #166534; background: #DCFCE7; border-radius: 8px; padding: 2px 8px; }
+  .ctable .go { margin-top: 0; }
+  .rm { margin-top: 8px; font-size: 13px; }
 
   @media (max-width: 860px) {
     .filter-toggle { display: inline-flex; align-items: center; }
     aside { display: none; flex-basis: 100%; }
     aside.open { display: flex; }
-    h1 { font-size: 32px; }
+    h1 { font-size: 38px; }
+    .tagline { display: none; }
   }
   @media (max-width: 560px) {
     .wrap { padding: 0 16px; }
-    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 12px; }
+    .logo { font-size: 30px; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; }
     .card h3 { font-size: 14px; }
     .go { font-size: 13px; }
+    .cmpbtn span { display: none; }
+    .cmpbtn { width: 34px; padding: 0; justify-content: center; }
   }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap bar">
-    <a class="logo" href="./" id="logo">[SITE NAME]</a>
+    <a class="logo" href="./" id="logo">saubag</a>
+    <span class="tagline">India's ethnic-wear brands, in one place</span>
     <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
   </div>
 </header>
@@ -135,17 +194,23 @@
   <div class="layout">
     <aside id="filters" aria-label="Filters">
       <div class="ftop"><h2>Filters</h2><button type="button" class="linkbtn" id="clear" hidden>Clear all</button></div>
-      <fieldset><legend>Category</legend><div id="f-cat"></div></fieldset>
-      <fieldset><legend>Brand</legend>
-        <input type="search" id="bq" class="bq" aria-label="Search brands" placeholder="Search brands">
-        <div id="f-brand"></div>
-        <button type="button" class="linkbtn" id="bmore" hidden>Show all brands</button>
-      </fieldset>
-      <fieldset><legend>Price</legend><div id="f-price"></div></fieldset>
-      <fieldset><legend>Discount</legend><div id="f-disc"></div></fieldset>
-      <fieldset><legend>Size</legend><div class="sizes" id="f-size"></div><p class="note" id="size-note"></p></fieldset>
-      <fieldset><legend>Colour</legend><div class="grid2" id="f-colour"></div></fieldset>
-      <label class="opt"><input type="checkbox" id="stock" checked> In stock only</label>
+      <details class="fs" open data-g="category"><summary>Category<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Category</legend><div id="f-cat"></div></fieldset></details>
+      <details class="fs" open data-g="brand"><summary>Brand<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Brand</legend>
+          <input type="search" id="bq" class="bq" aria-label="Search brands" placeholder="Search brands">
+          <div id="f-brand"></div>
+          <button type="button" class="linkbtn" id="bmore" hidden>Show all brands</button>
+        </fieldset></details>
+      <details class="fs" open data-g="price"><summary>Price<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Price</legend><div id="f-price"></div></fieldset></details>
+      <details class="fs" data-g="disc"><summary>Discount<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Discount</legend><div id="f-disc"></div></fieldset></details>
+      <details class="fs" data-g="size"><summary>Size<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Size</legend><div class="pills" id="f-size"></div><p class="note" id="size-note"></p></fieldset></details>
+      <details class="fs" data-g="colour"><summary>Colour<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+        <fieldset class="fbody"><legend class="visually-hidden">Colour</legend><div class="pills" id="f-colour"></div></fieldset></details>
+      <label class="opt stock"><input type="checkbox" id="stock" checked> In stock only</label>
     </aside>
     <section class="results" aria-label="Products">
       <div class="cards" id="cards"></div>
@@ -155,8 +220,21 @@
 </main>
 </div>
 
+<div class="cmpbar" id="cmpbar" role="region" aria-label="Compare" hidden>
+  <div class="cmpthumbs" id="cmpthumbs"></div>
+  <span class="cmpmsg" id="cmpmsg"></span>
+  <button type="button" class="btn ghost" id="cmpclear">Clear</button>
+  <button type="button" class="btn primary" id="cmpgo">Compare</button>
+</div>
+<dialog id="cmp" aria-labelledby="cmptitle">
+  <div class="dhead"><h2 id="cmptitle">Compare styles</h2>
+    <button type="button" class="xbtn" id="cmpclose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="ctable-wrap" id="cmptable"></div>
+</dialog>
+
 <footer>
   <div class="wrap">
+    <span class="logo">saubag</span><br>
     <span id="updated"></span>
     Prices and stock are refreshed every few hours. Always check the final price on the brand's site.
   </div>
@@ -166,7 +244,7 @@
 /* ------------------------------------------------------------------
    SETTINGS - edit these
 ------------------------------------------------------------------- */
-const SITE_NAME = "[SITE NAME]";
+const SITE_NAME = "saubag";
 // Order the categories appear in the filter (must match the scraper's names)
 const CATEGORY_ORDER = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts", "Bottoms",
   "Lehengas", "Sarees", "Jackets & overlays", "Nightwear & loungewear", "Menswear", "Kidswear", "Accessories", "Other"];
@@ -259,9 +337,9 @@ async function load() {
       started = true;
       const pre = new URLSearchParams(location.search).get("category");  // ?category=Kurta%20sets
       if (pre && ALL.some(p => p.category === pre)) st.cats.add(pre);
-      bind();
+      bind(); cmpBind();
     }
-    render();
+    cmpRestore(); render();
   };
   try {
     // 1) small first part: shows products straight away
@@ -374,32 +452,101 @@ function renderFilters() {
   $("f-price").innerHTML = PRICE_BUCKETS.map(b => opt("radio", "price", b.k, b.label, null, st.price === b.k)).join("");
   $("f-disc").innerHTML = DISCOUNTS.map(([v, l]) => opt("radio", "disc", v, l, null, st.disc === v)).join("");
   $("f-size").innerHTML = shownKeys(C.size, st.sizes, SIZE_ORDER).map(z => opt("checkbox", "size", z, z, null, st.sizes.has(z))).join("") || '<span class="note">No size data</span>';
-  const ns = [...NOSIZE];
-  $("size-note").textContent = ns.length ? (ns.length <= 3 ? ns.join(", ") : `${ns.length} brands`) + " list sizes only on their own site for some items, so those are hidden when you pick a size." : "";
-  $("f-colour").innerHTML = shownKeys(C.colour, st.colours, Object.keys(COLOUR_HEX)).map(c => opt("checkbox", "colour", c, c, C.colour[c] || 0, st.colours.has(c),
+  $("size-note").textContent = NOSIZE.size ? "Some styles show sizes only on the brand's site, so they're hidden when you pick a size." : "";
+  $("f-colour").innerHTML = shownKeys(C.colour, st.colours, Object.keys(COLOUR_HEX)).map(c => opt("checkbox", "colour", c, c, null, st.colours.has(c),
     `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c] || COLOUR_HEX.Other}"></span>`)).join("");
+  const picked = { category: st.cats.size, brand: st.brands.size, price: +(st.price !== "all"), disc: +(st.disc > 0), size: st.sizes.size, colour: st.colours.size };
+  document.querySelectorAll("details.fs").forEach(d => { const n = picked[d.dataset.g] || 0, el = d.querySelector(".sel"); el.hidden = !n; el.textContent = n; });
   const active = st.cats.size + st.brands.size + st.sizes.size + st.colours.size + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
   $("clear").hidden = !active;
   $("clear").textContent = `Clear all (${active})`;
   $("ftoggle").textContent = active ? `Filters (${active})` : "Filters";
 }
 
+const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const ICON_TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
+
 function card(p) {
   const url = safeUrl(outLink(p.url, p));
+  const on = CMP.has(p.url);
   return `<article class="card${p.inStock ? "" : " sold"}">
-    <a class="img" href="${esc(url)}" target="_blank" rel="noopener sponsored" tabindex="-1" aria-hidden="true">
-      <span class="ph">${esc(p.source)}</span>
-      ${p.image ? `<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}
-      ${p.disc > 0 ? `<span class="badge">${p.disc}% off</span>` : ""}
-      ${p.inStock ? "" : '<span class="oos">Out of stock</span>'}
-    </a>
+    <div class="media">
+      <a class="img" href="${esc(url)}" target="_blank" rel="noopener sponsored" tabindex="-1" aria-hidden="true">
+        <span class="ph">${esc(p.source)}</span>
+        ${p.image ? `<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}
+        ${p.inStock ? "" : '<span class="oos">Out of stock</span>'}
+      </a>
+      <button type="button" class="cmpbtn" data-cmp="${esc(p.url)}" aria-pressed="${on}" aria-label="${on ? "Remove from compare" : "Add to compare"}: ${esc(p.title)}">${on ? ICON_TICK : ICON_PLUS}<span>${on ? "Added" : "Compare"}</span></button>
+    </div>
     <span class="src">${esc(p.source)}</span>
     <h3><a href="${esc(url)}" target="_blank" rel="noopener sponsored">${esc(p.title)}</a></h3>
     <div class="price"><strong>${rs(p.price)}</strong>${p.disc > 0 ? `<s>${rs(p.mrp)}</s><span class="off">${p.disc}% off</span>` : ""}</div>
-    <span class="meta"><span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[p.colour] || COLOUR_HEX.Other}"></span>${esc(p.colour)}</span>
-    <span class="meta">${p.sizes.length ? "Sizes: " + esc(p.sizes.join(" · ")) : "Sizes on brand site"}</span>
     <a class="go" href="${esc(url)}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
   </article>`;
+}
+
+/* ---------------- compare (up to 4 styles) ---------------- */
+const CMP_MAX = 4, CMP_KEY = "saubag-compare";
+let CMP = new Map();  // url -> product
+function cmpSave() { try { localStorage.setItem(CMP_KEY, JSON.stringify([...CMP.keys()])); } catch (e) {} }
+function cmpRestore() {
+  let urls = [];
+  try { urls = JSON.parse(localStorage.getItem(CMP_KEY) || "[]"); } catch (e) {}
+  const byUrl = new Map(ALL.map(p => [p.url, p]));
+  CMP = new Map(urls.filter(u => byUrl.has(u)).slice(0, CMP_MAX).map(u => [u, byUrl.get(u)]));
+  cmpBar();
+}
+function cmpToggle(url) {
+  if (CMP.has(url)) CMP.delete(url);
+  else {
+    if (CMP.size >= CMP_MAX) { cmpBar(`Up to ${CMP_MAX} styles. Remove one first.`); clearTimeout(cmpBar.t); cmpBar.t = setTimeout(() => cmpBar(), 3000); return; }
+    const p = ALL.find(x => x.url === url); if (p) CMP.set(url, p);
+  }
+  cmpSave(); cmpBar();
+  document.querySelectorAll(`.cmpbtn[data-cmp="${CSS.escape(url)}"]`).forEach(b => {
+    const on = CMP.has(url), t = CMP.get(url)?.title || "";
+    b.setAttribute("aria-pressed", on); b.innerHTML = (on ? ICON_TICK : ICON_PLUS) + `<span>${on ? "Added" : "Compare"}</span>`;
+  });
+  if ($("cmp").open) cmpRender();
+}
+function cmpBar(msg) {
+  const n = CMP.size;
+  $("cmpbar").hidden = n === 0;
+  const thumbs = [...CMP.values()].map(p => p.image ? `<img src="${esc(p.image)}" alt="" onerror="this.style.visibility='hidden'">` : '<span class="empty-slot"></span>');
+  while (thumbs.length < CMP_MAX) thumbs.push('<span class="empty-slot" aria-hidden="true"></span>');
+  $("cmpthumbs").innerHTML = thumbs.join("");
+  $("cmpmsg").textContent = msg || (n < 2 ? "Add one more style to compare" : `${n} styles selected`);
+  $("cmpgo").disabled = n < 2;
+  $("cmpgo").textContent = n >= 2 ? `Compare ${n}` : "Compare";
+}
+function cmpRender() {
+  const ps = [...CMP.values()];
+  if (ps.length < 2) { $("cmp").close(); return; }
+  const low = Math.min(...ps.map(p => p.price));
+  const cell = (fn) => ps.map(p => `<td>${fn(p)}</td>`).join("");
+  const rows = [
+    ["", p => p.image ? `<img src="${esc(p.image)}" alt="${esc(p.title)}" onerror="this.style.visibility='hidden'">` : ""],
+    ["Brand", p => `<span class="src">${esc(p.source)}</span>`],
+    ["Style", p => `<div class="cname">${esc(p.title)}</div>`],
+    ["Price", p => `<div class="cprice">${rs(p.price)}</div>${p.price === low ? '<span class="best">Lowest price</span>' : ""}`],
+    ["MRP", p => p.disc > 0 ? `<s>${rs(p.mrp)}</s>` : rs(p.mrp)],
+    ["Discount", p => p.disc > 0 ? `${p.disc}% off` : "—"],
+    ["Category", p => esc(p.category)],
+    ["Colour", p => `<span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:${COLOUR_HEX[p.colour] || COLOUR_HEX.Other}"></span>${esc(p.colour)}</span>`],
+    ["Sizes", p => p.sizes.length ? esc(p.sizes.join(", ")) : "See brand's site"],
+    ["Stock", p => p.inStock ? "In stock" : "Out of stock"],
+    ["", p => `<a class="go" href="${esc(safeUrl(outLink(p.url, p)))}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
+      <button type="button" class="linkbtn rm" data-cmp="${esc(p.url)}">Remove</button>`]
+  ];
+  $("cmptable").innerHTML = `<table class="ctable"><tbody>${rows.map(([h, fn]) => `<tr><th scope="row">${h}</th>${cell(fn)}</tr>`).join("")}</tbody></table>`;
+}
+function cmpBind() {
+  $("cards").addEventListener("click", e => { const b = e.target.closest(".cmpbtn"); if (b) cmpToggle(b.dataset.cmp); });
+  $("cmptable").addEventListener("click", e => { const b = e.target.closest(".rm"); if (b) cmpToggle(b.dataset.cmp); });
+  $("cmpclear").addEventListener("click", () => { const urls = [...CMP.keys()]; urls.forEach(u => cmpToggle(u)); });
+  $("cmpgo").addEventListener("click", () => { cmpRender(); $("cmp").showModal(); });
+  $("cmpclose").addEventListener("click", () => $("cmp").close());
+  $("cmp").addEventListener("click", e => { if (e.target === $("cmp")) $("cmp").close(); });
 }
 
 function render(recompute = true) {

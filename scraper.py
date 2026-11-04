@@ -12,13 +12,15 @@ Sites supported:
 
 Usage:
   pip install requests beautifulsoup4
-  python scraper.py                 # scrape everything -> docs/listings.json
+  python scraper.py                 # scrape everything -> docs/products.json (site) + data/ (record)
   python scraper.py --renormalise   # re-apply category + colour rules, no scraping
 
 Polite by default: checks robots.txt, 1.5s delay between requests,
 identifies itself with a plain User-Agent.
 """
 import argparse
+import gzip
+import os
 import csv
 import json
 import re
@@ -89,6 +91,25 @@ SOURCES = [
     {"source": "Ranna Gill", "type": "shopify", "base": "https://rannagill.co.in"},
     {"source": "VNH Naidu Hall", "type": "shopify", "base": "https://vnhnaiduhall.com"},
     {"source": "Aarke by Ritu Kumar", "type": "shopify", "base": "https://aarke.ritukumar.com"},  # platform unconfirmed
+    {"source": "Farida Gupta", "type": "shopify", "base": "https://faridagupta.com"},
+    {"source": "Tjori", "type": "shopify", "base": "https://www.tjori.com"},
+    {"source": "Utsav Bazar", "type": "shopify", "base": "https://utsavbazar.com"},
+    {"source": "Xavielle", "type": "shopify", "base": "https://xavielle.com"},
+    {"source": "Silai Studio", "type": "shopify", "base": "https://www.silaistudio.com"},
+    {"source": "Aurelia", "type": "shopify", "base": "https://shopforaurelia.com"},
+    {"source": "Lakshita", "type": "shopify", "base": "https://www.lakshita.com"},
+    {"source": "Autumn Lane", "type": "shopify", "base": "https://autumnlane.in"},
+    {"source": "Weavekala", "type": "shopify", "base": "https://weavekala.com"},
+    {"source": "Bunai", "type": "shopify", "base": "https://www.bunai.com"},
+    # Below: platform not confirmed - the run log shows if any fail
+    {"source": "Kalmkari", "type": "shopify", "base": "https://kalmkari.in"},
+    {"source": "House of Kari", "type": "shopify", "base": "https://houseofkari.in"},
+    {"source": "Trendia", "type": "shopify", "base": "https://trendia.co"},
+    {"source": "Kalpraag", "type": "shopify", "base": "https://kalpraag.com"},
+    {"source": "Kisah", "type": "shopify", "base": "https://kisah.in"},
+    {"source": "Pink Fort", "type": "shopify", "base": "https://pinkfort.co"},
+    {"source": "Ensemble", "type": "shopify", "base": "https://www.ensembleindia.com"},
+    {"source": "The Fashion Station", "type": "woocommerce", "base": "https://www.thefashionstation.in"},  # WordPress shop
     {"source": "Zlaata", "type": "zlaata",
      "urls": ["https://www.zlaata.com/zlaata-india/all",
               "https://www.zlaata.com/zlaata-india/all-accessories"]},
@@ -167,7 +188,7 @@ def classify(title, product_type="", tags="", hint=None):
 
 FIELDS = ["source", "category", "product_type", "product_id", "title", "brand", "url",
           "price", "mrp", "discount_pct", "sizes_available", "sizes_all",
-          "colour", "colour_raw", "in_stock", "image", "tags", "scraped_at"]
+          "colour", "colour_raw", "in_stock", "image", "tags", "published_at", "scraped_at"]
 
 
 # ---------------------------------------------------------------------------
@@ -388,6 +409,7 @@ def parse_shopify_product(p, base, source):
         "in_stock": any(v.get("available") for v in variants),
         "image": imgs[0]["src"] if imgs else "",
         "tags": "|".join(tags),
+        "published_at": p.get("published_at") or p.get("created_at") or "",
         "scraped_at": now(),
     }
 
@@ -406,6 +428,76 @@ def scrape_shopify(f, cfg):
             out.append(parse_shopify_product(p, base, cfg["source"]))
         print(f"  page {page}: {len(products)} products")
         if len(products) < 250:
+            break
+        page += 1
+    return out
+
+
+# ---------------------------------------------------------------------------
+# WooCommerce (WordPress shops): public Store API, /wp-json/wc/store/v1/products
+# ---------------------------------------------------------------------------
+def _woo_money(prices, key):
+    v = (prices or {}).get(key)
+    if v in (None, ""):
+        return None
+    try:
+        return int(v) / (10 ** int((prices or {}).get("currency_minor_unit", 2)))
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_woo_product(p, source):
+    prices = p.get("prices") or {}
+    price = _woo_money(prices, "price")
+    mrp = _woo_money(prices, "regular_price") or price
+    sizes, colours = [], []
+    for a in p.get("attributes") or []:
+        name = (a.get("name") or "").lower()
+        terms = [t.get("name", "") for t in a.get("terms") or []]
+        if "size" in name:
+            sizes += terms
+        elif "colo" in name:
+            colours += terms
+    cats = " ".join(c.get("name", "") for c in p.get("categories") or [])
+    title = BeautifulSoup(p.get("name") or "", "html.parser").get_text().strip()
+    imgs = p.get("images") or []
+    in_stock = bool(p.get("is_in_stock", True))
+    sz = normalise_sizes(sizes)
+    return {
+        "source": source,
+        "category": classify(title, cats),
+        "product_type": cats,
+        "product_id": str(p.get("id")),
+        "title": title,
+        "brand": source,
+        "url": p.get("permalink") or "",
+        "price": price,
+        "mrp": mrp,
+        "discount_pct": disc(price, mrp),
+        # the listing API doesn't say which sizes are in stock, so show all
+        "sizes_available": "|".join(sz) if in_stock else "",
+        "sizes_all": "|".join(sz),
+        "colour": colour_for(colours[0] if colours else "", title),
+        "colour_raw": "|".join(colours),
+        "in_stock": in_stock,
+        "image": imgs[0].get("src", "") if imgs else "",
+        "tags": "|".join(t.get("name", "") for t in p.get("tags") or []),
+        "published_at": "",
+        "scraped_at": now(),
+    }
+
+
+def scrape_woocommerce(f, cfg, max_pages=200):
+    base = cfg["base"].rstrip("/")
+    out, page = [], 1
+    while page <= max_pages:
+        r = f.get(f"{base}/wp-json/wc/store/v1/products", params={"per_page": 100, "page": page})
+        items = r.json()
+        if not isinstance(items, list) or not items:
+            break
+        out += [parse_woo_product(p, cfg["source"]) for p in items if p.get("prices")]
+        print(f"  page {page}: {len(items)} products")
+        if len(items) < 100:
             break
         page += 1
     return out
@@ -511,13 +603,16 @@ def write_out(rows, out):
     rows = uniq
     order = {c: i for i, c in enumerate(CATEGORIES)}
     rows = sorted(rows, key=lambda r: (r["source"], order.get(r["category"], 99)))
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out + ".csv", "w", newline="", encoding="utf-8") as fh:
         w = csv.DictWriter(fh, fieldnames=FIELDS, extrasaction="ignore")
         w.writeheader()
         w.writerows(rows)
-    with open(out + ".json", "w", encoding="utf-8") as fh:
-        json.dump(rows, fh, ensure_ascii=False, indent=1)
-    print(f"\n{len(rows)} products -> {out}.csv / {out}.json")
+    # the scraper's own record, compressed (~12x smaller) so the repo stays small
+    with gzip.open(out + ".json.gz", "wt", encoding="utf-8", compresslevel=9) as fh:
+        json.dump(rows, fh, ensure_ascii=False, separators=(",", ":"))
+    write_site_data(rows, SITE_DATA)
+    print(f"\n{len(rows)} products -> {out}.json.gz / {out}.csv")
     for src in sorted({r["source"] for r in rows}):
         mine = [r for r in rows if r["source"] == src]
         cats = {}
@@ -527,12 +622,95 @@ def write_out(rows, out):
             f"{c} {n}" for c, n in sorted(cats.items(), key=lambda x: order.get(x[0], 99))) + ")")
 
 
+# ---------------------------------------------------------------------------
+# Site data: a compact file the website loads (docs/products.json).
+# Short format + lookup tables keeps it small; brands are interleaved so the
+# default "Recommended" view mixes brands instead of showing one at a time.
+# ---------------------------------------------------------------------------
+def mixed_order(rows):
+    by_src = {}
+    for r in rows:
+        by_src.setdefault(r["source"], []).append(r)
+    for lst in by_src.values():  # in stock, newest, then biggest discount first
+        lst.sort(key=lambda r: (not r.get("in_stock"), _neg_date(r.get("published_at")),
+                                -(r.get("discount_pct") or 0)))
+    queues = sorted(by_src.values(), key=len, reverse=True)
+    out, i = [], 0
+    while queues:
+        nxt = []
+        for q in queues:
+            if i < len(q):
+                out.append(q[i])
+            if i + 1 < len(q):
+                nxt.append(q)
+        queues, i = nxt, i + 1
+    return out
+
+
+def _neg_date(d):
+    # newest first: invert the ISO date string's characters for descending sort
+    return "".join(chr(0x10FFFF - ord(c)) for c in (d or "")[:19]) if d else "\U0010ffff"
+
+
+FIRST_PART = 1500
+SITE_DATA = "docs/products.json"   # what the website loads
+
+
+def write_site_data(rows, path):
+    sources, src_ix = [], {}
+    for r in rows:
+        if r["source"] not in src_ix:
+            src_ix[r["source"]] = len(sources)
+            base = re.match(r"https?://[^/]+", r["url"] or "")
+            sources.append({"n": r["source"], "b": base.group(0) if base else ""})
+    cats = CATEGORIES + sorted({r["category"] for r in rows} - set(CATEGORIES))
+    cat_ix = {c: i for i, c in enumerate(cats)}
+    colours = list(COLOUR_WORDS) + ["Other"]
+    col_ix = {c: i for i, c in enumerate(colours)}
+    products = []
+    for r in mixed_order([r for r in rows if r.get("price")]):
+        si = src_ix[r["source"]]
+        base = sources[si]["b"]
+        url = r["url"] or ""
+        if base and url.startswith(base):
+            url = url[len(base):]  # store the path only
+        img = re.sub(r"^https?:", "", r.get("image") or "")
+        img = re.sub(r"[?&]v=\d+$", "", img)  # cache-buster not needed
+        mask = 0
+        for z in (r.get("sizes_available") or "").split("|"):
+            if z in SIZE_ORDER:
+                mask |= 1 << SIZE_ORDER.index(z)
+        price = round(float(r["price"]))
+        mrp = round(float(r.get("mrp") or price))
+        products.append([si, cat_ix.get(r["category"], len(cats) - 1), r["title"], url, price,
+                         mrp if mrp > price else 0, col_ix.get(r.get("colour") or "Other", len(colours) - 1),
+                         mask, 1 if r.get("in_stock") else 0, img])
+    data = {"v": 1, "updated": now(), "sources": sources, "cats": cats, "colours": colours,
+            "sizes": SIZE_ORDER,
+            "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image"],
+            "p": products}
+    data["total"] = len(products)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
+    # first part: the top of the brand-mixed list, so the page shows products instantly
+    first = dict(data, p=products[:FIRST_PART], part="first")
+    with open(path.replace(".json", "-first.json"), "w", encoding="utf-8") as fh:
+        json.dump(first, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"site data: {len(products)} products -> {path} (+ first {min(FIRST_PART, len(products))} in a quick-load file)")
+
+
 def load_previous(out):
-    try:
-        with open(out + ".json", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (OSError, ValueError):
-        return []
+    """Last run's record. Older versions kept it uncompressed in docs/."""
+    for path in (out + ".json.gz", out + ".json", "docs/listings.json"):
+        try:
+            if path.endswith(".gz"):
+                with gzip.open(path, "rt", encoding="utf-8") as fh:
+                    return json.load(fh)
+            with open(path, encoding="utf-8") as fh:
+                return json.load(fh)
+        except (OSError, ValueError):
+            continue
+    return []
 
 
 def renormalise(rows):
@@ -567,8 +745,8 @@ def renormalise(rows):
 def main():
     sys.stdout.reconfigure(line_buffering=True)  # show progress live in the GitHub log
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="docs/listings",
-                    help="output path without extension (default docs/listings)")
+    ap.add_argument("--out", default="data/listings",
+                    help="record path without extension (default data/listings)")
     ap.add_argument("--renormalise", action="store_true",
                     help="don't scrape; re-apply category + colour rules to the existing file")
     args = ap.parse_args()
@@ -588,6 +766,8 @@ def main():
                 got = scrape_shopify(f, cfg)
             elif cfg["type"] == "zlaata":
                 got = scrape_zlaata(f, cfg)
+            elif cfg["type"] == "woocommerce":
+                got = scrape_woocommerce(f, cfg)
         except Exception as e:  # keep going if one site fails
             print(f"  FAILED: {e}", file=sys.stderr)
         prices = sorted(r["price"] for r in got if r.get("price"))

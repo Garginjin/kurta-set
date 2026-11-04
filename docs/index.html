@@ -49,9 +49,17 @@
   .opt input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; flex: none; }
   .opt .n { margin-left: auto; color: var(--soft); font-size: 13px; }
   .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; }
-  .sizes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .sizes .opt { justify-content: center; gap: 6px; min-height: 44px; border: 1px solid var(--field); border-radius: 10px; font-size: 14px; font-weight: 500; }
-  .sizes .opt input { width: 16px; height: 16px; }
+  /* sizes: wrapping pills that grow with their label and never overlap */
+  .sizes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sizes .opt { position: relative; flex: 0 0 auto; max-width: 100%; min-width: 52px; min-height: 40px; padding: 0 14px;
+    justify-content: center; border: 1px solid var(--field); border-radius: 20px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+  .sizes .opt span { overflow: hidden; text-overflow: ellipsis; }
+  .sizes .opt input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .sizes .opt:has(input:checked) { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .sizes .opt:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .sizes .opt:hover { border-color: var(--accent); }
+  .bq { height: 40px; border: 1px solid var(--field); border-radius: 10px; padding: 0 12px; margin-bottom: 6px; font-size: 14px; background: var(--tint); }
+  #bmore { align-self: flex-start; padding: 0; }
   .note { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--soft); }
   .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #9A9EB0; flex: none; }
 
@@ -109,12 +117,13 @@
     <div>
       <h1 id="title">Loading…</h1>
       <p class="sub" id="sub"></p>
+      <p class="sub" id="loading" hidden>Loading all styles… filters and counts will update in a moment.</p>
     </div>
     <div class="tools">
       <button type="button" class="filter-toggle" id="ftoggle" aria-expanded="false" aria-controls="filters">Filters</button>
       <label>Sort by
         <select id="sort">
-          <option value="rel">Recommended</option>
+          <option value="rel" selected hidden>Select</option>
           <option value="lo">Price: low to high</option>
           <option value="hi">Price: high to low</option>
           <option value="disc">Biggest discount</option>
@@ -127,7 +136,11 @@
     <aside id="filters" aria-label="Filters">
       <div class="ftop"><h2>Filters</h2><button type="button" class="linkbtn" id="clear" hidden>Clear all</button></div>
       <fieldset><legend>Category</legend><div id="f-cat"></div></fieldset>
-      <fieldset><legend>Brand</legend><div id="f-brand"></div></fieldset>
+      <fieldset><legend>Brand</legend>
+        <input type="search" id="bq" class="bq" aria-label="Search brands" placeholder="Search brands">
+        <div id="f-brand"></div>
+        <button type="button" class="linkbtn" id="bmore" hidden>Show all brands</button>
+      </fieldset>
       <fieldset><legend>Price</legend><div id="f-price"></div></fieldset>
       <fieldset><legend>Discount</legend><div id="f-disc"></div></fieldset>
       <fieldset><legend>Size</legend><div class="sizes" id="f-size"></div><p class="note" id="size-note"></p></fieldset>
@@ -168,7 +181,23 @@ const COLOUR_HEX = {
   Blue: "#2F4A9E", Purple: "#6B3FA0", Grey: "#9096A3", Gold: "#C9A23F",
   Multicolour: "conic-gradient(#E58FAE, #E8B931, #2E7D4F, #2F4A9E, #6B3FA0, #E58FAE)", Other: "#EEF0F6"
 };
-const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL", "XXXL", "4XL", "5XL", "6XL", "FREE SIZE"];
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL", "Free size"];
+const BUST = { 30: "XXS", 32: "XXS", 34: "XS", 36: "S", 38: "M", 40: "L", 42: "XL", 44: "XXL", 46: "3XL", 48: "4XL", 50: "5XL", 52: "6XL", 54: "7XL", 56: "8XL" };
+// "S (36)", "S - 36", "SMALL", "36" -> "S"; "Set of 3", "Unstitched" -> not a size
+function normSize(raw) {
+  const t = String(raw).toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
+  if (!t) return null;
+  if (/\bFREE\b|\bONE SIZE\b|\bFS\b|\bFREESIZE\b/.test(t)) return "Free size";
+  if (/\bSET\b|STITCH|\bYRS?\b|\bYEARS?\b|\bMONTHS?\b|\bKIDS?\b/.test(t)) return null;
+  let m = t.match(/\b([2-8])\s?XL\b/); if (m) return m[1] === "2" ? "XXL" : m[1] + "XL";
+  m = t.match(/\b(X{3,8})L\b/); if (m) return m[1].length + "XL";
+  const words = [[/\bXXL\b|\bXX L\b|\bDOUBLE XL\b/, "XXL"], [/\bXL\b|\bEXTRA LARGE\b|\bX LARGE\b/, "XL"], [/\bXXS\b/, "XXS"],
+    [/\bXS\b|\bEXTRA SMALL\b|\bX SMALL\b/, "XS"], [/\bS\b|\bSMALL\b/, "S"], [/\bM\b|\bMEDIUM\b/, "M"], [/\bL\b|\bLARGE\b/, "L"]];
+  for (const [rx, z] of words) if (rx.test(t)) return z;
+  m = t.match(/\b(\d{2})\b/); if (m && BUST[+m[1]]) return BUST[+m[1]];
+  return null;
+}
+const normSizes = list => [...new Set(list.map(normSize).filter(Boolean))].sort((a, b) => SIZE_ORDER.indexOf(a) - SIZE_ORDER.indexOf(b));
 const PRICE_BUCKETS = [
   { k: "all", label: "Any price", test: () => true },
   { k: "u1000", label: "Under ₹1,000", test: p => p.price < 1000 },
@@ -186,113 +215,169 @@ const rs = n => "₹" + Math.round(n).toLocaleString("en-IN");
 const split = s => (s || "").split("|").map(x => x.trim()).filter(Boolean);
 
 let ALL = [];
-const st = { cats: new Set(), brands: new Set(), price: "all", disc: 0, sizes: new Set(), colours: new Set(), stock: true, q: "", sort: "rel", shown: PAGE_SIZE };
+const st = { cats: new Set(), brands: new Set(), price: "all", disc: 0, sizes: new Set(), colours: new Set(), stock: true, q: "", sort: "rel", shown: PAGE_SIZE, bq: "", allBrands: false };
 
-function sizeKey(z) { const i = SIZE_ORDER.indexOf(z.toUpperCase()); return i < 0 ? 100 + parseFloat(z) || 999 : i; }
+function sizeKey(z) { const i = SIZE_ORDER.indexOf(z); return i < 0 ? 999 : i; }
+
+// Shopify images can be resized by the CDN: ask for ~500px instead of full size
+function imgUrl(u) {
+  if (!u) return "";
+  if (u.startsWith("//")) u = "https:" + u;
+  if (/\/cdn\/shop\/|cdn\.shopify\.com/.test(u) && !/[?&]width=/.test(u)) u += (u.includes("?") ? "&" : "?") + "width=500";
+  return u;
+}
+
+function finish(p, i) {
+  p.i = i;
+  p.disc = p.mrp > p.price ? Math.round((p.mrp - p.price) / p.mrp * 100) : 0;
+  p.q = (p.title + " " + p.source + " " + p.colour + " " + p.category).toLowerCase();
+  return p;
+}
+
+function parseCompact(d) {
+  return d.p.map(([si, ci, title, url, price, mrp, co, mask, stock, image], i) => {
+    const src = d.sources[si];
+    const sizes = [];
+    for (let k = 0; k < d.sizes.length; k++) if (mask & (1 << k)) sizes.push(d.sizes[k]);
+    return finish({ source: src.n, category: d.cats[ci], title, url: url.startsWith("http") ? url : src.b + url,
+      price, mrp: mrp || price, colour: d.colours[co] || "Other", sizes, inStock: stock === 1, image: imgUrl(image) }, i);
+  });
+}
+
+function showUpdated(u) {
+  if (u) $("updated").textContent = "Last updated " + new Date(u).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) + ". ";
+}
 
 async function load() {
   $("logo").textContent = SITE_NAME;
+  const opts = { cache: "no-cache" };  // reuse the browser's copy unless the file changed
+  const full = fetch("products.json", opts).then(r => r.ok ? r.json() : null).catch(() => null);
+  let started = false;
+  const start = list => {
+    ALL = list;
+    if (!started) {
+      started = true;
+      const pre = new URLSearchParams(location.search).get("category");  // ?category=Kurta%20sets
+      if (pre && ALL.some(p => p.category === pre)) st.cats.add(pre);
+      bind();
+    }
+    render();
+  };
   try {
-    const r = await fetch("listings.json?t=" + Date.now());
-    if (!r.ok) throw new Error(r.status);
-    const seen = new Set();  // drop repeats of the same product
-    ALL = (await r.json()).filter(p => p.price && !seen.has(p.source + "|" + p.product_id) && seen.add(p.source + "|" + p.product_id)).map((p, i) => ({
-      ...p, i,
-      price: +p.price, mrp: +(p.mrp || p.price),
-      disc: +p.discount_pct || 0,
-      sizesAvail: split(p.sizes_available).map(z => z.toUpperCase()),
-      colour: p.colour || "Other",
-      inStock: p.in_stock === true || p.in_stock === "True" || p.in_stock === "true"
-    }));
+    // 1) small first part: shows products straight away
+    const first = await fetch("products-first.json", opts).then(r => r.ok ? r.json() : null).catch(() => null);
+    if (first && first.p.length) {
+      start(parseCompact(first));
+      showUpdated(first.updated);
+      if (first.total > first.p.length) $("loading").hidden = false;
+    }
+    // 2) everything
+    const d = await full;
+    if (d) { start(parseCompact(d)); showUpdated(d.updated); }
+    else if (!started) throw new Error("no product file");
   } catch (e) {
-    $("title").textContent = "Couldn't load products";
-    $("sub").textContent = "listings.json is missing or unreadable.";
-    return;
+    if (!started) { $("title").textContent = "Couldn't load products"; $("sub").textContent = "The product file is missing or unreadable."; }
   }
-  // a link like ?category=Kurta%20sets opens with that category ticked
-  const pre = new URLSearchParams(location.search).get("category");
-  if (pre && ALL.some(p => p.category === pre)) st.cats.add(pre);
-  const last = ALL.map(p => p.scraped_at).filter(Boolean).sort().pop();
-  if (last) $("updated").textContent = "Last updated " + new Date(last).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) + ". ";
-  bind();
-  render();
+  $("loading").hidden = true;
 }
 
 function resetFilters() {
   st.cats.clear(); st.brands.clear(); st.sizes.clear(); st.colours.clear();
-  st.price = "all"; st.disc = 0; st.q = ""; $("q").value = ""; st.shown = PAGE_SIZE;
+  st.price = "all"; st.disc = 0; st.q = ""; $("q").value = ""; st.bq = ""; st.shown = PAGE_SIZE;
   render();
 }
 
 function bind() {
-  $("q").addEventListener("input", e => { st.q = e.target.value; st.shown = PAGE_SIZE; render(); });
+  let t;
+  $("q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; st.shown = PAGE_SIZE; render(); }, 150); });
   $("sort").addEventListener("change", e => { st.sort = e.target.value; render(); });
   $("stock").addEventListener("change", e => { st.stock = e.target.checked; st.shown = PAGE_SIZE; render(); });
-  $("clear").addEventListener("click", () => { st.stock = true; $("stock").checked = true; resetFilters(); });
-  $("more").querySelector("button").addEventListener("click", () => { st.shown += PAGE_SIZE; render(); });
+  $("clear").addEventListener("click", () => { st.stock = true; $("stock").checked = true; st.sort = "rel"; $("sort").value = "rel"; resetFilters(); });
+  $("more").querySelector("button").addEventListener("click", () => { st.shown += PAGE_SIZE; render(false); });
   $("ftoggle").addEventListener("click", () => {
     const open = $("filters").classList.toggle("open");
     $("ftoggle").setAttribute("aria-expanded", open);
   });
+  $("bq").addEventListener("input", e => { st.bq = e.target.value; renderBrands(); });
+  $("bmore").addEventListener("click", () => { st.allBrands = !st.allBrands; renderBrands(); });
   $("filters").addEventListener("change", e => {
-    const t = e.target, v = t.value;
+    const tg = e.target, v = tg.value;
     const sets = { category: st.cats, brand: st.brands, size: st.sizes, colour: st.colours };
-    if (sets[t.name]) { t.checked ? sets[t.name].add(v) : sets[t.name].delete(v); }
-    else if (t.name === "price") st.price = v;
-    else if (t.name === "disc") st.disc = +v;
+    if (sets[tg.name]) { tg.checked ? sets[tg.name].add(v) : sets[tg.name].delete(v); }
+    else if (tg.name === "price") st.price = v;
+    else if (tg.name === "disc") st.disc = +v;
     else return;
     st.shown = PAGE_SIZE; render();
   });
 }
 
-function matches(p, skip) {
-  if (skip !== "category" && st.cats.size && !st.cats.has(p.category)) return false;
-  if (skip !== "brand" && st.brands.size && !st.brands.has(p.source)) return false;
-  if (skip !== "price" && !PRICE_BUCKETS.find(b => b.k === st.price).test(p)) return false;
-  if (skip !== "disc" && p.disc < st.disc) return false;
-  if (skip !== "size" && st.sizes.size && !p.sizesAvail.some(z => st.sizes.has(z))) return false;
-  if (skip !== "colour" && st.colours.size && !st.colours.has(p.colour)) return false;
-  if (st.stock && !p.inStock) return false;
-  const q = st.q.trim().toLowerCase();
-  if (q && !q.split(/\s+/).every(w => (p.title + " " + p.source + " " + p.colour + " " + (p.tags || "")).toLowerCase().includes(w))) return false;
-  return true;
-}
-
-// counts reflect the other active filters, so users never pick a dead end
-function counts(key, fn) {
-  const m = {};
-  ALL.forEach(p => { if (matches(p, key)) [].concat(fn(p)).forEach(v => m[v] = (m[v] || 0) + 1); });
-  return m;
+// One pass over all products: builds the result list AND the counts shown next to
+// every filter option (each count respects all the *other* active filters).
+let LIST = [], COUNTS = {}, NOSIZE = new Set();
+function compute() {
+  const priceOk = PRICE_BUCKETS.find(b => b.k === st.price).test;
+  const words = st.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const C = { category: {}, brand: {}, size: {}, colour: {} };
+  const list = [], nosize = new Set();
+  const add = (g, v) => { C[g][v] = (C[g][v] || 0) + 1; };
+  for (const p of ALL) {
+    if (st.stock && !p.inStock) continue;
+    if (words.length && !words.every(w => p.q.includes(w))) continue;
+    let fails = 0, failed = "";
+    if (st.cats.size && !st.cats.has(p.category)) { fails++; failed = "category"; }
+    if (st.brands.size && !st.brands.has(p.source)) { fails++; failed = "brand"; }
+    if (!priceOk(p)) { fails++; failed = "price"; }
+    if (p.disc < st.disc) { fails++; failed = "disc"; }
+    if (st.sizes.size && !p.sizes.some(z => st.sizes.has(z))) { fails++; failed = "size"; }
+    if (st.colours.size && !st.colours.has(p.colour)) { fails++; failed = "colour"; }
+    if (fails > 1) continue;
+    if (fails === 0) {
+      list.push(p);
+      add("category", p.category); add("brand", p.source); add("colour", p.colour);
+      for (const z of p.sizes) add("size", z);
+      if (!p.sizes.length) nosize.add(p.source);
+    } else if (failed === "category") add("category", p.category);
+    else if (failed === "brand") add("brand", p.source);
+    else if (failed === "colour") add("colour", p.colour);
+    else if (failed === "size") { for (const z of p.sizes) add("size", z); if (!p.sizes.length) nosize.add(p.source); }
+  }
+  LIST = list; COUNTS = C; NOSIZE = nosize;
 }
 
 function opt(type, name, value, label, n, checked, extra = "") {
-  return `<label class="opt"><input type="${type}" name="${name}" value="${esc(value)}"${checked ? " checked" : ""}>${extra}<span>${esc(label)}</span>${n !== null ? `<span class="n">${n}</span>` : ""}</label>`;
+  return `<label class="opt" title="${esc(label)}"><input type="${type}" name="${name}" value="${esc(value)}"${checked ? " checked" : ""}>${extra}<span>${esc(label)}</span>${n !== null ? `<span class="n">${n.toLocaleString("en-IN")}</span>` : ""}</label>`;
+}
+
+// options with results, plus anything already ticked (so it can be unticked)
+const shownKeys = (counts, selected, order) => {
+  const keys = new Set([...Object.keys(counts), ...selected]);
+  return order ? [...order.filter(k => keys.has(k)), ...[...keys].filter(k => !order.includes(k))] : [...keys];
+};
+
+const BRAND_PREVIEW = 8;
+function renderBrands() {
+  const bc = COUNTS.brand || {};
+  const q = st.bq.trim().toLowerCase();
+  let brands = shownKeys(bc, st.brands).sort((a, b) => (st.brands.has(b) - st.brands.has(a)) || (bc[b] || 0) - (bc[a] || 0) || a.localeCompare(b));
+  if (q) brands = brands.filter(b => b.toLowerCase().includes(q));
+  const total = brands.length;
+  const show = q || st.allBrands ? brands : brands.slice(0, BRAND_PREVIEW);
+  $("f-brand").innerHTML = show.map(b => opt("checkbox", "brand", b, b, bc[b] || 0, st.brands.has(b))).join("") || '<span class="note">No brand matches</span>';
+  $("bmore").hidden = !!q || total <= BRAND_PREVIEW;
+  $("bmore").textContent = st.allBrands ? "Show fewer" : `Show all ${total} brands`;
 }
 
 function renderFilters() {
-  const pc = counts("category", p => p.category);
-  const present = [...new Set(ALL.map(p => p.category))];
-  const cats = [...CATEGORY_ORDER.filter(c => present.includes(c)), ...present.filter(c => !CATEGORY_ORDER.includes(c))];
-  $("f-cat").innerHTML = cats.map(c => opt("checkbox", "category", c, c, pc[c] || 0, st.cats.has(c))).join("");
-  const inCat = st.cats.size ? ALL.filter(p => st.cats.has(p.category)) : ALL;
-  const brands = [...new Set(inCat.map(p => p.source))].sort();
-  const bc = counts("brand", p => p.source);
-  $("f-brand").innerHTML = brands.map(b => opt("checkbox", "brand", b, b, bc[b] || 0, st.brands.has(b))).join("");
-
+  const C = COUNTS;
+  $("f-cat").innerHTML = shownKeys(C.category, st.cats, CATEGORY_ORDER).map(c => opt("checkbox", "category", c, c, C.category[c] || 0, st.cats.has(c))).join("");
+  renderBrands();
   $("f-price").innerHTML = PRICE_BUCKETS.map(b => opt("radio", "price", b.k, b.label, null, st.price === b.k)).join("");
   $("f-disc").innerHTML = DISCOUNTS.map(([v, l]) => opt("radio", "disc", v, l, null, st.disc === v)).join("");
-
-  const sizes = [...new Set(inCat.flatMap(p => p.sizesAvail))].sort((a, b) => sizeKey(a) - sizeKey(b));
-  const sc = counts("size", p => p.sizesAvail);
-  $("f-size").innerHTML = sizes.map(z => opt("checkbox", "size", z, z, null, st.sizes.has(z))).join("") || '<span class="note">No size data</span>';
-  const noSize = [...new Set(inCat.filter(p => !p.sizesAvail.length).map(p => p.source))];
-  $("size-note").textContent = noSize.length ? `${noSize.join(", ")} list sizes only on their own site, so their items are hidden when you pick a size.` : "";
-
-  const cc = counts("colour", p => p.colour);
-  const colours = Object.keys(COLOUR_HEX).filter(c => inCat.some(p => p.colour === c));
-  $("f-colour").innerHTML = colours.map(c => opt("checkbox", "colour", c, c, cc[c] || 0, st.colours.has(c),
-    `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c]}"></span>`)).join("");
-
+  $("f-size").innerHTML = shownKeys(C.size, st.sizes, SIZE_ORDER).map(z => opt("checkbox", "size", z, z, null, st.sizes.has(z))).join("") || '<span class="note">No size data</span>';
+  const ns = [...NOSIZE];
+  $("size-note").textContent = ns.length ? (ns.length <= 3 ? ns.join(", ") : `${ns.length} brands`) + " list sizes only on their own site for some items, so those are hidden when you pick a size." : "";
+  $("f-colour").innerHTML = shownKeys(C.colour, st.colours, Object.keys(COLOUR_HEX)).map(c => opt("checkbox", "colour", c, c, C.colour[c] || 0, st.colours.has(c),
+    `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c] || COLOUR_HEX.Other}"></span>`)).join("");
   const active = st.cats.size + st.brands.size + st.sizes.size + st.colours.size + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
   $("clear").hidden = !active;
   $("clear").textContent = `Clear all (${active})`;
@@ -304,7 +389,7 @@ function card(p) {
   return `<article class="card${p.inStock ? "" : " sold"}">
     <a class="img" href="${esc(url)}" target="_blank" rel="noopener sponsored" tabindex="-1" aria-hidden="true">
       <span class="ph">${esc(p.source)}</span>
-      ${p.image ? `<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" onerror="this.remove()">` : ""}
+      ${p.image ? `<img src="${esc(safeUrl(p.image))}" alt="" loading="lazy" decoding="async" onerror="this.remove()">` : ""}
       ${p.disc > 0 ? `<span class="badge">${p.disc}% off</span>` : ""}
       ${p.inStock ? "" : '<span class="oos">Out of stock</span>'}
     </a>
@@ -312,24 +397,25 @@ function card(p) {
     <h3><a href="${esc(url)}" target="_blank" rel="noopener sponsored">${esc(p.title)}</a></h3>
     <div class="price"><strong>${rs(p.price)}</strong>${p.disc > 0 ? `<s>${rs(p.mrp)}</s><span class="off">${p.disc}% off</span>` : ""}</div>
     <span class="meta"><span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[p.colour] || COLOUR_HEX.Other}"></span>${esc(p.colour)}</span>
-    <span class="meta">${p.sizesAvail.length ? "Sizes: " + esc(p.sizesAvail.join(" · ")) : "Sizes on brand site"}</span>
+    <span class="meta">${p.sizes.length ? "Sizes: " + esc(p.sizes.join(" · ")) : "Sizes on brand site"}</span>
     <a class="go" href="${esc(url)}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
   </article>`;
 }
 
-function render() {
-  renderFilters();
-  let list = ALL.filter(p => matches(p));
-  const by = { lo: (a, b) => a.price - b.price, hi: (a, b) => b.price - a.price, disc: (a, b) => b.disc - a.disc, rel: (a, b) => a.i - b.i };
-  list.sort((a, b) => (b.inStock - a.inStock) || by[st.sort](a, b));
-
+function render(recompute = true) {
+  if (recompute) {
+    compute();
+    renderFilters();
+    const by = { lo: (a, b) => a.price - b.price, hi: (a, b) => b.price - a.price, disc: (a, b) => b.disc - a.disc, rel: (a, b) => a.i - b.i };
+    LIST.sort((a, b) => (b.inStock - a.inStock) || by[st.sort](a, b));
+  }
+  const list = LIST;
   const sel = CATEGORY_ORDER.filter(c => st.cats.has(c)).concat([...st.cats].filter(c => !CATEGORY_ORDER.includes(c)));
   const label = !sel.length ? "All styles" : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
   $("title").textContent = label;
-  document.title = `${label} from ${new Set(ALL.map(p => p.source)).size} brands | ${SITE_NAME}`;
+  document.title = `${label} | ${SITE_NAME}`;
   const nb = new Set(list.map(p => p.source)).size;
-  $("sub").textContent = `${list.length} ${list.length === 1 ? "style" : "styles"} from ${nb} ${nb === 1 ? "brand" : "brands"}`;
-
+  $("sub").textContent = `${list.length.toLocaleString("en-IN")} ${list.length === 1 ? "style" : "styles"} from ${nb} ${nb === 1 ? "brand" : "brands"}`;
   $("cards").innerHTML = list.length
     ? list.slice(0, st.shown).map(card).join("")
     : `<div class="empty"><p>Nothing matches these filters</p><button type="button" class="linkbtn" onclick="document.getElementById('clear').click()">Clear filters</button></div>`;

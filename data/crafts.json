@@ -1,0 +1,210 @@
+{
+  "_readme": "One entry per craft id in CRAFT_RULES (scraper.py). blurb = page write-up (max 100 words, casual). sources = where the facts come from. Edit freely; the scraper copies this to docs/crafts.json.",
+  "chikankari": {
+    "region": "Lucknow, Uttar Pradesh",
+    "blurb": "Chikankari is Lucknow's signature hand embroidery, and it's been around for roughly four centuries. It started as white thread on white muslin, which is why the classic look is so soft and airy. On sheer fabric, stitches on the back show through as a gentle shadow, a big part of its charm. The best-known trick is jaali, where threads are teased apart to make tiny holes without cutting the cloth. These days you'll see it on pastels and brights too, but that light-as-air feel stays the same.",
+    "sources": ["https://en.wikipedia.org/wiki/Chikankari", "https://mapacademy.io/?p=3199"]
+  },
+  "gota-patti": {
+    "region": "Rajasthan",
+    "blurb": "Gota patti is Rajasthan's ribbon work. Strips of gold or silver ribbon (gota) are cut into shapes like flowers, mangoes and leaves, laid onto fabric and stitched down along the edges. The result looks rich and heavy but is surprisingly light to wear, which is exactly why it suits the desert heat. In Rajasthan it's the go-to for weddings, festivals and other auspicious days, usually on dupattas, ghagras and borders. If you want a festive outfit that shines without weighing you down, this is the one.",
+    "sources": ["https://en.wikipedia.org/wiki/Gota_patti", "https://handicrafts.gov.in/crafts/All_Crafts/Craft_Categories/Textile/Embroidery/Gota_Patti_Embroidery/GotaPattiWebPage.html"]
+  },
+  "zardozi": {
+    "region": "Lucknow, Bareilly, Bhopal and more",
+    "blurb": "Zardozi literally means sewing with gold, from the Persian words zar (gold) and dozi (sewing). It's heavy metal-thread embroidery, traditionally on silk, satin or velvet, using coiled wire (dabka), flat thread (tilla), sequins and beads to build raised, glittering motifs. Real gold and silver were used once; today it's mostly copper wire with a gold or silver polish. It's the embroidery of royal courts and still the heart of bridal and festive wear. Expect structure, shine and serious occasion energy.",
+    "sources": ["https://en.wikipedia.org/wiki/Zardozi", "https://handicrafts.gov.in/crafts/All_Crafts/Craft_Categories/Textile/Embroidery/Zari_Zardoji/ZariZardojiWebPage.html"]
+  },
+  "mukaish": {
+    "region": "Lucknow, Uttar Pradesh",
+    "blurb": "Mukaish (also called badla) is a Lucknow craft where thin strips of metal wire are pushed through the fabric and twisted in place, leaving tiny metallic dots that catch the light. It flourished in the 18th and 19th centuries and was often added on top of chikankari, a pairing that's popular again today. Very few artisans still do it by hand, so a real mukaish piece is a bit special. Think a soft, all-over sparkle rather than heavy bling.",
+    "sources": ["https://www.sahapedia.org/badla-embroiderers-of-lucknow", "https://asiainch.org/craft/mukaish-badla-metallic-embroidery-of-lucknow-uttar-pradesh/"]
+  },
+  "mirror-work": {
+    "region": "Gujarat and Rajasthan",
+    "blurb": "Mirror work, or shisha, stitches small pieces of mirror onto fabric and holds each one in place with a ring of embroidery. In Gujarati it's called abhla bharat. Gujarat and Rajasthan are its heartlands, and it's practically the Navratri dress code there. Communities in Kutch each have their own style of stitch and mirror size. Real hand shisha has visible stitching around every mirror; glued ones don't. Great for festive and garba-ready outfits that literally sparkle when you move.",
+    "sources": ["https://en.wikipedia.org/wiki/Shisha_(embroidery)", "https://www.utsavpedia.com/?p=5051"]
+  },
+  "aari": {
+    "region": "Kashmir, Kutch and beyond",
+    "blurb": "Aari work is embroidery done with a hook instead of a needle. The fabric is stretched on a frame, thread is fed from underneath and the hook pulls it up in loops, building neat lines of chain stitch. Because the hook moves fast, artisans can cover large areas with fine, flowing patterns. It's closely linked with Kashmir, where it's used for floral and paisley designs, and is also practised in Kutch. Look for that slightly raised, textured chain-stitch line.",
+    "sources": ["https://en.wikipedia.org/wiki/Embroidery_of_India", "https://trc-leiden.nl/trc-needles/regional-traditions/indian-subcontinent/ari-embroidery"]
+  },
+  "kantha": {
+    "region": "West Bengal and Bangladesh",
+    "blurb": "Kantha began in rural Bengal homes, where women layered old saris and dhotis and stitched them together with simple running stitches to make quilts and wraps. Threads were often pulled from the old sari borders themselves. That humble running stitch grew into an art form full of flowers, animals, folk tales and everyday scenes. Today you'll find it on saris, dupattas and kurtas, usually on silk or cotton. It's slow, personal craft with a lovely rippled texture.",
+    "sources": ["https://amounee.com/pages/kantha", "https://paramparikkarigar.com/?p=2817"]
+  },
+  "kashmiri": {
+    "region": "Kashmir",
+    "blurb": "Kashmiri embroidery covers a few related styles. Sozni is ultra-fine needlework, historically used on pashmina shawls, with designs inspired by the valley's flowers and birds. Kashida is bolder and more colourful, worked on wool, cotton and silk. Aari, the hook-and-chain-stitch style, is the third big one. Expect chinar leaves, paisleys, vines and blossoms. On kurtas and sets it brings a cosy, nature-filled look that works well from autumn into winter.",
+    "sources": ["https://www.sahapedia.org/stitches-tradition", "https://handicrafts.gov.in/crafts/All_Crafts/Craft_Categories/Textile/Embroidery/Kashmir_Sozani_Craft/KashmirSozaniWebPage.html"]
+  },
+  "phulkari": {
+    "region": "Punjab and Haryana",
+    "blurb": "Phulkari means flower work: bright floral embroidery from Punjab, traditionally on dupattas.",
+    "sources": ["https://en.wikipedia.org/wiki/Dupatta"]
+  },
+  "kutch": {
+    "region": "Kutch, Gujarat",
+    "blurb": "Kutch is home to many embroidery styles, each tied to a community: Rabari, Ahir, Jat, Mutva, Sodha and more. Rabari work is known for bold motifs and mirrors set in chain and buttonhole stitches. Ahir work is floral and symmetrical. The common thread is colour, mirrors and dense, joyful stitching. Banjara work, from nomadic communities elsewhere, mixes appliqué, mirrors and beads in a similar spirit. These pieces feel handmade in the best way: bright, bold and full of character.",
+    "sources": ["https://en.wikipedia.org/wiki/Kutch_embroidery", "https://amounee.com/pages/kutchi-embroidery", "https://en.wikipedia.org/wiki/Embroidery_of_India"]
+  },
+  "thread-resham": {
+    "region": "Across India",
+    "blurb": "Thread and resham work is embroidery done in cotton or silk (resham) thread, without the metal, mirrors or beads of heavier styles. It covers a lot: floral vines, borders, yokes, all-over jaals and small motifs. It's usually softer to the touch and easier to wear for long hours than metallic work, which makes it a great pick for everyday, office and day events. The colour of the thread does most of the talking here.",
+    "sources": []
+  },
+  "sequins": {
+    "region": "Across India",
+    "blurb": "Sequin work uses small shiny discs (sitara) stitched onto fabric, either scattered for a light shimmer or packed close for full sparkle. It's often mixed with thread or zari embroidery to add highlights. Sequins are the quickest way to make an outfit party-ready, and they photograph beautifully under lights. If you like your festive and evening looks with a bit of glitter, start here.",
+    "sources": []
+  },
+  "beads-stones": {
+    "region": "Across India",
+    "blurb": "This group covers embellishment with beads, pearls (moti), cut dana, kundan, crystals and stones. They're stitched on by hand to outline motifs, fill necklines and borders, or add texture to heavier pieces. Pearls and beads give a soft, elegant finish; stones and kundan bring more drama. You'll see it most on festive sets, lehengas and occasion sarees. Handle these pieces gently and store them flat.",
+    "sources": []
+  },
+  "cutwork-applique": {
+    "region": "Across India",
+    "blurb": "This group brings together techniques that play with the fabric itself. Cutwork cuts small shapes out and finishes the edges with stitching. Appliqué and patchwork sew pieces of fabric on top to make motifs. Schiffli and hakoba are eyelet-style embroideries with little open holes, great on cotton for summer. The result is texture you can see and feel, often light and airy rather than heavy.",
+    "sources": []
+  },
+  "hand-block": {
+    "region": "Rajasthan, Gujarat and beyond",
+    "blurb": "Hand block printing uses carved wooden blocks dipped in colour and pressed onto fabric by hand, one impression at a time. Rajasthan, especially around Jaipur, has done this for centuries, often with natural dyes like indigo, madder and turmeric. Because it's done by hand, small variations in the print are normal and part of the charm. This page covers block prints that don't name a specific style; see Sanganeri, Bagru, Dabu, Ajrakh and Kalamkari for those.",
+    "sources": ["https://en.wikipedia.org/wiki/Hand_block_print_workshop"]
+  },
+  "sanganeri": {
+    "region": "Sanganer, near Jaipur, Rajasthan",
+    "blurb": "Sanganeri prints come from Sanganer, just outside Jaipur, where printers from Gujarat settled toward the end of the 17th century. The style is all about small, delicate florals (butis and butas), paisleys, vines and birds, usually printed in bright colours on a white or light ground. It's crisp, cheerful and easy to wear. If you love fine floral block prints on cotton for summer, Sanganeri is a classic.",
+    "sources": ["https://www.handicrafts.gov.in/crafts/All_Crafts/Craft_Categories/Textile/Hand_Block_Printing/Sanganeri_Hand_Block_Printing/Sanganeri_Hand_Block_PrintingWebPage.html", "https://en.wikipedia.org/wiki/Sanganer"]
+  },
+  "bagru": {
+    "region": "Bagru, near Jaipur, Rajasthan",
+    "blurb": "Bagru prints come from the town of Bagru near Jaipur, where the Chhipa community has been printing by hand for generations. The look is earthy: natural dyes like indigo for blue, madder root for red and iron for black, often on an off-white or dyed ground. Bagru printers also use dabu, the mud-resist method. Think warm, grounded colours and bold motifs, made to look and feel handmade.",
+    "sources": ["https://en.wikipedia.org/wiki/Bagru_print", "https://en.wikipedia.org/wiki/Bagru"]
+  },
+  "dabu": {
+    "region": "Rajasthan (Akola, Bagru, Sanganer, Pipar)",
+    "blurb": "Dabu is a mud-resist print from Rajasthan. Artisans stamp a paste of clay, lime, gum and wheat chaff onto fabric with wooden blocks, sprinkle sawdust on it, then dip the cloth in dye, most often indigo. Wherever the mud sat, the dye can't reach, so the pattern shows through. As the mud dries it cracks, leaving fine veins in the design. Akola in Chittorgarh is seen as its birthplace. Deep blues and that crackled look are the giveaways.",
+    "sources": ["https://en.wikipedia.org/wiki/Dabu_printing", "https://handicrafts.gov.in/Crafts/akolacraftwebpage.html"]
+  },
+  "kalamkari": {
+    "region": "Andhra Pradesh",
+    "blurb": "Kalamkari comes from Andhra Pradesh in two styles. In Srikalahasti, artists draw and colour freehand with a kalam (pen), traditionally telling stories from the epics. In Machilipatnam (Pedana), designs are block printed with vegetable dyes, often in Persian-inspired florals, creepers, birds and the tree of life. Both are GI-registered. The palette is earthy (rust, black, mustard, indigo), and the motifs are full of story.",
+    "sources": ["https://en.wikipedia.org/wiki/Kalamkari", "https://en.wikipedia.org/wiki/Pedana_kalamkari"]
+  },
+  "ajrakh": {
+    "region": "Kutch, Gujarat (and Sindh)",
+    "blurb": "Ajrakh is a resist block print that began in Sindh and found a second home in Kutch after the Khatri community moved there about 500 years ago. It's a long process, around 14 stages of printing, mordanting and dyeing, mostly with indigo and madder. You'll recognise it by its strict geometric symmetry and its deep indigo, red, black and white palette. Bold, graphic and timeless.",
+    "sources": ["https://handicrafts.gov.in/crafts/All_Crafts/Craft_Categories/Textile/Hand_Block_Printing/Kutch_Ajrakh/KutchAjrakhwebpage.html", "https://en.wikipedia.org/wiki/Ajrak"]
+  },
+  "bagh": {
+    "region": "Bagh, Madhya Pradesh",
+    "blurb": "Bagh print comes from the village of Bagh in Madhya Pradesh. It's hand block printed with natural dyes, mostly red and black on a white ground, in geometric, paisley and floral designs. Water from the Bagh river is said to give the colours their glow.",
+    "sources": ["https://en.wikipedia.org/wiki/Bagh_print"]
+  },
+  "bandhani": {
+    "region": "Gujarat and Rajasthan",
+    "blurb": "Bandhani (or bandhej) is tie-dye, Indian style. Tiny bits of cloth are pinched up and tied tight with thread, often thousands on one piece, then the fabric is dyed, usually from lighter to darker colours. Untie it and you get patterns of little dots. Gujarat and Rajasthan are the main centres, with towns like Bhuj and Jamnagar known for it. It's a wedding and festival favourite. Note: \"bandhani print\" is a printed copy, not the real thing, so those styles aren't here.",
+    "sources": ["https://en.wikipedia.org/wiki/Bandhani"]
+  },
+  "leheriya": {
+    "region": "Rajasthan (Jaipur, Jodhpur)",
+    "blurb": "Leheriya is Rajasthan's wave-pattern tie-dye. The name comes from leher, meaning wave, inspired by wind rippling across desert sand. Fabric is rolled diagonally, tied at intervals and dyed, giving those signature stripes. Dye it again along the opposite diagonal and you get mothara, a checked version. Jaipur and Jodhpur are the main centres, and it's a must for Teej and the monsoon. Printed \"leheriya print\" styles aren't counted here.",
+    "sources": ["https://en.wikipedia.org/wiki/Leheriya"]
+  },
+  "shibori": {
+    "region": "Japan, and widely made in India",
+    "blurb": "Shibori is a Japanese family of resist-dyeing techniques: fabric is folded, stitched, twisted or clamped before dyeing, so parts of it stay undyed. The name comes from a Japanese verb meaning to wring or squeeze. Many Indian labels now use shibori and other tie-dye methods, often in indigo. This page also includes general tie-dye. Expect soft, organic patterns where no two pieces are exactly alike.",
+    "sources": ["https://en.wikipedia.org/wiki/Shibori", "https://en.wikipedia.org/wiki/Tie-dyeing"]
+  },
+  "hand-painted": {
+    "region": "Across India",
+    "blurb": "Hand-painted pieces have their design painted straight onto the fabric with a brush instead of printed or woven in. That makes each one a little different, and the strokes often show if you look closely. Brands use it for florals, folk motifs and one-off art pieces. Madhubani and Pichwai have their own pages if you want a specific painting tradition.",
+    "sources": []
+  },
+  "madhubani": {
+    "region": "Mithila, Bihar",
+    "blurb": "Madhubani (or Mithila) art is a painting style from the Mithila region, named after Madhubani district in Bihar. It was traditionally painted by women on freshly plastered mud walls for festivals, weddings and rituals, and later moved to paper, canvas and cloth. Look for gods and goddesses, fish, birds, the sun and moon, and every bit of space filled with flowers and patterns. On clothing it's bold, storytelling and very wearable art.",
+    "sources": ["https://en.wikipedia.org/wiki/Madhubani_art"]
+  },
+  "pichwai": {
+    "region": "Nathdwara, Rajasthan",
+    "blurb": "Pichwai means \"that which hangs behind\". These are devotional cloth paintings made to hang behind Shrinathji, a form of Krishna, at the Nathdwara temple in Rajasthan. They show scenes from Krishna's life, with cows, lotuses, gopis and festival scenes, often with lots of gold. On clothing, brands usually use Pichwai-style motifs, painted or printed. Pieces that only say \"pichwai print\" aren't counted as the craft here.",
+    "sources": ["https://en.wikipedia.org/wiki/Pichhwai", "https://en.wikipedia.org/wiki/Nathdwara_painting"]
+  },
+  "ikat": {
+    "region": "Telangana, Odisha and Gujarat",
+    "blurb": "In ikat, the pattern is dyed into the threads before weaving. Yarns are tied and dyed in sections, then woven so the colours line up into designs, which gives ikat its slightly blurred, feathered edges. India's big centres are Pochampally in Telangana, Odisha (where it's called bandha) and Patan in Gujarat. Double ikat, where both warp and weft are dyed, is the hardest of all. Printed \"ikat print\" styles aren't counted here.",
+    "sources": ["https://en.wikipedia.org/wiki/Ikat", "https://en.wikipedia.org/wiki/Pochampally_Saree", "https://en.wikipedia.org/wiki/Odisha_Ikat"]
+  },
+  "patola": {
+    "region": "Patan, Gujarat",
+    "blurb": "Patola is double ikat silk from Patan in Gujarat. Both the warp and the weft threads are tied and dyed to the exact pattern before weaving, then lined up perfectly on the loom. It's one of the hardest weaves in the world, and a single sari can take months. Expect sharp geometric, floral and figurative patterns that look the same on both sides. Styles that only say \"patola print\" are printed copies and aren't counted here.",
+    "sources": ["https://en.wikipedia.org/wiki/Patola_sari", "https://en.wikipedia.org/wiki/Ikat"]
+  },
+  "banarasi": {
+    "region": "Varanasi, Uttar Pradesh",
+    "blurb": "Banarasi weaves come from Varanasi (Banaras) and are known for fine silk and gold and silver zari brocade. Silk brocade weaving likely took off there in the 17th century and peaked in the 18th and 19th. Think heavy zari, close weaving, rich borders and pallus, and net-like jaal patterns. The \"Banaras Brocades and Sarees\" name has GI protection. It's the classic wedding and festive pick, now also in dupattas, kurtas and suit sets.",
+    "sources": ["https://en.wikipedia.org/wiki/Banarasi_sari", "https://en.wikipedia.org/wiki/Silk_weaving_in_Varanasi"]
+  },
+  "kanjeevaram": {
+    "region": "Kanchipuram, Tamil Nadu",
+    "blurb": "Kanjeevaram silk comes from Kanchipuram in Tamil Nadu and is a bridal favourite across South India. It's woven from mulberry silk with zari, and the body and border are woven separately and interlocked so firmly that the border won't come away. Look for wide contrast borders, temple motifs, checks and buttas. It got GI recognition in 2005. Heavy, lustrous and made to last for generations.",
+    "sources": ["https://en.wikipedia.org/wiki/Kanchipuram_silk_sari", "https://en.wikipedia.org/wiki/Kanchipuram"]
+  },
+  "paithani": {
+    "region": "Maharashtra",
+    "blurb": "Paithani is a brocade silk sari from Maharashtra, one of India's most prized festive weaves.",
+    "sources": ["https://en.wikipedia.org/wiki/Clothing_in_India"]
+  },
+  "jamdani": {
+    "region": "Bengal",
+    "blurb": "Jamdani is a handloom weave from Bengal where motifs are woven into fine cotton muslin by hand, so the patterns seem to float on a sheer base. Designs aren't printed or drawn on the fabric; weavers follow a pattern placed under the threads. It was patronised by the Mughals, and UNESCO listed the traditional art of jamdani weaving as intangible heritage in 2013. Light, airy and incredibly detailed.",
+    "sources": ["https://en.wikipedia.org/wiki/Jamdani"]
+  },
+  "chanderi": {
+    "region": "Chanderi, Madhya Pradesh",
+    "blurb": "Chanderi comes from the town of Chanderi in Madhya Pradesh and is woven in pure silk, cotton or a silk-cotton mix. It's light and sheer with a soft sheen, often with zari borders and small woven motifs like coins, florals and peacocks. Heads up: \"Chanderi\" on a label often just means the fabric type, and plenty of it is machine-made, so this page includes both handloom and fabric-only pieces.",
+    "sources": ["https://en.wikipedia.org/wiki/Chanderi_sari"]
+  },
+  "maheshwari": {
+    "region": "Maheshwar, Madhya Pradesh",
+    "blurb": "Maheshwari is a handloom weave from Maheshwar on the Narmada river in Madhya Pradesh. The story goes that Queen Ahilyabai Holkar brought in weavers to create the first Maheshwari saris as gifts for royal guests. Motifs borrow from the fort and the river: woven mats, bricks, diamonds and waves. It's made in cotton, silk and zari, and is light, breezy and quietly elegant.",
+    "sources": ["https://en.wikipedia.org/wiki/Maheshwari_Saree"]
+  },
+  "kota-doria": {
+    "region": "Kaithoon, near Kota, Rajasthan",
+    "blurb": "Kota doria is a featherlight fabric woven in tiny squares (khats) that look a bit like graph paper. It's handwoven on pit looms in Kaithoon near Kota, usually in cotton with a little silk for strength. Perfect for hot days, it's often block printed, embroidered or finished with gota. Note that lots of \"Kota\" fabric on the market is power-loom made, so this page includes fabric-only pieces too.",
+    "sources": ["https://en.wikipedia.org/wiki/Kota_Doria"]
+  },
+  "khadi": {
+    "region": "Across India",
+    "blurb": "Khadi is cloth that's both hand-spun and hand-woven, usually from cotton, sometimes with silk or wool. Gandhi made it a symbol of self-reliance during the freedom movement, spinning on the charkha himself. It's breathable, slightly textured and known for staying cool in summer and warm in winter. A great everyday fabric with a lot of history in every thread.",
+    "sources": ["https://en.wikipedia.org/wiki/Khadi"]
+  },
+  "handloom": {
+    "region": "Across India",
+    "blurb": "Handloom means the fabric was woven on a hand-operated loom rather than a power loom. That often gives a slightly uneven, textured feel and a softer drape. This page collects styles the brand calls handloom or handwoven but that don't name a specific weave. For named weaves, see Banarasi, Chanderi, Jamdani, Ikat and the rest.",
+    "sources": ["https://en.wikipedia.org/wiki/Handloom_sari"]
+  },
+  "jacquard-brocade": {
+    "region": "Across India",
+    "blurb": "Jacquard and brocade are woven patterns: the design is built into the fabric on the loom using extra threads, instead of being printed or embroidered on top. Brocade often uses metallic threads for a raised, rich finish. Many of these pieces are machine-woven, which keeps them affordable. Great for festive looks with texture and structure.",
+    "sources": ["https://en.wikipedia.org/wiki/Brocade"]
+  },
+  "embroidered": {
+    "blurb": "Styles the brand describes as embroidered or embellished but without naming a specific craft."
+  },
+  "printed": {
+    "blurb": "Printed styles (florals, geometrics, paisleys, stripes and more) that don't name a hand craft. Printed copies of crafts, like \"bandhani print\", are here too."
+  },
+  "solid": {
+    "blurb": "Solid and plain styles with no print or embroidery mentioned."
+  },
+  "not-specified": {
+    "blurb": "The brand's listing doesn't say what craft, print or embroidery this style uses."
+  }
+}

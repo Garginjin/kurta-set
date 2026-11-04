@@ -1132,6 +1132,29 @@ def write_site_data(rows, path):
     with open(path.replace(".json", "-first.json"), "w", encoding="utf-8") as fh:
         json.dump(first, fh, ensure_ascii=False, separators=(",", ":"))
     print(f"site data: {len(products)} cards ({data['listings']} listings, colour versions grouped) -> {path} (+ first {min(FIRST_PART, len(products))} in a quick-load file)")
+    write_craft_data(products, attrs, os.path.join(os.path.dirname(path), "crafts.json"))
+
+
+def write_craft_data(products, attrs, path):
+    """Craft pages: id, name, family, write-up, sources and in-stock count (docs/crafts.json)."""
+    info = {k: v for k, v in _load_json(CRAFT_INFO_FILE, {}).items() if not k.startswith("_")}
+    ix = {a[len("craft:"):]: i for i, a in enumerate(attrs) if a.startswith("craft:")}
+    count = {n: 0 for n in CRAFT_NAME.values()}
+    for p in products:
+        if p[8]:
+            for n, i in ix.items():
+                if i in p[10]:
+                    count[n] += 1
+    family = {i: f for i, _, f, _ in CRAFT_RULES}
+    out = []
+    for cid, name in CRAFT_NAME.items():
+        e = info.get(cid, {})
+        out.append({"id": cid, "name": name, "family": family.get(cid, "Other"), "bucket": cid not in family,
+                    "region": e.get("region", ""), "blurb": e.get("blurb", ""), "sources": e.get("sources", []),
+                    "in_stock": count.get(name, 0)})
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump({"updated": now(), "min_styles": 20, "crafts": out}, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"craft data: {sum(1 for c in out if not c['bucket'] and c['in_stock'] >= 20)} craft pages -> {path}")
 
 
 CRAFTS = {"Chikankari", "Gota patti", "Zari & zardozi", "Mirror work", "Thread & resham", "Sequins",

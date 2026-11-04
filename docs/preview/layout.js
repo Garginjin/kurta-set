@@ -88,7 +88,6 @@ function brandCard(b) {
       ${facts ? `<span class="bmeta">${esc(facts)}</span>` : ""}
       <h3><a href="#/brand/${esc(b.slug)}">${esc(b.n)}</a></h3>
       <p class="bstory">${esc(b.story || autoLine(b))}</p>
-      <div class="chips">${b.cats.filter(c => c !== "Other").slice(0, 3).concat(b.crafts.slice(0, 2)).map(c => `<span>${esc(c)}</span>`).join("")}</div>
       <div class="bfoot"><a class="btnp" href="#/brand/${esc(b.slug)}">Shop ${nf(b.in_stock)} styles</a>
         ${b.site ? `<a class="ext" href="${esc(safeUrl(b.site))}" target="_blank" rel="noopener">Visit site ↗</a>` : ""}</div>
     </div></article>`;
@@ -109,13 +108,9 @@ function renderHome() {
     const p = pickImg(q => q.A[g] && q.A[g].includes(v) && (q.category === "Kurta sets" || q.category === "Kurtas" || q.category === "Sarees"), used);
     return `<a class="tile" href="${shopLink({ a: g + ":" + v })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(v.replace(" & ", " / "))}</b><span>${nf(n)} styles</span></a>`;
   }).join("");
-  $("hprices").innerHTML = BUDGETS.map(([k, a, b]) => `<a href="${shopLink({ price: k })}"><small>${a}</small><b>${b}</b></a>`).join("");
   const feat = BRANDS.filter(b => b.in_stock > 0).sort((a, b) => (!!b.story - !!a.story) || b.in_stock - a.in_stock).slice(0, 8);
   $("hbrands").innerHTML = feat.map(brandCard).join("");
   $("hbrandsub").textContent = BRANDS.length ? `${BRANDS.length} independent labels, from Jaipur block printers to Lucknow chikankari houses.` : "";
-  const fresh = [], per = {};
-  for (const p of ALL) { if (!p.inStock || !p.image || (per[p.source] || 0) >= 1 || NOT_CLOTHES.has(p.category)) continue; per[p.source] = 1; fresh.push(p); if (fresh.length >= 12) break; }
-  $("hnew").innerHTML = fresh.map(p => card(p)).join("");
 }
 
 let AZ = "";

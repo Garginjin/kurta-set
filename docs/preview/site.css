@@ -316,3 +316,6 @@
     .hero.diwali .hcopy { max-width: none; padding: 40px 24px 0; }
     .hero.diwali .dwart { inset: auto; bottom: 0; left: calc(50% - 656px); width: 900px; height: 325px; }
   }
+
+  /* brand cards: full story, no category chips */
+  .bcard .bstory { -webkit-line-clamp: unset; display: block; overflow: visible; }

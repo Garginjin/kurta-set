@@ -184,6 +184,13 @@
   .card h3 { margin: 0; font-size: 15px; font-weight: 500; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .card h3 a { color: var(--ink); text-decoration: none; }
   .card h3 a:hover { text-decoration: underline; }
+  .sws { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .sws .sw { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.22); padding: 0; cursor: pointer; position: relative; }
+  .sws .sw::before { content: ""; position: absolute; inset: -11px; }  /* 44px tap area */
+  .sws .sw[aria-pressed="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--accent); }
+  .sws .sw[data-oos] { opacity: .45; }
+  .sws .sw:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .sws span { font-size: 12px; color: var(--soft); margin-left: 4px; }
   .price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; }
   .price strong { font-size: 17px; font-weight: 700; }
   .price s { font-size: 14px; color: var(--soft); }
@@ -452,6 +459,7 @@ function attrGroups(ai, AT) {
 
 function finish(p, i) {
   p.i = i;
+  p.colours = [...new Set([p.colour, ...(p.vers || []).map(v => v.colour)])];
   p.disc = p.mrp > p.price ? Math.round((p.mrp - p.price) / p.mrp * 100) : 0;
   p.q = (p.title + " " + p.source + " " + p.colour + " " + p.category + " " + Object.values(p.A || {}).flat().join(" ")).toLowerCase();
   return p;
@@ -460,13 +468,14 @@ function finish(p, i) {
 function parseCompact(d) {
   if (d.attr_labels) META = { labels: d.attr_labels, order: d.attr_order || {}, groupsFor: d.groups_for || {} };
   const AT = (d.attrs || []).map(a => { const k = a.indexOf(":"); return [a.slice(0, k), a.slice(k + 1)]; });
-  return d.p.map(([si, ci, title, url, price, mrp, co, mask, stock, image, ai], i) => {
+  return d.p.map(([si, ci, title, url, price, mrp, co, mask, stock, image, ai, vs], i) => {
     const src = d.sources[si];
     const sizes = [];
     for (let k = 0; k < d.sizes.length; k++) if (mask & (1 << k)) sizes.push(d.sizes[k]);
     return finish({ source: src.n, category: d.cats[ci], title, url: url.startsWith("http") ? url : src.b + url,
       price, mrp: mrp || price, colour: d.colours[co] || "Other", sizes, inStock: stock === 1, image: imgUrl(image),
-      A: attrGroups(ai, AT) }, i);
+      A: attrGroups(ai, AT),
+      vers: (vs || []).map(([vc, vu, vi, vst]) => ({ colour: d.colours[vc] || "Other", url: vu.startsWith("http") ? vu : src.b + vu, image: imgUrl(vi), inStock: vst === 1 })) }, i);
   });
 }
 
@@ -567,7 +576,7 @@ function compute() {
     if (!priceOk(p)) { fails++; failed = "price"; }
     if (p.disc < st.disc) { fails++; failed = "disc"; }
     if (st.sizes.size && !p.sizes.some(z => st.sizes.has(z))) { fails++; failed = "size"; }
-    if (st.colours.size && !st.colours.has(p.colour)) { fails++; failed = "colour"; }
+    if (st.colours.size && !p.colours.some(c => st.colours.has(c))) { fails++; failed = "colour"; }
     for (const g of ag) {
       if (fails > 1) break;
       const vals = p.A[g];
@@ -576,14 +585,14 @@ function compute() {
     if (fails > 1) continue;
     if (fails === 0) {
       list.push(p);
-      add("category", p.category); add("brand", p.source); add("colour", p.colour);
+      add("category", p.category); add("brand", p.source); for (const c of p.colours) add("colour", c);
       for (const z of p.sizes) add("size", z);
       if (!p.sizes.length) nosize.add(p.source);
       for (const g of shownGroups) addA(g, p);
     } else if (failed.startsWith("a-")) addA(failed.slice(2), p);
     else if (failed === "category") add("category", p.category);
     else if (failed === "brand") add("brand", p.source);
-    else if (failed === "colour") add("colour", p.colour);
+    else if (failed === "colour") for (const c of p.colours) add("colour", c);
     else if (failed === "size") { for (const z of p.sizes) add("size", z); if (!p.sizes.length) nosize.add(p.source); }
   }
   LIST = list; COUNTS = C; NOSIZE = nosize;
@@ -663,6 +672,25 @@ function renderFilters() {
 const ICON_PLUS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
 const ICON_TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>';
 
+// colour dots: the card's own colour first, then the other versions
+const SW_MAX = 6;
+function swatches(p) {
+  const all = [{ colour: p.colour, url: p.url, image: p.image, inStock: p.inStock }, ...p.vers];
+  const dots = all.slice(0, SW_MAX).map((v, k) => `<button type="button" class="sw" data-p="${p.i}" data-v="${k}" aria-pressed="${k === 0}"
+      aria-label="${esc(v.colour)}${v.inStock ? "" : " (out of stock)"}" title="${esc(v.colour)}${v.inStock ? "" : " – out of stock"}"
+      style="background:${COLOUR_HEX[v.colour] || COLOUR_HEX.Other}"${v.inStock ? "" : ' data-oos="1"'}></button>`).join("");
+  return `<div class="sws">${dots}<span>${all.length} colours</span></div>`;
+}
+function swatchPick(btn) {
+  const p = BY_I[+btn.dataset.p]; if (!p) return;
+  const k = +btn.dataset.v, v = k === 0 ? { url: p.url, image: p.image } : p.vers[k - 1];
+  const cardEl = btn.closest(".card"), url = safeUrl(outLink(v.url, p));
+  cardEl.querySelectorAll("a.img, h3 a, a.go").forEach(a => a.href = url);
+  const img = cardEl.querySelector(".img img");
+  if (img && v.image) img.src = safeUrl(v.image);
+  cardEl.querySelectorAll(".sw").forEach(b => b.setAttribute("aria-pressed", b === btn));
+}
+
 function card(p, extra = "") {
   const url = safeUrl(outLink(p.url, p));
   const on = CMP.has(p.url);
@@ -677,6 +705,7 @@ function card(p, extra = "") {
     </div>
     <span class="src">${esc(p.source)}</span>
     <h3><a href="${esc(url)}" target="_blank" rel="noopener sponsored">${esc(p.title)}</a></h3>
+    ${p.vers && p.vers.length ? swatches(p) : ""}
     <div class="price"><strong>${rs(p.price)}</strong>${p.disc > 0 ? `<s>${rs(p.mrp)}</s><span class="off">${p.disc}% off</span>` : ""}</div>
     ${extra}
     <a class="go" href="${esc(url)}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
@@ -731,7 +760,7 @@ function cmpRender() {
     ["MRP", p => p.disc > 0 ? `<s>${rs(p.mrp)}</s>` : rs(p.mrp)],
     ["Discount", p => p.disc > 0 ? `${p.disc}% off` : "—"],
     ["Category", p => esc(p.category)],
-    ["Colour", p => `<span style="display:inline-flex;align-items:center;gap:6px"><span class="dot" style="background:${COLOUR_HEX[p.colour] || COLOUR_HEX.Other}"></span>${esc(p.colour)}</span>`],
+    ["Colour", p => p.colours.map(c => `<span style="display:inline-flex;align-items:center;gap:6px;margin-right:10px"><span class="dot" style="background:${COLOUR_HEX[c] || COLOUR_HEX.Other}"></span>${esc(c)}</span>`).join("")],
     ["Sizes", p => p.sizes.length ? esc(p.sizes.join(", ")) : "See brand's site"],
     ["Stock", p => p.inStock ? "In stock" : "Out of stock"],
     ["", p => `<a class="go" href="${esc(safeUrl(outLink(p.url, p)))}" target="_blank" rel="noopener sponsored">View on ${esc(p.source)}</a>
@@ -806,6 +835,7 @@ function simOpen(i) {
   if (!$("sim").open) $("sim").showModal();
 }
 function simBind() {
+  for (const id of ["cards", "hnew", "simgrid"]) $(id).addEventListener("click", e => { const w = e.target.closest(".sw"); if (w) swatchPick(w); });
   for (const id of ["cards", "hnew"]) $(id).addEventListener("click", e => { const b = e.target.closest(".simbtn"); if (b) simOpen(+b.dataset.sim); });
   $("simgrid").addEventListener("click", e => { const b = e.target.closest(".cmpbtn"); if (b) cmpToggle(b.dataset.cmp); });
   $("simclose").addEventListener("click", () => $("sim").close());

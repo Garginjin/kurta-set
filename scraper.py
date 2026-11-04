@@ -891,6 +891,47 @@ def _neg_date(d):
     return "".join(chr(0x10FFFF - ord(c)) for c in (d or "")[:19]) if d else "\U0010ffff"
 
 
+# ---------------------------------------------------------------------------
+# Colour versions: many brands list each colour of one design as a separate
+# product ("Gerua Sea Green Printed Kaftan", "Gerua Blue Printed Kaftan").
+# Same brand + category + price + title apart from the colour = one card with
+# colour dots. Big matches (generic titles like "Printed Cotton Kurta") are
+# different designs, so they are left alone.
+# ---------------------------------------------------------------------------
+GROUP_MAX = 8
+_SHADE_WORDS = ["light", "dark", "sea", "dusty", "deep", "pale", "bright", "hot", "baby", "royal",
+                "powder", "bottle", "coloured", "colored", "colour", "color", "shade"]
+_COLOUR_STRIP = re.compile(r"\b(?:" + "|".join(re.escape(w) for w in sorted(
+    {w for ws in COLOUR_WORDS.values() for w in ws} | set(_SHADE_WORDS), key=len, reverse=True)) + r")\b", re.I)
+
+
+def design_key(r):
+    t = (r.get("title") or "").lower().replace(r["source"].lower(), " ")
+    t = _COLOUR_STRIP.sub(" ", t)
+    t = re.sub(r"[^a-z0-9]+", " ", t).strip()
+    return (r["source"], r.get("category"), t, round(float(r["price"])))
+
+
+def group_colours(rows):
+    """[(primary, [other colour versions])] in the given order."""
+    groups, order = {}, []
+    for r in rows:
+        k = design_key(r)
+        if k not in groups:
+            groups[k] = []
+            order.append(k)
+        groups[k].append(r)
+    out = []
+    for k in order:
+        g = groups[k]
+        if len(g) == 1 or len(g) > GROUP_MAX or not k[2]:
+            out += [(r, []) for r in g]
+        else:
+            g = sorted(g, key=lambda r: not r.get("in_stock"))  # in-stock version shown first
+            out.append((g[0], g[1:]))
+    return out
+
+
 FIRST_PART = 1500
 SITE_DATA = "docs/products.json"   # what the website loads
 
@@ -908,7 +949,7 @@ def write_site_data(rows, path):
     col_ix = {c: i for i, c in enumerate(colours)}
     attrs, attr_ix = [], {}
     products = []
-    for r in mixed_order([r for r in rows if r.get("price")]):
+    for r, others in group_colours(mixed_order([r for r in rows if r.get("price")])):
         si = src_ix[r["source"]]
         base = sources[si]["b"]
         url = r["url"] or ""
@@ -928,24 +969,37 @@ def write_site_data(rows, path):
                 attr_ix[a] = len(attrs)
                 attrs.append(a)
             ai.append(attr_ix[a])
+        # other colour versions: [colour, url path, image, in stock]
+        vs = []
+        for o in others:
+            ou = o["url"] or ""
+            if base and ou.startswith(base):
+                ou = ou[len(base):]
+            oi = re.sub(r"[?&]v=\d+$", "", re.sub(r"^https?:", "", o.get("image") or ""))
+            vs.append([col_ix.get(o.get("colour") or "Other", len(colours) - 1), ou, oi, 1 if o.get("in_stock") else 0])
+            for z in (o.get("sizes_available") or "").split("|"):
+                if z in SIZE_ORDER:
+                    mask |= 1 << SIZE_ORDER.index(z)
+        stock = 1 if r.get("in_stock") or any(v[3] for v in vs) else 0
         products.append([si, cat_ix.get(r["category"], len(cats) - 1), r["title"], url, price,
                          mrp if mrp > price else 0, col_ix.get(r.get("colour") or "Other", len(colours) - 1),
-                         mask, 1 if r.get("in_stock") else 0, img, ai])
+                         mask, stock, img, ai, vs])
     data = {"v": 2, "updated": now(), "sources": sources, "cats": cats, "colours": colours,
             "sizes": SIZE_ORDER, "attrs": attrs, "attr_labels": ATTR_LABELS,
             "attr_order": {g: [v for v, _ in rules] + (["Ready to wear"] if g == "stitch" else [])
                            for g, rules in ATTR_RULES.items()},
             "groups_for": GROUPS_FOR,
-            "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image", "attrs"],
+            "fields": ["source", "cat", "title", "url", "price", "mrp", "colour", "sizes", "stock", "image", "attrs", "colour_versions"],
             "p": products}
     data["total"] = len(products)
+    data["listings"] = len(products) + sum(len(p[11]) for p in products)
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, separators=(",", ":"))
     # first part: the top of the brand-mixed list, so the page shows products instantly
     first = dict(data, p=products[:FIRST_PART], part="first")
     with open(path.replace(".json", "-first.json"), "w", encoding="utf-8") as fh:
         json.dump(first, fh, ensure_ascii=False, separators=(",", ":"))
-    print(f"site data: {len(products)} products -> {path} (+ first {min(FIRST_PART, len(products))} in a quick-load file)")
+    print(f"site data: {len(products)} cards ({data['listings']} listings, colour versions grouped) -> {path} (+ first {min(FIRST_PART, len(products))} in a quick-load file)")
 
 
 CRAFTS = {"Chikankari", "Gota patti", "Zari & zardozi", "Mirror work", "Thread & resham", "Sequins",

@@ -49,8 +49,47 @@ const PRICE_BUCKETS = [
 const DISCOUNTS = [[0, "Any discount"], [20, "20% off or more"], [40, "40% off or more"], [60, "60% off or more"]];
 
 // Shown when no category is picked; the rest appear once a category is chosen
-const ATTR_DEFAULT_GROUPS = ["work", "print", "fabric", "occasion"];
-const ATTR_OPEN = new Set(["work", "print"]);
+// Craft replaces the old "Work & embroidery" and "Print & craft" groups
+const ATTR_DEFAULT_GROUPS = ["craft", "fabric", "occasion"];
+const ATTR_OPEN = new Set(["craft"]);
+const ATTR_HIDDEN = new Set(["work", "print"]);
+
+/* ---------------- crafts: names, families, write-ups (crafts.json) ---------------- */
+let CRAFTS = [], CRAFT_BY_NAME = {}, CRAFT_BY_ID = {};
+const CRAFT_MIN = 20;
+const CRAFT_FAMILIES = ["Embroidery", "Print & dye", "Weave", "Other"];
+fetch("crafts.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).then(d => {
+  if (!d) return;
+  CRAFTS = d.crafts.map(c => ({ ...c, family: c.bucket ? "Other" : c.family }));
+  CRAFT_BY_NAME = Object.fromEntries(CRAFTS.map(c => [c.name, c]));
+  CRAFT_BY_ID = Object.fromEntries(CRAFTS.map(c => [c.id, c]));
+  if (typeof VIEW !== "undefined" && VIEW === "shop" && ALL.length) render();
+  if (typeof VIEW !== "undefined" && VIEW === "home" && typeof renderHome === "function" && ALL.length) renderHome();
+}).catch(() => {});
+const craftLink = c => "#/shop?" + new URLSearchParams({ a: "craft:" + c.name }).toString();
+// One craft picked -> show its write-up above the results
+function renderCraftHead(list = []) {
+  let box = $("crafthead");
+  if (!box) { box = document.createElement("section"); box.id = "crafthead"; box.className = "crafthead"; $("bhead").after(box); }
+  const sel = st.attr.craft;
+  const c = sel && sel.size === 1 ? CRAFT_BY_NAME[[...sel][0]] : null;
+  if (!c || c.bucket || !c.blurb) { box.hidden = true; box.innerHTML = ""; return null; }
+  const others = CRAFTS.filter(o => !o.bucket && o.family === c.family && o.id !== c.id && o.in_stock >= CRAFT_MIN);
+  const src = (c.sources || []).map((u, i) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${i + 1}</a>`).join(" ");
+  // Right side: up to 3 in-stock photos from different brands + live facts
+  const pics = [], seen = new Set();
+  for (const p of list) { if (pics.length >= 3) break; if (!p.image || seen.has(p.source)) continue; seen.add(p.source); pics.push(p); }
+  const nb = new Set(list.map(p => p.source)).size;
+  const prices = list.map(p => p.price).sort((a, b) => a - b);
+  const facts = list.length ? `<p class="cfacts"><b>${list.length.toLocaleString("en-IN")}</b> styles · <b>${nb}</b> ${nb === 1 ? "brand" : "brands"} · <b>${rs(prices[0])} – ${rs(prices[prices.length - 1])}</b></p>` : "";
+  box.innerHTML = `<div class="ctext"><p class="eyebrow">${esc(c.family)}${c.region ? " · " + esc(c.region) : ""}</p>
+    <h2>${esc(c.name)}</h2><p class="cblurb">${esc(c.blurb)}</p>
+    ${src ? `<p class="csrc">Sources: ${src}</p>` : ""}</div>
+    <div class="cside">${pics.length ? `<div class="cpics">${pics.map(p => `<a href="${esc(safeUrl(outLink(p.url, p)))}" target="_blank" rel="noopener sponsored" aria-label="${esc(p.title)}">${imgTag(p.image, p.title)}</a>`).join("")}</div>` : ""}${facts}</div>
+    ${others.length ? `<div class="cmore"><span>More ${esc(c.family.toLowerCase())}</span>${others.map(o => `<a href="${craftLink(o)}">${esc(o.name)}</a>`).join("")}</div>` : ""}`;
+  box.hidden = false;
+  return c;
+}
 
 function sizeKey(z) { const i = SIZE_ORDER.indexOf(z); return i < 0 ? 999 : i; }
 
@@ -161,7 +200,19 @@ function visibleGroups() {
   let gs;
   if (!st.cats.size) gs = ATTR_DEFAULT_GROUPS;
   else { const u = new Set(); for (const c of st.cats) for (const g of (META.groupsFor[c] || [])) u.add(g); gs = all.filter(g => u.has(g)); }
-  return [...new Set([...gs.filter(g => all.includes(g)), ...Object.keys(st.attr)])];
+  const groups = [...new Set([...gs.filter(g => all.includes(g)), ...Object.keys(st.attr)])].filter(g => !ATTR_HIDDEN.has(g) || st.attr[g]);
+  // Craft is shown for every clothing category, first in the list
+  if (all.includes("craft")) return ["craft", ...groups.filter(g => g !== "craft")];
+  return groups;
+}
+// Craft pills grouped by family (Embroidery / Print & dye / Weave / Other)
+function craftPills(counts, sel) {
+  const keys = shownKeys(counts, sel, META.order.craft);
+  if (!CRAFTS.length) return keys.map(v => opt("checkbox", "a-craft", v, v, counts[v] || 0, sel.has(v))).join("");
+  return CRAFT_FAMILIES.map(f => {
+    const ks = keys.filter(v => (CRAFT_BY_NAME[v] ? CRAFT_BY_NAME[v].family : "Other") === f);
+    return ks.length ? `<p class="cfam">${esc(f)}</p><div class="pills">${ks.map(v => opt("checkbox", "a-craft", v, v, counts[v] || 0, sel.has(v))).join("")}</div>` : "";
+  }).join("");
 }
 
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
@@ -176,9 +227,9 @@ function renderAttrs() {
     if (!keys.length) return "";
     const open = known.has("a-" + g) ? openNow.has("a-" + g) : (ATTR_OPEN.has(g) || sel.size > 0);
     return `<details class="fs" data-g="a-${g}"${open ? " open" : ""}><summary>${esc(META.labels[g])}<span class="sel"${sel.size ? "" : " hidden"}>${sel.size}</span>${CHEV}</summary>
-      <fieldset class="fbody"><legend class="visually-hidden">${esc(META.labels[g])}</legend><div class="pills">${
-        keys.map(v => opt("checkbox", "a-" + g, v, v, counts[v] || 0, sel.has(v))).join("")}</div>
-      ${g === "work" || g === "neck" || g === "sleeve" ? `<p class="note">${ATTR_NOTE}</p>` : ""}</fieldset></details>`;
+      <fieldset class="fbody"><legend class="visually-hidden">${esc(META.labels[g])}</legend>${g === "craft" ? craftPills(counts, sel) : `<div class="pills">${
+        keys.map(v => opt("checkbox", "a-" + g, v, v, counts[v] || 0, sel.has(v))).join("")}</div>`}
+      ${g === "craft" || g === "work" || g === "neck" || g === "sleeve" ? `<p class="note">${ATTR_NOTE}</p>` : ""}</fieldset></details>`;
   }).join("");
 }
 
@@ -277,7 +328,9 @@ function render(recompute = true) {
   const list = LIST;
   const sel = CATEGORY_ORDER.filter(c => st.cats.has(c)).concat([...st.cats].filter(c => !CATEGORY_ORDER.includes(c)));
   const one = st.brands.size === 1 && !$("bhead").hidden ? [...st.brands][0] : "";
-  const label = !sel.length ? (one ? `All ${one} styles` : "All styles") : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
+  const craft = renderCraftHead(list);
+  let label = !sel.length ? (one ? `All ${one} styles` : "All styles") : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
+  if (craft) label = sel.length ? `${craft.name} ${label.toLowerCase()}` : `${craft.name} styles`;
   $("title").textContent = label;
   document.title = `${label} | ${SITE_NAME}`;
   const nb = new Set(list.map(p => p.source)).size;
@@ -288,3 +341,22 @@ function render(recompute = true) {
   $("cards").style.display = list.length ? "" : "block";
   $("more").hidden = list.length <= st.shown;
 }
+
+/* ---------------- home "Shop by craft" tiles (approved 4 Nov) ----------------
+   Every craft with 20+ in-stock styles, biggest first, each linking to its craft page.
+   renderHome() lives in layout.js (workstream A); this wraps it once all scripts have loaded.
+   A can move this into renderHome() later and delete this block. */
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof renderHome !== "function") return;
+  const base = renderHome;
+  renderHome = function () {
+    base();
+    if (!CRAFTS.length) return;
+    const used = new Set();
+    const list = CRAFTS.filter(c => !c.bucket && c.in_stock >= CRAFT_MIN).sort((a, b) => b.in_stock - a.in_stock);
+    $("hcrafts").innerHTML = list.map(c => {
+      const p = pickImg(q => q.A.craft && q.A.craft.includes(c.name), used);
+      return `<a class="tile" href="${craftLink(c)}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c.name)}</b><span>${nf(c.in_stock)} styles</span></a>`;
+    }).join("");
+  };
+});

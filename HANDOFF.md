@@ -45,8 +45,9 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    No brand tags, no brand-wide defaults (Garima: check every style). "Bandhani print" etc. -> Printed (other).
    Hand fixes: data/craft_overrides.json. Write-ups: data/crafts.json (casual, <=100 words, sourced) -> docs/crafts.json.
    Craft pages = #/shop?a=craft:<Name>; craft pages need 20+ in-stock styles.
-   PREVIEW (not live yet): docs/preview-b/ (own filters.js/filters.css + home-crafts.js). On approval: copy filters
-   files to live; workstream A moves home-crafts.js logic into renderHome() in layout.js.
+   LIVE 4 Nov (Garima approved): craft pages, grouped Craft filter (replaces Work/Print groups), 36 home craft tiles.
+   Home tiles are set by a DOMContentLoaded wrapper of renderHome() at the end of js/filters.js; workstream A may
+   move it into renderHome() in layout.js and delete that block. docs/preview-b/ = B's preview folder for next changes.
 C. Going live – custom domain saubag.in (Hostinger suggested; needs 4 A records 185.199.108-111.153 + CNAME www,
    `docs/CNAME`, Enforce HTTPS), affiliate links via `outLink()` in index.html (Cuelinks/vCommission/Shopify Collabs),
    About/privacy/disclosure/takedown pages, SEO pages + sitemap, analytics.

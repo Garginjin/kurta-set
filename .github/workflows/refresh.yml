@@ -48,7 +48,7 @@ jobs:
           git config user.name "product-refresh-bot"
           git config user.email "actions@users.noreply.github.com"
           git rm -q -f --ignore-unmatch docs/listings.json docs/listings.csv
-          git add data/listings.json.gz
+          git add data/listings.json.gz data/brands.json 2>/dev/null || git add data/listings.json.gz
           git diff --cached --quiet || git commit -m "Refresh products $(date -u +'%Y-%m-%d %H:%M UTC')"
           git pull --rebase -X theirs   # in case files were uploaded while this ran
           git push

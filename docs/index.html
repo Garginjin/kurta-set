@@ -29,6 +29,95 @@
   .search input { width: 100%; max-width: 420px; height: 46px; border: 1px solid var(--field); border-radius: 23px; padding: 0 20px; background: var(--tint); font-size: 15px; }
   .search input:focus { outline: 2px solid var(--accent); outline-offset: 1px; background: #fff; }
 
+  nav.top { display: flex; gap: 4px; }
+  nav.top a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 22px; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; letter-spacing: 0.02em; }
+  nav.top a:hover { background: var(--tint); }
+  nav.top a[aria-current="page"] { color: var(--accent); background: var(--accent-tint); }
+  .view[hidden] { display: none !important; }
+
+  /* home */
+  .home { padding: 28px 0 72px; display: flex; flex-direction: column; gap: 64px; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: center; background: var(--tint); border-radius: 28px; padding: 48px; overflow: hidden; }
+  .hero h1 { font-size: clamp(40px, 5.4vw, 72px); line-height: 1; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { margin: 18px 0 0; font-size: 17px; line-height: 1.6; color: var(--muted); max-width: 520px; }
+  .hero .stats { display: flex; gap: 32px; margin-top: 28px; }
+  .hero .stats b { display: block; font-family: var(--serif); font-size: 36px; font-weight: 700; color: var(--accent); line-height: 1; }
+  .hero .stats span { font-size: 13px; color: var(--muted); }
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btnp, .btns { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 28px; border-radius: 25px; font-weight: 700; font-size: 15px; text-decoration: none; }
+  .btnp { background: var(--accent); color: #fff; } .btnp:hover { background: var(--accent-dark); color: #fff; }
+  .btns { border: 1px solid var(--accent); color: var(--accent); background: #fff; } .btns:hover { background: var(--accent-tint); }
+  .collage { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; height: 440px; }
+  .collage a { border-radius: 18px; overflow: hidden; background: #EADFE6; display: block; }
+  .collage a:nth-child(2) { transform: translateY(-22px); } .collage a:nth-child(3) { transform: translateY(18px); }
+  .collage img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .sec h2 { margin: 0; font-family: var(--serif); font-size: 38px; font-weight: 600; line-height: 1.1; }
+  .sechead { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+  .sechead p { margin: 6px 0 0; color: var(--muted); font-size: 15px; }
+  .sechead a { font-weight: 700; font-size: 14px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 18px; }
+  .tile { text-decoration: none; color: var(--ink); display: flex; flex-direction: column; gap: 10px; }
+  .tile .ti { aspect-ratio: 4 / 5; border-radius: 18px; overflow: hidden; background: var(--tint); position: relative; }
+  .tile .ti img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+  .tile:hover .ti img { transform: scale(1.04); }
+  .tile b { font-size: 16px; font-weight: 700; } .tile span { font-size: 13px; color: var(--soft); margin-top: -6px; }
+  .tiles.round { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .tiles.round .ti { aspect-ratio: 1; border-radius: 50%; width: 100%; }
+  .tiles.round .tile { align-items: center; text-align: center; }
+  .prices { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .prices a { display: flex; flex-direction: column; justify-content: center; min-height: 120px; padding: 20px 24px; border-radius: 18px; background: var(--accent-tint); color: var(--accent); text-decoration: none; }
+  .prices a small { font-size: 13px; font-weight: 600; color: var(--muted); } .prices a b { font-family: var(--serif); font-size: 32px; font-weight: 700; line-height: 1.1; }
+  .prices a:hover { background: #EBD8E3; }
+  .rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(230px, 1fr); gap: 22px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; }
+  .rail .card { scroll-snap-align: start; }
+
+  /* brand cards */
+  .bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .bcard { border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; background: #fff; }
+  .bcard .bimgs { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; height: 210px; background: var(--tint); text-decoration: none; }
+  .bcard .bimgs img { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--tint); }
+  .bcard .bimgs img:first-child { grid-row: span 2; }
+  .bcard .bbody { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .bcard h3 { margin: 0; font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.05; }
+  .bcard h3 a { color: var(--ink); text-decoration: none; }
+  .bmeta { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+  .bstory { margin: 0; font-size: 14px; line-height: 1.6; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips span { font-size: 12px; padding: 4px 10px; border-radius: 12px; background: var(--tint); color: var(--muted); }
+  .bfoot { margin-top: auto; padding-top: 8px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .bfoot .btnp { min-height: 44px; padding: 0 20px; font-size: 14px; }
+  .bfoot .ext { font-size: 13px; font-weight: 700; }
+  .az { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 22px; align-items: center; }
+  .az button { min-width: 38px; height: 38px; border-radius: 19px; border: 1px solid var(--field); background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .az button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .az button:disabled { opacity: .35; cursor: default; }
+  .az input { height: 40px; border: 1px solid var(--field); border-radius: 20px; padding: 0 16px; background: var(--tint); margin-right: 8px; font-size: 14px; }
+
+  /* brand banner on a brand's page */
+  .bhead { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 32px; background: var(--tint); border-radius: 24px; padding: 32px; }
+  .bhead[hidden] { display: none; }
+  .bhead h1 { font-size: 52px; }
+  .bhead .bstory { -webkit-line-clamp: unset; font-size: 15px; color: var(--ink); margin-top: 12px; }
+  .bhead .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; align-content: start; }
+  .bhead .facts div { font-size: 14px; } .bhead .facts small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); margin-bottom: 2px; }
+  .bhead .src2 { font-size: 12px; color: var(--soft); margin-top: 10px; }
+  .crumb { font-size: 14px; font-weight: 600; }
+  @media (max-width: 860px) {
+    .hero, .bhead { grid-template-columns: 1fr; padding: 28px; }
+    .collage { height: 300px; }
+    nav.top { order: 3; width: 100%; }
+  }
+  @media (max-width: 560px) {
+    .hero { padding: 24px 20px; border-radius: 20px; } .hero .stats { gap: 20px; } .hero .stats b { font-size: 28px; }
+    .collage { height: 220px; gap: 8px; }
+    .sec h2 { font-size: 30px; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .tiles.round { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .bgrid { grid-template-columns: 1fr; }
+    .bhead h1 { font-size: 40px; }
+  }
+
   main { padding: 32px 0 72px; display: flex; flex-direction: column; gap: 28px; }
   .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
   h1 { margin: 0; font-family: var(--serif); font-size: 48px; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
@@ -175,14 +264,40 @@
 <body>
 <header>
   <div class="wrap bar">
-    <a class="logo" href="./" id="logo">saubag</a>
-    <span class="tagline">India's ethnic-wear brands, in one place</span>
+    <a class="logo" href="#/" id="logo">saubag</a>
+    <nav class="top" aria-label="Main">
+      <a href="#/" data-nav="home">Home</a><a href="#/shop" data-nav="shop">Shop</a><a href="#/brands" data-nav="brands">Brands</a>
+    </nav>
     <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
   </div>
 </header>
 
 <div class="wrap">
-<main>
+<div class="view home" id="view-home" hidden>
+  <section class="hero">
+    <div>
+      <h1>India's ethnic-wear brands, <em>in one place</em></h1>
+      <p>Kurta sets, sarees, lehengas and more from independent Indian labels. Compare across brands, then buy straight from the brand.</p>
+      <div class="stats" id="hstats"></div>
+      <div class="ctas"><a class="btnp" href="#/shop?cat=Kurta%20sets">Shop kurta sets</a><a class="btns" href="#/brands">Explore the brands</a></div>
+    </div>
+    <div class="collage" id="hcollage"></div>
+  </section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by category</h2></div><a href="#/shop">See all styles</a></div><div class="tiles" id="hcats"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by craft</h2><p>Chikankari, block prints, bandhani and more, across every brand.</p></div></div><div class="tiles round" id="hcrafts"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by budget</h2></div></div><div class="prices" id="hprices"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Meet the brands</h2><p id="hbrandsub"></p></div><a href="#/brands">All brands</a></div><div class="bgrid" id="hbrands"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Just in</h2><p>Newest styles from across the brands.</p></div><a href="#/shop">Shop all</a></div><div class="rail cards" id="hnew"></div></section>
+</div>
+
+<div class="view home" id="view-brands" hidden>
+  <div class="head"><div><h1>The brands</h1><p class="sub" id="bsub"></p></div></div>
+  <div class="az" id="az"></div>
+  <div class="bgrid" id="ball"></div>
+</div>
+
+<main class="view" id="view-shop">
+  <div class="bhead" id="bhead" hidden></div>
   <div class="head">
     <div>
       <h1 id="title">Loading…</h1>
@@ -363,16 +478,21 @@ async function load() {
   $("logo").textContent = SITE_NAME;
   const opts = { cache: "no-cache" };  // reuse the browser's copy unless the file changed
   const full = fetch("products.json", opts).then(r => r.ok ? r.json() : null).catch(() => null);
+  try {
+    const bd = await fetch("brands.json", opts).then(r => r.ok ? r.json() : null);
+    if (bd) { BRANDS = bd.brands; BRAND_BY = Object.fromEntries(BRANDS.map(b => [b.slug, b])); }
+  } catch (e) {}
   let started = false;
   const start = list => {
     ALL = list; BY_I = list;
     if (!started) {
       started = true;
-      const pre = new URLSearchParams(location.search).get("category");  // ?category=Kurta%20sets
-      if (pre && ALL.some(p => p.category === pre)) st.cats.add(pre);
       bind(); cmpBind(); simBind();
-    }
-    cmpRestore(); render();
+      window.addEventListener("hashchange", route);
+      route();
+    } else if (VIEW === "home") renderHome();
+    else if (VIEW === "shop") render();
+    cmpRestore();
   };
   try {
     // 1) small first part: shows products straight away
@@ -400,7 +520,10 @@ function resetFilters() {
 
 function bind() {
   let t;
-  $("q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => { st.q = e.target.value; st.shown = PAGE_SIZE; render(); }, 150); });
+  $("q").addEventListener("input", e => { clearTimeout(t); t = setTimeout(() => {
+    st.q = e.target.value; st.shown = PAGE_SIZE;
+    if (VIEW !== "shop") { history.replaceState(null, "", "#/shop"); route.last = "#/shop"; VIEW = "shop"; ["home", "brands"].forEach(v => $("view-" + v).hidden = true); $("view-shop").hidden = false; renderBrandHead(null); }
+    render(); }, 150); });
   $("sort").addEventListener("change", e => { st.sort = e.target.value; render(); });
   $("stock").addEventListener("change", e => { st.stock = e.target.checked; st.shown = PAGE_SIZE; render(); });
   $("clear").addEventListener("click", () => { st.stock = true; $("stock").checked = true; st.sort = "rel"; $("sort").value = "rel"; resetFilters(); });
@@ -617,7 +740,7 @@ function cmpRender() {
   $("cmptable").innerHTML = `<table class="ctable"><tbody>${rows.map(([h, fn]) => `<tr><th scope="row">${h}</th>${cell(fn)}</tr>`).join("")}</tbody></table>`;
 }
 function cmpBind() {
-  $("cards").addEventListener("click", e => { const b = e.target.closest(".cmpbtn"); if (b) cmpToggle(b.dataset.cmp); });
+  for (const id of ["cards", "hnew"]) $(id).addEventListener("click", e => { const b = e.target.closest(".cmpbtn"); if (b) cmpToggle(b.dataset.cmp); });
   $("cmptable").addEventListener("click", e => { const b = e.target.closest(".rm"); if (b) cmpToggle(b.dataset.cmp); });
   $("cmpclear").addEventListener("click", () => { const urls = [...CMP.keys()]; urls.forEach(u => cmpToggle(u)); });
   $("cmpgo").addEventListener("click", () => { cmpRender(); $("cmp").showModal(); });
@@ -683,10 +806,148 @@ function simOpen(i) {
   if (!$("sim").open) $("sim").showModal();
 }
 function simBind() {
-  $("cards").addEventListener("click", e => { const b = e.target.closest(".simbtn"); if (b) simOpen(+b.dataset.sim); });
+  for (const id of ["cards", "hnew"]) $(id).addEventListener("click", e => { const b = e.target.closest(".simbtn"); if (b) simOpen(+b.dataset.sim); });
   $("simgrid").addEventListener("click", e => { const b = e.target.closest(".cmpbtn"); if (b) cmpToggle(b.dataset.cmp); });
   $("simclose").addEventListener("click", () => $("sim").close());
   $("sim").addEventListener("click", e => { if (e.target === $("sim")) $("sim").close(); });
+}
+
+/* ---------------- home, brands, routing ---------------- */
+let BRANDS = [], BRAND_BY = {};
+const FEATURED_CRAFTS = [["work", "Chikankari"], ["print", "Hand block print"], ["print", "Bandhani & leheriya"], ["work", "Gota patti"],
+  ["work", "Mirror work"], ["print", "Ajrakh"], ["print", "Ikat"], ["work", "Zari & zardozi"], ["print", "Woven & jacquard"], ["print", "Hand painted"]];
+const NOT_CLOTHES = new Set(["Accessories", "Other"]);
+const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Bottoms", "Jackets & overlays", "Menswear", "Kidswear", "Accessories"];
+const BUDGETS = [["u1000", "Under", "₹1,000"], ["1000", "₹1,000 –", "₹1,999"], ["2000", "₹2,000 –", "₹2,999"], ["3000", "From", "₹3,000"]];
+const imgTag = (src, alt = "") => src ? `<img src="${esc(safeUrl(imgUrl(src)))}" alt="${esc(alt)}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` : "";
+const shopLink = q => "#/shop" + (q ? "?" + new URLSearchParams(q).toString() : "");
+const nf = n => n.toLocaleString("en-IN");
+
+function pickImg(test, used) {
+  for (const p of ALL) if (p.inStock && p.image && !used.has(p.image) && test(p)) { used.add(p.image); return p; }
+  return null;
+}
+function brandFacts(b) {
+  const bits = [];
+  if (b.founded) bits.push("Since " + b.founded);
+  if (b.based) bits.push(b.based);
+  return bits.join(" · ");
+}
+function autoLine(b) {
+  const cats = b.cats.filter(c => c !== "Other").slice(0, 3).map(c => c.toLowerCase());
+  const list = cats.length > 1 ? cats.slice(0, -1).join(", ") + " and " + cats[cats.length - 1] : (cats[0] || "ethnic wear");
+  let t = `Sells ${list}`;
+  if (b.crafts.length) t += `, with a lot of ${b.crafts.slice(0, 2).map(c => c.toLowerCase()).join(" and ")}`;
+  if (b.price_min) t += `. Most styles around ${rs(b.price_med)}`;
+  return t + ".";
+}
+function brandCard(b) {
+  const imgs = (b.images.length ? b.images : [b.logo]).slice(0, 3);
+  const facts = brandFacts(b);
+  return `<article class="bcard">
+    <a class="bimgs" href="#/brand/${esc(b.slug)}" aria-hidden="true" tabindex="-1">${imgs.map(i => imgTag(i)).join("")}</a>
+    <div class="bbody">
+      ${facts ? `<span class="bmeta">${esc(facts)}</span>` : ""}
+      <h3><a href="#/brand/${esc(b.slug)}">${esc(b.n)}</a></h3>
+      <p class="bstory">${esc(b.story || autoLine(b))}</p>
+      <div class="chips">${b.cats.filter(c => c !== "Other").slice(0, 3).concat(b.crafts.slice(0, 2)).map(c => `<span>${esc(c)}</span>`).join("")}</div>
+      <div class="bfoot"><a class="btnp" href="#/brand/${esc(b.slug)}">Shop ${nf(b.in_stock)} styles</a>
+        ${b.site ? `<a class="ext" href="${esc(safeUrl(b.site))}" target="_blank" rel="noopener">Visit site ↗</a>` : ""}</div>
+    </div></article>`;
+}
+
+function renderHome() {
+  const used = new Set();
+  const inStock = ALL.filter(p => p.inStock);
+  const nb = new Set(inStock.map(p => p.source)).size;
+  $("hstats").innerHTML = `<div><b>${nf(inStock.length)}</b><span>styles in stock</span></div><div><b>${nb}</b><span>brands</span></div><div><b>6 hrs</b><span>prices refreshed</span></div>`;
+  const col = ["Kurta sets", "Sarees", "Lehengas"].map(c => pickImg(p => p.category === c, used)).filter(Boolean);
+  $("hcollage").innerHTML = col.map(p => `<a href="${shopLink({ cat: p.category })}" aria-label="${esc(p.category)}">${imgTag(p.image, p.category)}</a>`).join("");
+  const cc = {}; for (const p of inStock) cc[p.category] = (cc[p.category] || 0) + 1;
+  $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
+    return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles</span></a>`; }).join("");
+  $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
+    const n = inStock.reduce((k, p) => k + (p.A[g] && p.A[g].includes(v) ? 1 : 0), 0);
+    if (n < 20) return "";
+    const p = pickImg(q => q.A[g] && q.A[g].includes(v) && (q.category === "Kurta sets" || q.category === "Kurtas" || q.category === "Sarees"), used);
+    return `<a class="tile" href="${shopLink({ a: g + ":" + v })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(v.replace(" & ", " / "))}</b><span>${nf(n)} styles</span></a>`;
+  }).join("");
+  $("hprices").innerHTML = BUDGETS.map(([k, a, b]) => `<a href="${shopLink({ price: k })}"><small>${a}</small><b>${b}</b></a>`).join("");
+  const feat = BRANDS.filter(b => b.in_stock > 0).sort((a, b) => (!!b.story - !!a.story) || b.in_stock - a.in_stock).slice(0, 8);
+  $("hbrands").innerHTML = feat.map(brandCard).join("");
+  $("hbrandsub").textContent = BRANDS.length ? `${BRANDS.length} independent labels, from Jaipur block printers to Lucknow chikankari houses.` : "";
+  const fresh = [], per = {};
+  for (const p of ALL) { if (!p.inStock || !p.image || (per[p.source] || 0) >= 1 || NOT_CLOTHES.has(p.category)) continue; per[p.source] = 1; fresh.push(p); if (fresh.length >= 12) break; }
+  $("hnew").innerHTML = fresh.map(p => card(p)).join("");
+}
+
+let AZ = "";
+function renderBrandsPage() {
+  const q = ($("bsearch")?.value || "").trim().toLowerCase();
+  const letters = [...new Set(BRANDS.map(b => b.n[0].toUpperCase()))].sort();
+  if (!$("bsearch")) {
+    $("az").innerHTML = `<input type="search" id="bsearch" aria-label="Search brands" placeholder="Search brands">` +
+      `<button type="button" data-l="" aria-pressed="true">All</button>` + letters.map(l => `<button type="button" data-l="${l}" aria-pressed="false">${l}</button>`).join("");
+    $("bsearch").addEventListener("input", renderBrandsPage);
+    $("az").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; AZ = b.dataset.l; renderBrandsPage(); });
+  }
+  $("az").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.l === AZ));
+  const list = BRANDS.filter(b => (!AZ || b.n[0].toUpperCase() === AZ) && (!q || b.n.toLowerCase().includes(q)));
+  $("bsub").textContent = `${BRANDS.length} brands. Every product links straight to the brand's own website.`;
+  $("ball").innerHTML = list.map(brandCard).join("") || '<p class="note">No brand matches.</p>';
+}
+
+function renderBrandHead(b) {
+  const h = $("bhead");
+  if (!b) { h.hidden = true; h.innerHTML = ""; return; }
+  const facts = [["Founded", b.founded], ["Based in", b.based], ["Founders", b.founders],
+    ["Styles", `${nf(b.in_stock)} in stock (${nf(b.styles)} listed)`],
+    ["Price range", b.price_min ? `${rs(b.price_min)} – ${rs(b.price_max)}` : ""],
+    ["Sells", b.cats.filter(c => c !== "Other").join(", ")], ["Known for", b.crafts.join(", ")]].filter(([, v]) => v);
+  let src = "";
+  try { src = b.story_source ? new URL(b.story_source).hostname.replace(/^www\./, "") : ""; } catch (e) {}
+  h.hidden = false;
+  h.innerHTML = `<div><a class="crumb" href="#/brands">← All brands</a><h1>${esc(b.n)}</h1>
+      <p class="bstory">${esc(b.story || autoLine(b))}</p>
+      ${src ? `<p class="src2">Story written from <a href="${esc(safeUrl(b.story_source))}" target="_blank" rel="noopener">${esc(src)}</a>.</p>` : ""}
+      <div class="ctas">${b.site ? `<a class="btns" href="${esc(safeUrl(b.site))}" target="_blank" rel="noopener">Visit ${esc(b.n)} ↗</a>` : ""}
+        ${b.instagram ? `<a class="btns" href="${esc(safeUrl(b.instagram))}" target="_blank" rel="noopener">Instagram ↗</a>` : ""}</div></div>
+    <div class="facts">${facts.map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join("")}</div>`;
+}
+
+// #/  #/shop?cat=..&a=work:Chikankari&price=..&brand=..&q=..  #/brands  #/brand/<slug>
+let VIEW = "";
+function route() {
+  const h = location.hash.replace(/^#\/?/, "");
+  const [path, qs] = h.split("?");
+  const params = new URLSearchParams(qs || "");
+  let view = "home", brand = null;
+  if (path === "shop") view = "shop";
+  else if (path === "brands") view = "brands";
+  else if (path.startsWith("brand/")) { view = "shop"; brand = BRAND_BY[decodeURIComponent(path.slice(6))] || null; }
+  else if (new URLSearchParams(location.search).get("category")) { view = "shop"; params.set("cat", new URLSearchParams(location.search).get("category")); }
+  VIEW = view;
+  ["home", "brands", "shop"].forEach(v => $("view-" + v).hidden = v !== view);
+  const cur = brand ? "brands" : view;
+  document.querySelectorAll("nav.top a").forEach(a => a.dataset.nav === cur ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  if (view === "shop") {
+    const fromLink = brand || [...params.keys()].length;
+    if (fromLink) {
+      st.cats.clear(); st.brands.clear(); st.sizes.clear(); st.colours.clear(); st.attr = {}; st.price = "all"; st.disc = 0; st.q = ""; $("q").value = "";
+      for (const c of params.getAll("cat")) st.cats.add(c);
+      for (const b of params.getAll("brand")) st.brands.add(b);
+      if (brand) st.brands.add(brand.n);
+      for (const a of params.getAll("a")) { const k = a.indexOf(":"); if (k > 0) (st.attr[a.slice(0, k)] || (st.attr[a.slice(0, k)] = new Set())).add(a.slice(k + 1)); }
+      if (params.get("price")) st.price = params.get("price");
+      if (params.get("q")) { st.q = params.get("q"); $("q").value = st.q; }
+      st.shown = PAGE_SIZE;
+    }
+    renderBrandHead(brand);
+    render();
+  } else if (view === "home") { renderHome(); document.title = `${SITE_NAME} | India's ethnic-wear brands, in one place`; }
+  else { renderBrandsPage(); document.title = `Brands | ${SITE_NAME}`; }
+  if (route.last !== location.hash) window.scrollTo(0, 0);
+  route.last = location.hash;
 }
 
 function render(recompute = true) {
@@ -698,7 +959,8 @@ function render(recompute = true) {
   }
   const list = LIST;
   const sel = CATEGORY_ORDER.filter(c => st.cats.has(c)).concat([...st.cats].filter(c => !CATEGORY_ORDER.includes(c)));
-  const label = !sel.length ? "All styles" : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
+  const one = st.brands.size === 1 && !$("bhead").hidden ? [...st.brands][0] : "";
+  const label = !sel.length ? (one ? `All ${one} styles` : "All styles") : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
   $("title").textContent = label;
   document.title = `${label} | ${SITE_NAME}`;
   const nb = new Set(list.map(p => p.source)).size;

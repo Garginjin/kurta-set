@@ -360,8 +360,9 @@ class Fetcher:
                 r.raise_for_status()
                 return r
             except requests.RequestException as e:
-                if attempt == 2:
-                    raise
+                code = getattr(getattr(e, "response", None), "status_code", None)
+                if attempt == 2 or (code and 400 <= code < 500):
+                    raise  # "not found" / "forbidden" won't change on a retry
                 print(f"  retry {attempt + 1} for {url}: {e}", file=sys.stderr)
                 time.sleep(3 * (attempt + 1))
         raise RuntimeError(f"failed: {url}")
@@ -849,6 +850,7 @@ def write_out(rows, out):
     with gzip.open(out + ".json.gz", "wt", encoding="utf-8", compresslevel=9) as fh:
         json.dump(rows, fh, ensure_ascii=False, separators=(",", ":"))
     write_site_data(rows, SITE_DATA)
+    write_brand_data(rows)
     print(f"\n{len(rows)} products -> {out}.json.gz / {out}.csv")
     for src in sorted({r["source"] for r in rows}):
         mine = [r for r in rows if r["source"] == src]
@@ -946,6 +948,64 @@ def write_site_data(rows, path):
     print(f"site data: {len(products)} products -> {path} (+ first {min(FIRST_PART, len(products))} in a quick-load file)")
 
 
+CRAFTS = {"Chikankari", "Gota patti", "Zari & zardozi", "Mirror work", "Thread & resham", "Sequins",
+          "Cutwork & applique", "Hand block print", "Ajrakh", "Bandhani & leheriya", "Tie-dye & shibori",
+          "Ikat", "Hand painted", "Woven & jacquard"}
+STORIES_FILE = "data/brand_stories.json"   # short brand stories, written from each brand's own site
+
+
+def slugify(name):
+    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+
+
+def write_brand_data(rows, path="docs/brands.json"):
+    """Per-brand facts for the home page and brand directory."""
+    def load(p):
+        try:
+            with open(p, encoding="utf-8") as fh:
+                return json.load(fh)
+        except (OSError, ValueError):
+            return {}
+    info, stories = load(BRANDS_FILE), load(STORIES_FILE)
+    by = {}
+    for r in rows:
+        by.setdefault(r["source"], []).append(r)
+    out = []
+    for name, rs in by.items():
+        live = [r for r in rs if r.get("in_stock") and r.get("price")] or [r for r in rs if r.get("price")]
+        prices = sorted(float(r["price"]) for r in live)
+        cats, crafts = {}, {}
+        for r in live:
+            cats[r["category"]] = cats.get(r["category"], 0) + 1
+            for a in product_attrs(r):
+                g, v = a.split(":", 1)
+                if v in CRAFTS:
+                    crafts[v] = crafts.get(v, 0) + 1
+        imgs, seen_cat = [], set()
+        for r in sorted(live, key=lambda r: _neg_date(r.get("published_at"))):
+            if r.get("image") and r["category"] not in seen_cat and len(imgs) < 4:
+                imgs.append(re.sub(r"^https?:", "", r["image"]))
+                seen_cat.add(r["category"])
+        i, st = info.get(name, {}), stories.get(name, {})
+        base = re.match(r"https?://[^/]+", rs[0].get("url") or "")
+        out.append({
+            "n": name, "slug": slugify(name), "site": i.get("base") or (base.group(0) if base else ""),
+            "styles": len(rs), "in_stock": sum(1 for r in rs if r.get("in_stock")),
+            "price_min": round(prices[0]) if prices else None,
+            "price_med": round(prices[len(prices) // 2]) if prices else None,
+            "price_max": round(prices[-1]) if prices else None,
+            "cats": [c for c, _ in sorted(cats.items(), key=lambda x: -x[1])[:5]],
+            "crafts": [c for c, n in sorted(crafts.items(), key=lambda x: -x[1]) if n >= 5][:5],
+            "images": imgs, "logo": i.get("logo", ""), "instagram": i.get("instagram", ""),
+            "story": st.get("story", ""), "founders": st.get("founders", ""), "founded": st.get("founded", ""),
+            "based": st.get("based", ""), "story_source": st.get("source", ""),
+        })
+    out.sort(key=lambda b: b["n"].lower())
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump({"updated": now(), "brands": out}, fh, ensure_ascii=False, separators=(",", ":"))
+    print(f"brand data: {len(out)} brands -> {path}")
+
+
 def load_previous(out):
     """Last run's record. Older versions kept it uncompressed in docs/."""
     for path in (out + ".json.gz", out + ".json", "docs/listings.json"):
@@ -987,6 +1047,115 @@ def renormalise(rows):
             r["category"] = classify(r["title"], ptype, r.get("tags", "").replace("|", " "))
         outr.append(r)
     return outr
+
+
+# ---------------------------------------------------------------------------
+# Brand info for the brands page: description, logo, Instagram and the text
+# of the brand's own About / Our story page. Refreshed weekly, not every run.
+# ---------------------------------------------------------------------------
+BRANDS_FILE = "data/brands.json"
+BRAND_INFO_DAYS = 7
+_ABOUT_WORDS = re.compile(r"about|our[- ]?story|story|founder|journey|who[- ]we[- ]are|our[- ]brand|legacy|heritage|philosophy", re.I)
+_ABOUT_SKIP = re.compile(r"privacy|terms|policy|shipping|return|refund|faq|contact|track|career|size[- ]?chart|store[- ]locat|blog|news", re.I)
+_ABOUT_GUESSES = ["/pages/about-us", "/pages/about", "/pages/our-story", "/pages/story", "/about-us", "/about"]
+
+
+def _page_text(html):
+    soup = BeautifulSoup(html, "html.parser")
+    for t in soup(["script", "style", "noscript", "header", "footer", "nav", "form", "svg", "iframe"]):
+        t.decompose()
+    main = soup.find("main") or soup.find(id=re.compile("MainContent|main", re.I)) or soup.body or soup
+    text = re.sub(r"\s+", " ", main.get_text(" ", strip=True))
+    return text[:6000]
+
+
+def _meta(soup, *names):
+    for n in names:
+        m = soup.find("meta", attrs={"property": n}) or soup.find("meta", attrs={"name": n})
+        if m and m.get("content"):
+            return m["content"].strip()
+    return ""
+
+
+def brand_info(f, base):
+    home = f.get(base + "/").text
+    soup = BeautifulSoup(home, "html.parser")
+    info = {"base": base, "fetched_at": now(),
+            "site_title": (soup.title.get_text(strip=True) if soup.title else "")[:200],
+            "description": _meta(soup, "og:description", "description")[:600],
+            "image": _meta(soup, "og:image", "og:image:secure_url"),
+            "logo": "", "instagram": "", "about_url": "", "about_text": ""}
+    for tag in soup.find_all("script", type="application/ld+json"):
+        try:
+            d = json.loads(tag.string or "")
+        except ValueError:
+            continue
+        for item in d if isinstance(d, list) else [d]:
+            if isinstance(item, dict) and isinstance(item.get("logo"), (str, dict)):
+                lg = item["logo"]
+                info["logo"] = lg if isinstance(lg, str) else lg.get("url", "")
+                break
+    if not info["logo"]:
+        img = soup.select_one("header img, .header__heading-logo, img[class*=logo], img[alt*=logo i]")
+        if img and img.get("src"):
+            info["logo"] = urljoin(base + "/", img["src"])
+    ig = soup.find("a", href=re.compile(r"instagram\.com/[^/?#]+", re.I))
+    if ig:
+        info["instagram"] = ig["href"].split("?")[0]
+    # the brand's own About / Story page
+    cands = []
+    for a in soup.find_all("a", href=True):
+        href, label = a["href"], a.get_text(" ", strip=True)
+        full = urljoin(base + "/", href)
+        if urlparse(full).netloc != urlparse(base).netloc or _ABOUT_SKIP.search(href):
+            continue
+        if _ABOUT_WORDS.search(href) or _ABOUT_WORDS.search(label):
+            if full not in cands:
+                cands.append(full)
+    cands += [base + g for g in _ABOUT_GUESSES if base + g not in cands]
+    texts, guesses = [], {base + g for g in _ABOUT_GUESSES}
+    for url in cands[:6]:
+        if texts and url in guesses:
+            break
+        try:
+            t = _page_text(f.get(url).text)
+        except Exception:
+            continue
+        if len(t) > 300:
+            info["about_url"] = info["about_url"] or url
+            texts.append(t)
+            if len(texts) == 2:
+                break
+    info["about_text"] = " ||| ".join(texts)[:9000]
+    return info
+
+
+def update_brand_info(f):
+    try:
+        with open(BRANDS_FILE, encoding="utf-8") as fh:
+            brands = json.load(fh)
+    except (OSError, ValueError):
+        brands = {}
+    cutoff = time.time() - BRAND_INFO_DAYS * 86400
+    print("\n[brand info]")
+    for cfg in SOURCES:
+        name = cfg["source"]
+        base = (cfg.get("base") or "https://www.zlaata.com").rstrip("/")
+        old = brands.get(name) or {}
+        try:
+            fresh = datetime.fromisoformat(old.get("fetched_at", "")).timestamp() > cutoff
+        except ValueError:
+            fresh = False
+        if fresh and old.get("base") == base:
+            continue
+        try:
+            brands[name] = brand_info(f, base)
+            print(f"  {name}: about page {'found' if brands[name]['about_text'] else 'not found'}")
+        except Exception as e:
+            print(f"  {name}: FAILED {e}", file=sys.stderr)
+    os.makedirs(os.path.dirname(BRANDS_FILE), exist_ok=True)
+    with open(BRANDS_FILE, "w", encoding="utf-8") as fh:
+        json.dump(brands, fh, ensure_ascii=False, indent=1, sort_keys=True)
 
 
 def main():
@@ -1035,6 +1204,10 @@ def main():
         print("No products at all - not overwriting the output.", file=sys.stderr)
         sys.exit(1)
     write_out(rows, args.out)
+    try:
+        update_brand_info(f)
+    except Exception as e:  # never let this break the product refresh
+        print(f"brand info step failed: {e}", file=sys.stderr)
     if failed:
         print("\nWARNING - no fresh data for: " + ", ".join(failed), file=sys.stderr)
 

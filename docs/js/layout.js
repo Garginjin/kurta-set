@@ -48,7 +48,7 @@ let BRANDS = [], BRAND_BY = {};
 const FEATURED_CRAFTS = [["work", "Chikankari"], ["print", "Hand block print"], ["print", "Bandhani & leheriya"], ["work", "Gota patti"],
   ["work", "Mirror work"], ["print", "Ajrakh"], ["print", "Ikat"], ["work", "Zari & zardozi"], ["print", "Woven & jacquard"], ["print", "Hand painted"]];
 const NOT_CLOTHES = new Set(["Accessories", "Other"]);
-const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Bottoms", "Jackets & overlays", "Menswear", "Kidswear", "Accessories"];
+const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Bottoms", "Jackets & overlays", "Accessories"];
 const BUDGETS = [["u1000", "Under", "₹1,000"], ["1000", "₹1,000 –", "₹1,999"], ["2000", "₹2,000 –", "₹2,999"], ["3000", "From", "₹3,000"]];
 const imgTag = (src, alt = "") => src ? `<img src="${esc(safeUrl(imgUrl(src)))}" alt="${esc(alt)}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` : "";
 const shopLink = q => "#/shop" + (q ? "?" + new URLSearchParams(q).toString() : "");

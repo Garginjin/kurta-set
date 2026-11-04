@@ -131,7 +131,6 @@ SOURCES = [
     {"source": "Varanga", "type": "shopify", "base": "https://varanga.in"},
     {"source": "Karaj Jaipur", "type": "shopify", "base": "https://www.karajjaipur.com"},
     {"source": "Noor Bahar", "type": "shopify", "base": "https://noorbahar.com"},
-    {"source": "Style Union", "type": "shopify", "base": "https://styleunion.in"},
     {"source": "Global Desi", "type": "shopify", "base": "https://www.globaldesi.in"},
     {"source": "Vaayu", "type": "shopify", "base": "https://vaayu.co.in"},
     {"source": "Chidiyaa", "type": "shopify", "base": "https://chidiyaa.com"},
@@ -163,6 +162,11 @@ SOURCES = [
 CATEGORIES = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts",
               "Bottoms", "Lehengas", "Sarees", "Jackets & overlays",
               "Nightwear & loungewear", "Menswear", "Kidswear", "Accessories", "Other"]
+# Still detected (so kids/men pieces don't land in Kurtas etc.) but never
+# saved or shown on the site.
+EXCLUDED_CATEGORIES = {"Kidswear", "Menswear"}
+# Brands removed from SOURCES whose old rows must be dropped from the record.
+REMOVED_SOURCES = {"Style Union"}
 
 _KURTA_WORDS = r"kurta|kurti|anarkali|sharara|salwar|suit|kaftan|churidar|afghani|dupatta"
 _SET = (r"\bsets?\b|\bcombos?\b|\bskirt\s+tops?\b|\bsuits?\b|\b3\s?-?\s?(pc|pcs|piece)\b|\btwo[- ]piece\b|"
@@ -845,6 +849,8 @@ def scrape_zlaata(f, cfg, max_pages=150):
 def write_out(rows, out):
     seen, uniq = set(), []
     for r in rows:  # never write the same product twice
+        if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:
+            continue
         key = (r["source"], str(r["product_id"]))
         if key not in seen:
             seen.add(key)
@@ -954,7 +960,7 @@ def write_site_data(rows, path):
             src_ix[r["source"]] = len(sources)
             base = re.match(r"https?://[^/]+", r["url"] or "")
             sources.append({"n": r["source"], "b": base.group(0) if base else ""})
-    cats = CATEGORIES + sorted({r["category"] for r in rows} - set(CATEGORIES))
+    cats = [c for c in CATEGORIES if c not in EXCLUDED_CATEGORIES] + sorted({r["category"] for r in rows} - set(CATEGORIES))
     cat_ix = {c: i for i, c in enumerate(cats)}
     colours = list(COLOUR_WORDS) + ["Other"]
     col_ix = {c: i for i, c in enumerate(colours)}

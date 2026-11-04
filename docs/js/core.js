@@ -5,7 +5,7 @@
 const SITE_NAME = "saubag";
 // Order the categories appear in the filter (must match the scraper's names)
 const CATEGORY_ORDER = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts", "Bottoms",
-  "Lehengas", "Sarees", "Jackets & overlays", "Nightwear & loungewear", "Menswear", "Kidswear", "Accessories", "Other"];
+  "Lehengas", "Sarees", "Jackets & overlays", "Nightwear & loungewear", "Accessories", "Other"];
 const PAGE_SIZE = 48;
 // When you get affiliate links, wrap product URLs here, e.g.
 // return "https://your-network.example/track?url=" + encodeURIComponent(url);

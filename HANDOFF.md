@@ -38,7 +38,8 @@ A. Design/layout – LIVE 4 Nov: Garima's palette (bg #FFFBFA, card #FFF, banner
    brand cards = logo on off-white with lights. Banner copy "Light up the festive season" is seasonal: swap after the festive period.
    Design previews go in `docs/preview/` (own site.css + layout.js, loads shared files from ../, noindex) before changing live files.
 B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles in `similar()`; search is plain substring.
-   4 Nov: Kidswear, Menswear and Style Union removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES in scraper.py).
+   4 Nov: Kidswear, Menswear, Style Union, Kisah, Kalpraag removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES); styles whose
+   own tags say exactly "Men"/"Menswear" (no women tag) are dropped too (tagged_menswear).
    Crafts: fixed ids in CRAFT_RULES (scraper.py); every clothing style gets 1+ crafts or exactly one bucket
    (Embroidered/Printed/Solid/Not specified). Title + type first, description only if the title names none.
    No brand tags, no brand-wide defaults (Garima: check every style). "Bandhani print" etc. -> Printed (other).

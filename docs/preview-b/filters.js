@@ -68,7 +68,7 @@ fetch("crafts.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).th
 }).catch(() => {});
 const craftLink = c => "#/shop?" + new URLSearchParams({ a: "craft:" + c.name }).toString();
 // One craft picked -> show its write-up above the results
-function renderCraftHead() {
+function renderCraftHead(list = []) {
   let box = $("crafthead");
   if (!box) { box = document.createElement("section"); box.id = "crafthead"; box.className = "crafthead"; $("bhead").after(box); }
   const sel = st.attr.craft;
@@ -76,9 +76,16 @@ function renderCraftHead() {
   if (!c || c.bucket || !c.blurb) { box.hidden = true; box.innerHTML = ""; return null; }
   const others = CRAFTS.filter(o => !o.bucket && o.family === c.family && o.id !== c.id && o.in_stock >= CRAFT_MIN);
   const src = (c.sources || []).map((u, i) => `<a href="${esc(safeUrl(u))}" target="_blank" rel="noopener">${i + 1}</a>`).join(" ");
-  box.innerHTML = `<p class="eyebrow">${esc(c.family)}${c.region ? " · " + esc(c.region) : ""}</p>
+  // Right side: up to 3 in-stock photos from different brands + live facts
+  const pics = [], seen = new Set();
+  for (const p of list) { if (pics.length >= 3) break; if (!p.image || seen.has(p.source)) continue; seen.add(p.source); pics.push(p); }
+  const nb = new Set(list.map(p => p.source)).size;
+  const prices = list.map(p => p.price).sort((a, b) => a - b);
+  const facts = list.length ? `<p class="cfacts"><b>${list.length.toLocaleString("en-IN")}</b> styles · <b>${nb}</b> ${nb === 1 ? "brand" : "brands"} · <b>${rs(prices[0])} – ${rs(prices[prices.length - 1])}</b></p>` : "";
+  box.innerHTML = `<div class="ctext"><p class="eyebrow">${esc(c.family)}${c.region ? " · " + esc(c.region) : ""}</p>
     <h2>${esc(c.name)}</h2><p class="cblurb">${esc(c.blurb)}</p>
-    ${src ? `<p class="csrc">Sources: ${src}</p>` : ""}
+    ${src ? `<p class="csrc">Sources: ${src}</p>` : ""}</div>
+    <div class="cside">${pics.length ? `<div class="cpics">${pics.map(p => `<a href="${esc(safeUrl(outLink(p.url, p)))}" target="_blank" rel="noopener sponsored" aria-label="${esc(p.title)}">${imgTag(p.image, p.title)}</a>`).join("")}</div>` : ""}${facts}</div>
     ${others.length ? `<div class="cmore"><span>More ${esc(c.family.toLowerCase())}</span>${others.map(o => `<a href="${craftLink(o)}">${esc(o.name)}</a>`).join("")}</div>` : ""}`;
   box.hidden = false;
   return c;
@@ -321,7 +328,7 @@ function render(recompute = true) {
   const list = LIST;
   const sel = CATEGORY_ORDER.filter(c => st.cats.has(c)).concat([...st.cats].filter(c => !CATEGORY_ORDER.includes(c)));
   const one = st.brands.size === 1 && !$("bhead").hidden ? [...st.brands][0] : "";
-  const craft = renderCraftHead();
+  const craft = renderCraftHead(list);
   let label = !sel.length ? (one ? `All ${one} styles` : "All styles") : sel.length <= 2 ? sel.join(" & ") : `${sel.length} categories`;
   if (craft) label = sel.length ? `${craft.name} ${label.toLowerCase()}` : `${craft.name} styles`;
   $("title").textContent = label;

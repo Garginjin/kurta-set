@@ -166,7 +166,16 @@ CATEGORIES = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts",
 # saved or shown on the site.
 EXCLUDED_CATEGORIES = {"Kidswear", "Menswear"}
 # Brands removed from SOURCES whose old rows must be dropped from the record.
-REMOVED_SOURCES = {"Style Union"}
+REMOVED_SOURCES = {"Style Union", "Kisah", "Kalpraag"}  # Kisah, Kalpraag: menswear labels
+# A style whose own tags include exactly "Men"/"Menswear" (and no women tag) is menswear,
+# even when the title doesn't say so. Whole tags only, never part of a tag.
+_MEN_TAGS = {"men", "mens", "men's", "menswear", "man", "for men", "male", "gents", "groomwear", "groom wear"}
+_WOMEN_TAGS = {"women", "womens", "women's", "womenswear", "woman", "ladies", "female", "for women"}
+
+
+def tagged_menswear(tags):
+    t = {x.strip().lower() for x in (tags or "").split("|")}
+    return bool(t & _MEN_TAGS) and not (t & _WOMEN_TAGS)
 
 _KURTA_WORDS = r"kurta|kurti|anarkali|sharara|salwar|suit|kaftan|churidar|afghani|dupatta"
 _SET = (r"\bsets?\b|\bcombos?\b|\bskirt\s+tops?\b|\bsuits?\b|\b3\s?-?\s?(pc|pcs|piece)\b|\btwo[- ]piece\b|"
@@ -627,7 +636,7 @@ CRAFT_RULES = [  # (id, name, family, regex) - order = display order
     ("paithani", "Paithani", "Weave", r"paithani"),
     ("jamdani", "Jamdani", "Weave", r"jamdani"),
     ("chanderi", "Chanderi", "Weave", r"chanderi"),
-    ("maheshwari", "Maheshwari", "Weave", r"maheshwari"),
+    ("maheshwari", "Maheshwari", "Weave", r"maheshwari(?!\s+in\b)"),  # "<Name> Maheshwari in ..." = a person
     ("kota-doria", "Kota doria", "Weave", r"kota\s?doriy?a|kota\b"),
     ("khadi", "Khadi", "Weave", r"khadi"),
     ("handloom", "Handloom (other)", "Weave", r"handloom|hand[- ]?woven"),
@@ -964,6 +973,8 @@ def scrape_zlaata(f, cfg, max_pages=150):
 def write_out(rows, out):
     seen, uniq = set(), []
     for r in rows:  # never write the same product twice
+        if tagged_menswear(r.get("tags")):
+            r["category"] = "Menswear"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:
             continue
         key = (r["source"], str(r["product_id"]))

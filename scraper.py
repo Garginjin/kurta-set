@@ -1139,20 +1139,26 @@ def brand_info(f, base):
             "description": _meta(soup, "og:description", "description")[:600],
             "image": _meta(soup, "og:image", "og:image:secure_url"),
             "logo": "", "instagram": "", "about_url": "", "about_text": ""}
-    for tag in soup.find_all("script", type="application/ld+json"):
-        try:
-            d = json.loads(tag.string or "")
-        except ValueError:
-            continue
-        for item in d if isinstance(d, list) else [d]:
-            if isinstance(item, dict) and isinstance(item.get("logo"), (str, dict)):
-                lg = item["logo"]
-                info["logo"] = lg if isinstance(lg, str) else lg.get("url", "")
-                break
+    # 1) the logo shown in the site header, 2) the logo in the page's structured data
+    img = soup.select_one(".header__heading-logo, header a[href='/'] img, header img[class*=logo i], "
+                          "img[class*=logo i], img[alt*=logo i], header img")
+    if img:
+        src = img.get("src") or img.get("data-src") or (img.get("srcset") or "").split(" ")[0]
+        if src and not src.startswith("data:"):
+            info["logo"] = urljoin(base + "/", src)
     if not info["logo"]:
-        img = soup.select_one("header img, .header__heading-logo, img[class*=logo], img[alt*=logo i]")
-        if img and img.get("src"):
-            info["logo"] = urljoin(base + "/", img["src"])
+        for tag in soup.find_all("script", type="application/ld+json"):
+            try:
+                d = json.loads(tag.string or "")
+            except ValueError:
+                continue
+            for item in d if isinstance(d, list) else [d]:
+                if isinstance(item, dict) and isinstance(item.get("logo"), (str, dict)):
+                    lg = item["logo"]
+                    info["logo"] = lg if isinstance(lg, str) else lg.get("url", "")
+                    break
+            if info["logo"]:
+                break
     ig = soup.find("a", href=re.compile(r"instagram\.com/[^/?#]+", re.I))
     if ig:
         info["instagram"] = ig["href"].split("?")[0]

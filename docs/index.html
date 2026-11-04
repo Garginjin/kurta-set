@@ -75,9 +75,12 @@
   /* brand cards */
   .bgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
   .bcard { border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; background: #fff; }
-  .bcard .bimgs { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px; height: 210px; background: var(--tint); text-decoration: none; }
-  .bcard .bimgs img { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--tint); }
-  .bcard .bimgs img:first-child { grid-row: span 2; }
+  .bcard .blogo { flex: none; height: 132px; display: flex; align-items: center; justify-content: center; padding: 20px 28px;
+    background: var(--tint); border-bottom: 1px solid var(--line); text-decoration: none; overflow: hidden; }
+  .bcard .blogo img { max-width: 72%; max-height: 72px; width: auto; height: auto; object-fit: contain; display: block; }
+  .bcard .blogo .mono { width: 76px; height: 76px; border-radius: 50%; border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 40px; font-weight: 700; color: var(--accent); background: #fff; }
+  .bcard .blogo .mono[hidden] { display: none; }
   .bcard .bbody { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .bcard h3 { margin: 0; font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.05; }
   .bcard h3 a { color: var(--ink); text-decoration: none; }
@@ -871,11 +874,18 @@ function autoLine(b) {
   if (b.price_min) t += `. Most styles around ${rs(b.price_med)}`;
   return t + ".";
 }
+// Logo from the brand's own site; the brand name in type if there is none or it fails to load
+function logoTag(b) {
+  const mono = `<span class="mono" aria-hidden="true"${b.logo ? " hidden" : ""}>${esc(b.n.replace(/^the\s+/i, "")[0].toUpperCase())}</span>`;
+  if (!b.logo) return mono;
+  const src = safeUrl(b.logo.startsWith("//") ? "https:" + b.logo : b.logo);
+  return `<img src="${esc(src)}" alt="${esc(b.n)} logo" loading="lazy" decoding="async"
+    onerror="this.nextElementSibling.hidden=false;this.remove()">${mono}`;
+}
 function brandCard(b) {
-  const imgs = (b.images.length ? b.images : [b.logo]).slice(0, 3);
   const facts = brandFacts(b);
   return `<article class="bcard">
-    <a class="bimgs" href="#/brand/${esc(b.slug)}" aria-hidden="true" tabindex="-1">${imgs.map(i => imgTag(i)).join("")}</a>
+    <a class="blogo" href="#/brand/${esc(b.slug)}" aria-hidden="true" tabindex="-1">${logoTag(b)}</a>
     <div class="bbody">
       ${facts ? `<span class="bmeta">${esc(facts)}</span>` : ""}
       <h3><a href="#/brand/${esc(b.slug)}">${esc(b.n)}</a></h3>

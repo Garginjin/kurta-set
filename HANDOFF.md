@@ -11,13 +11,24 @@ Show a preview/mockup BEFORE changing the live site's look.
 - `.github/workflows/refresh.yml` – every 6 h (and manual): scrape → save `data/listings.json.gz`,
   `data/brands.json` (logo + About text, weekly) → build `docs/products.json`, `docs/brands.json` → deploy Pages.
   A push runs `scraper.py --renormalise` only (no scraping, ~2 min).
-- `docs/index.html` – the whole site (vanilla JS, hash routes `#/`, `#/shop?...`, `#/brands`, `#/brand/<slug>`).
+- Site (vanilla JS, hash routes `#/`, `#/shop?...`, `#/brands`, `#/brand/<slug>`), split by owner:
+
+| File | Owner | What's in it |
+|---|---|---|
+| `docs/index.html` | A design | Page markup: header, banner/home sections, dialogs |
+| `docs/css/site.css` | A design | All styles except the filter column |
+| `docs/js/layout.js` | A design | Product card, brand card, home page, brands page, brand banner |
+| `docs/css/filters.css` | B filters | Filter column styles |
+| `docs/js/filters.js` | B filters | Filter column markup (FILTERS_HTML), filter logic and counts, search, sort, results list, Similar styles |
+| `docs/js/core.js` | shared, avoid editing | Settings, data loading, compare, routing. Change only if both chats agree |
+| `scraper.py` | B (attributes) and C (brands) | Scraping and data building |
+
+  A and B never edit each other's files. If one needs something from the other's file, say so in that chat instead.
 - `data/brand_stories.json` – brand stories (written only from each brand's own About page).
 - Generated files (`docs/products*.json`, `docs/brands.json`) are NOT committed.
 
 ## Rules for every chat
-- `git pull` before editing, small commits, push to main. Two chats both edit `docs/index.html`:
-  keep changes to your own section and rebase before pushing.
+- `git pull` before editing, small commits, push to main. Edit only your own files (table above).
 - Test locally: `python3 scraper.py --renormalise` then serve `docs/` and check in a headless browser.
 
 ## Workstreams

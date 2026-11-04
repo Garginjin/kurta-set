@@ -61,12 +61,31 @@ const CRAFT_FAMILIES = ["Embroidery", "Print & dye", "Weave", "Other"];
 fetch("crafts.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).then(d => {
   if (!d) return;
   CRAFTS = d.crafts.map(c => ({ ...c, family: c.bucket ? "Other" : c.family }));
+  CRAFTS.push(OTHERS_INFO);
   CRAFT_BY_NAME = Object.fromEntries(CRAFTS.map(c => [c.name, c]));
   CRAFT_BY_ID = Object.fromEntries(CRAFTS.map(c => [c.id, c]));
   if (typeof VIEW !== "undefined" && VIEW === "shop" && ALL.length) render();
   if (typeof VIEW !== "undefined" && VIEW === "home" && typeof renderHome === "function" && ALL.length) renderHome();
 }).catch(() => {});
 const craftLink = c => "#/shop?" + new URLSearchParams({ a: "craft:" + c.name }).toString();
+// "Others": clothing styles that aren't in any home craft tile. Bottoms, accessories, nightwear, Other stay out.
+const OTHERS = "Others";
+const OTHERS_SKIP = new Set(["Bottoms", "Accessories", "Nightwear & loungewear", "Other"]);
+const OTHERS_INFO = { id: "others", name: OTHERS, family: "Other", bucket: false, virtual: true, region: "",
+  blurb: "Everything else in clothing: styles whose listing doesn't name one of the crafts on our craft tiles. That covers other embroidery, prints, plain styles and pieces the brand doesn't describe. Bottoms and accessories aren't included.", sources: [] };
+let TILE_SET = null;
+function tagOthers() {
+  if (!CRAFTS.length) return;
+  if (!TILE_SET) TILE_SET = new Set(CRAFTS.filter(c => !c.bucket && !c.virtual && c.in_stock >= CRAFT_MIN).map(c => c.name));
+  for (const p of ALL) {
+    if (p._oth) continue;
+    p._oth = 1;
+    const cr = p.A.craft;
+    if (!cr || OTHERS_SKIP.has(p.category) || cr.some(v => TILE_SET.has(v))) continue;
+    cr.push(OTHERS);
+    p.q += " others";
+  }
+}
 // One craft picked -> show its write-up above the results
 function renderCraftHead(list = []) {
   let box = $("crafthead");
@@ -131,6 +150,7 @@ function bind() {
 // every filter option (each count respects all the *other* active filters).
 let LIST = [], COUNTS = {}, NOSIZE = new Set();
 function compute() {
+  tagOthers();
   const priceOk = PRICE_BUCKETS.find(b => b.k === st.price).test;
   const words = st.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const C = { category: {}, brand: {}, size: {}, colour: {}, attr: {} };
@@ -341,3 +361,23 @@ function render(recompute = true) {
   $("cards").style.display = list.length ? "" : "block";
   $("more").hidden = list.length <= st.shown;
 }
+
+/* ---------------- home "Shop by craft" tiles (approved 4 Nov) ----------------
+   Every craft with 20+ in-stock styles, biggest first, each linking to its craft page.
+   renderHome() lives in layout.js (workstream A); this wraps it once all scripts have loaded.
+   A can move this into renderHome() later and delete this block. */
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof renderHome !== "function") return;
+  const base = renderHome;
+  renderHome = function () {
+    base();
+    if (!CRAFTS.length) return;
+    const used = new Set();
+    tagOthers();
+    const list = CRAFTS.filter(c => !c.bucket && !c.virtual && c.in_stock >= CRAFT_MIN).sort((a, b) => b.in_stock - a.in_stock);
+    OTHERS_INFO.in_stock = ALL.reduce((n, p) => n + (p.inStock && p.A.craft && p.A.craft.includes(OTHERS) ? 1 : 0), 0);
+    const tile = (c, p) => `<a class="tile" href="${craftLink(c)}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c.name)}</b><span>${nf(c.in_stock)} styles</span></a>`;
+    $("hcrafts").innerHTML = list.map(c => tile(c, pickImg(q => q.A.craft && q.A.craft.includes(c.name), used))).join("")
+      + (OTHERS_INFO.in_stock ? tile(OTHERS_INFO, pickImg(q => q.A.craft && q.A.craft.includes(OTHERS) && q.category === "Kurta sets", used)) : "");
+  };
+});

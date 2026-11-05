@@ -341,3 +341,12 @@
   @media (max-width: 860px) { .hero.diwali h1 { font-size: 40px; } .hero.diwali .hcopy > p:not(.hbrand) { font-size: 20px; } }
   .hero.diwali .hcopy > p.hbrand { margin: 0 0 10px; font-family: var(--serif); font-weight: 700; line-height: 1; color: var(--accent); font-size: clamp(48px, 4.2vw, 108px); max-width: none; }
   @media (max-width: 860px) { .hero.diwali .hcopy > p.hbrand { font-size: 48px; } }
+
+  /* headline on one line, smaller than the saubag wordmark */
+  .hero.diwali h1 { font-size: clamp(32px, 2.9vw, 76px); line-height: 1.05; }
+  @media (max-width: 860px) { .hero.diwali h1 { font-size: 32px; } }
+  /* home brands: one side-scrolling row */
+  .bgrid.brail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(280px, 340px); overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; padding: 4px 2px 14px; scrollbar-width: thin; }
+  .bgrid.brail > .bcard { scroll-snap-align: start; }
+  .bgrid.brail > .bcard:hover { transform: none; }

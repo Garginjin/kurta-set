@@ -108,7 +108,7 @@ function renderHome() {
     const p = pickImg(q => q.A[g] && q.A[g].includes(v) && (q.category === "Kurta sets" || q.category === "Kurtas" || q.category === "Sarees"), used);
     return `<a class="tile" href="${shopLink({ a: g + ":" + v })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(v.replace(" & ", " / "))}</b><span>${nf(n)} styles</span></a>`;
   }).join("");
-  const feat = BRANDS.filter(b => b.in_stock > 0).sort((a, b) => (!!b.story - !!a.story) || b.in_stock - a.in_stock).slice(0, 8);
+  const feat = BRANDS.filter(b => b.in_stock > 0).sort((a, b) => b.in_stock - a.in_stock).slice(0, 30);
   $("hbrands").innerHTML = feat.map(brandCard).join("");
   $("hbrandsub").textContent = BRANDS.length ? `${BRANDS.length} independent labels, from Jaipur block printers to Lucknow chikankari houses.` : "";
 }

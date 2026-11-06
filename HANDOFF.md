@@ -45,6 +45,7 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    No brand tags, no brand-wide defaults (Garima: check every style). "Bandhani print" etc. -> Printed (other).
    Hand fixes: data/craft_overrides.json. Write-ups: data/crafts.json (casual, <=100 words, sourced) -> docs/crafts.json.
    Craft pages = #/shop?a=craft:<Name>; craft pages need 20+ in-stock styles.
+   6 Nov: crafts only for CRAFT_CATEGORIES (Kurtas, Kurta sets, Sarees, Co-ord sets, Dresses, Tops & shirts, Lehengas).
    LIVE 4 Nov (Garima approved): craft pages, grouped Craft filter (replaces Work/Print groups), 36 home craft tiles.
    Home tiles are set by a DOMContentLoaded wrapper of renderHome() at the end of js/filters.js; workstream A may
    move it into renderHome() in layout.js and delete that block. docs/preview-b/ = B's preview folder for next changes.

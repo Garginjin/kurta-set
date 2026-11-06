@@ -675,6 +675,8 @@ CRAFT_NAME = {i: n for i, n, _, _ in CRAFT_RULES}
 CRAFT_NAME.update({i: n for i, n, _ in CRAFT_BUCKETS})
 CRAFT_NAME[NOT_SPECIFIED[0]] = NOT_SPECIFIED[1]
 CRAFT_ORDER = [CRAFT_NAME[i] for i in CRAFT_NAME]
+# Only these categories get crafts (tiles, craft pages, Others). Bottoms, jackets, accessories etc. stay out.
+CRAFT_CATEGORIES = {"Kurtas", "Kurta sets", "Sarees", "Co-ord sets", "Dresses", "Tops & shirts", "Lehengas"}
 CRAFT_OVERRIDES_FILE = "data/craft_overrides.json"
 CRAFT_INFO_FILE = "data/crafts.json"
 
@@ -701,7 +703,7 @@ def product_crafts(r):
     global _OVERRIDES
     if _OVERRIDES is None:
         _OVERRIDES = {k: v for k, v in _load_json(CRAFT_OVERRIDES_FILE, {}).items() if not k.startswith("_")}
-    if r.get("category") not in GROUPS_FOR:
+    if r.get("category") not in CRAFT_CATEGORIES:
         return []
     text = NOISE.sub(" ", f"{r.get('title', '')} ; {r.get('product_type', '')}")
     ids = match_crafts(text)

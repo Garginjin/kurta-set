@@ -70,9 +70,9 @@ fetch("crafts.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).th
 const craftLink = c => "#/shop?" + new URLSearchParams({ a: "craft:" + c.name }).toString();
 // "Others": clothing styles that aren't in any home craft tile. Bottoms, accessories, nightwear, Other stay out.
 const OTHERS = "Others";
-const OTHERS_SKIP = new Set(["Bottoms", "Accessories", "Nightwear & loungewear", "Other"]);
+const OTHERS_SKIP = new Set(["Bottoms", "Jackets & overlays", "Accessories", "Nightwear & loungewear", "Other"]);
 const OTHERS_INFO = { id: "others", name: OTHERS, family: "Other", bucket: false, virtual: true, region: "",
-  blurb: "Everything else in clothing: styles whose listing doesn't name one of the crafts on our craft tiles. That covers other embroidery, prints, plain styles and pieces the brand doesn't describe. Bottoms and accessories aren't included.", sources: [] };
+  blurb: "Everything else in clothing: styles whose listing doesn't name one of the crafts on our craft tiles. That covers other embroidery, prints, plain styles and pieces the brand doesn't describe. Only kurtas, kurta sets, sarees, co-ords, dresses, tops and lehengas are included.", sources: [] };
 let TILE_SET = null;
 function tagOthers() {
   if (!CRAFTS.length) return;

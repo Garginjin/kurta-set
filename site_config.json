@@ -1,0 +1,23 @@
+{
+  "_help": "Go-live settings (workstream C). Empty value = that feature stays off. After editing, commit; the site rebuilds in ~2 min.",
+
+  "_domain_help": "Set to saubag.in only AFTER the DNS records are in place (see GOLIVE.md). Empty = site stays on github.io.",
+  "domain": "",
+  "github_pages_url": "https://garginjin.github.io/kurta-set",
+
+  "_contact_help": "Shown on the Privacy and Takedown pages. Those two pages are not published until this is filled in.",
+  "contact_email": "",
+
+  "_affiliate_help": "url_template wraps every outgoing product link. {url} = product URL, {url_enc} = URL-encoded product URL. per_brand overrides it for one brand (exact brand name as on the site). Leave both empty = links go straight to the brand.",
+  "affiliate": {
+    "network": "",
+    "url_template": "",
+    "per_brand": {}
+  },
+
+  "_analytics_help": "provider: cloudflare (id = beacon token), ga4 (id = G-XXXX), goatcounter (id = your code). Empty = no analytics.",
+  "analytics": {
+    "provider": "",
+    "id": ""
+  }
+}

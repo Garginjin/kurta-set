@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url || steps.deploy_retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -66,4 +66,13 @@ jobs:
         with:
           path: docs
       - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true   # GitHub sometimes can't find the just-uploaded site package; retried below
+
+      - name: Wait before retrying publish
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 90
+
+      - id: deploy_retry
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v4

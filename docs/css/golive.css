@@ -1,0 +1,38 @@
+/* Go-live pages (workstream C): landing pages, info pages, footer links.
+   Uses the colour/font variables from site.css, so design changes there carry over. */
+.golive-links { margin-top: 14px; }
+.golive-links nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.golive-links nav a { color: var(--muted); text-decoration: none; font-weight: 600; }
+.golive-links nav a:hover { color: var(--accent); text-decoration: underline; }
+.golive-disc { margin: 0 0 8px; }
+
+.gl-main { padding-top: 24px; padding-bottom: 56px; }
+.gl-crumbs { font-size: 13px; color: var(--soft); margin-bottom: 14px; }
+.gl-crumbs a { color: var(--soft); }
+.gl-h1 { font-family: var(--serif); font-weight: 700; font-size: clamp(34px, 5vw, 52px); line-height: 1.05; margin: 0 0 10px; color: var(--ink); }
+.gl-h2 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--soft); margin: 26px 0 10px; }
+.gl-intro, .gl-story { max-width: 760px; color: var(--muted); font-size: 16px; line-height: 1.6; margin: 0 0 12px; }
+.gl-logo { display: block; max-height: 64px; max-width: 220px; object-fit: contain; margin: 6px 0 16px; }
+.gl-cta { display: inline-flex; align-items: center; min-height: 44px; padding: 0 22px; border-radius: 22px; background: var(--accent); color: #fff !important; font-weight: 700; text-decoration: none; }
+.gl-cta:hover { background: var(--accent-dark); }
+.gl-chips { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.gl-chips a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border: 1px solid var(--field); border-radius: 18px; color: var(--ink); text-decoration: none; font-size: 14px; }
+.gl-chips a:hover { border-color: var(--accent); color: var(--accent); }
+.gl-site { margin: 18px 0 0; color: var(--muted); }
+
+.gl-grid { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 28px 18px; }
+.gl-card a { display: flex; flex-direction: column; gap: 5px; color: var(--ink); text-decoration: none; }
+.gl-img { display: block; aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: var(--tint); }
+.gl-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gl-src { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--soft); margin-top: 4px; }
+.gl-t { font-size: 14px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.gl-p { font-size: 14px; }
+.gl-p s { color: var(--soft); }
+.gl-off { color: var(--accent); font-weight: 700; }
+.gl-card a:hover .gl-t { text-decoration: underline; }
+.gl-more { margin-top: 32px; }
+
+.gl-prose { max-width: 720px; font-size: 16px; line-height: 1.7; color: var(--ink); }
+.gl-prose h2 { font-family: var(--serif); font-size: 28px; margin: 28px 0 8px; }
+.gl-prose ul { padding-left: 20px; }
+@media (max-width: 600px) { .gl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; } }

@@ -167,6 +167,9 @@ SOURCES = [
     {"source": "Phulkari Store", "type": "woocommerce", "base": "https://phulkari.store"},  # /shop URL: likely WordPress
     {"source": "Kelin", "type": "shopify", "base": "https://kelin.in"},  # added 19 Nov; platform not checked
     {"source": "Thenmozhi Designs", "type": "shopify", "base": "https://thenmozhidesigns.com"},  # added 21 Nov; platform not checked
+    {"source": "Unrush", "type": "shopify", "base": "https://shopunrush.com"},  # added 21 Nov; platform not checked
+    {"source": "Yezwe", "type": "shopify", "base": "https://yezwe.com"},  # added 21 Nov; platform not checked
+    {"source": "Dash and Dot", "type": "shopify", "base": "https://www.dashanddot.com"},  # added 21 Nov; platform not checked
     {"source": "Zlaata", "type": "zlaata",
      "urls": ["https://www.zlaata.com/zlaata-india/all",
               "https://www.zlaata.com/zlaata-india/all-accessories"]},

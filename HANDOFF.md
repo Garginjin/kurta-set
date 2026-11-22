@@ -65,7 +65,8 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    Bags = bags, potlis, clutches, wallets, pouches, slings, laptop sleeves. Accessories = hair, bows, neck warmers, belts, caps/hats, spectacle cases etc. Hidden: Kidswear, Menswear, Innerwear, Home & gifts (incl. rakhis,
    beauty, decor, promo freebies, test listings). core.js CATEGORY_ORDER (shared) still lacks the new names, so the
    filter lists them last: A + B to agree and update it to the order above.
-   Image check: image_check.py + .github/workflows/image-check.yml (free CLIP, daily, report only) ->
+   Other -> placed by description first line ("cat:" in desc_attrs, from next scrape) then photo >= 90% (image check cache).
+   Image check: image_check.py + .github/workflows/image-check.yml (free CLIP, daily) ->
    data/image_review.csv, data/image_check_summary.md.
    6 Nov: crafts only for CRAFT_CATEGORIES (Kurtas, Kurta sets, Sarees, Co-ord sets, Dresses, Tops & shirts, Lehengas).
    LIVE 4 Nov (Garima approved): craft pages, grouped Craft filter (replaces Work/Print groups), 36 home craft tiles.

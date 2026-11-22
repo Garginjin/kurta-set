@@ -762,6 +762,12 @@ def desc_attrs(html):
     fab = " ".join(m.group(1) for m in _FABRIC_LINE.finditer(text))
     found += [f"fabric:{v}" for v in match_group("fabric", fab)]
     found += [f"craft:{i}" for i in match_crafts(text)]
+    # what the product is, from the first line of the description (Kisseh etc. put
+    # "Pure Katan Silk Banarasi Saree" right under a name-only title)
+    first = re.split(r"(?<=[.!?])\s|\n", text, maxsplit=1)[0][:200]
+    cat = _what(first) or _what(text[:600])
+    if cat:
+        found.append(f"cat:{cat}")
     return "|".join(found)
 
 
@@ -1168,6 +1174,31 @@ def scrape_zlaata(f, cfg, max_pages=150):
 
 
 # ---------------------------------------------------------------------------
+_PHOTO = None
+_img_key = lambda u: re.sub(r"^https?:", "", u).split("?")[0]
+_PHOTO_CAT = {"Kurta set": "Kurta sets", "Saree": "Sarees", "Lehenga": "Lehengas", "Kurta": "Kurtas", "Dress": "Dresses",
+              "Co-ord set": "Co-ord sets", "Top": "Tops & shirts", "Jacket": "Jackets & overlays"}
+
+
+def placed_from_description_or_photo(r):
+    """For a product the title/type rules couldn't place: the description's first line,
+    then the free image check (data/image_checks.json.gz) when it is >= 90% sure of a garment."""
+    global _PHOTO
+    for x in (r.get("desc_attrs") or "").split("|"):
+        if x.startswith("cat:") and x[4:] in CATEGORIES:
+            return x[4:]
+    if _PHOTO is None:
+        try:
+            with gzip.open("data/image_checks.json.gz", "rt") as fh:
+                _PHOTO = {_img_key(k): v for k, v in json.load(fh).items()}
+        except (OSError, ValueError):
+            _PHOTO = {}
+    res = _PHOTO.get(_img_key(r.get("image") or ""))
+    if res and res[1] >= 0.9 and res[0] in _PHOTO_CAT:
+        return _PHOTO_CAT[res[0]]
+    return None
+
+
 def write_out(rows, out):
     seen, uniq = set(), []
     for r in rows:  # never write the same product twice
@@ -1178,6 +1209,8 @@ def write_out(rows, out):
             r["category"] = "Menswear"
         elif tagged_kidswear(r.get("tags"), r.get("sizes_all")):
             r["category"] = "Kidswear"
+        elif r["category"] == "Other":
+            r["category"] = placed_from_description_or_photo(r) or "Other"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:
             continue
         keep = _SOURCE_KEEP.get(r["source"])

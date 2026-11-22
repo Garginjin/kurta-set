@@ -107,12 +107,6 @@ function renderHome() {
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
     return `<a class="ctile" href="${shopLink({ cat: c })}">${p ? imgTag(p.image, "") : ""}<span class="cap"><b>${esc(c)}</b><span>${mx[c] ? `Up to ${mx[c]}% off · ` : ""}${nf(cc[c])} styles</span></span></a>`; }).join("");
   $("catnav").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => `<a href="${shopLink({ cat: c })}">${esc(c)}</a>`).join("") + `<a href="#/brands">All brands</a>`;
-  const per = {}, deals = [];
-  for (const p of [...inStock].filter(p => realDeal(p) && p.image).sort((a, b) => b.disc - a.disc)) {
-    if ((per[p.source] = (per[p.source] || 0) + 1) > 2) continue;
-    deals.push(p); if (deals.length >= 24) break;
-  }
-  $("hnew").innerHTML = deals.map(p => card(p)).join("");
   $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
     const n = inStock.reduce((k, p) => k + (p.A[g] && p.A[g].includes(v) ? 1 : 0), 0);
     if (n < 20) return "";

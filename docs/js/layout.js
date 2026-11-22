@@ -48,8 +48,9 @@ let BRANDS = [], BRAND_BY = {};
 const FEATURED_CRAFTS = [["work", "Chikankari"], ["print", "Hand block print"], ["print", "Bandhani & leheriya"], ["work", "Gota patti"],
   ["work", "Mirror work"], ["print", "Ajrakh"], ["print", "Ikat"], ["work", "Zari & zardozi"], ["print", "Woven & jacquard"], ["print", "Hand painted"]];
 const NOT_CLOTHES = new Set(["Accessories", "Other"]);
-const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Pants", "Skirts", "Dupattas", "Fabrics", "Jewellery", "Footwear", "Jackets & overlays", "Accessories"];
-const CAT_LABEL = { "Accessories": "Bags & more" }; // home display name only; the data category is still "Accessories"
+// same categories as the Shop category filter (scraper.py CATEGORIES, minus hidden ones and "Other")
+const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Pants", "Skirts", "Dupattas", "Fabrics", "Jewellery", "Footwear", "Bags", "Jackets & overlays", "Nightwear & loungewear", "Accessories"];
+const CAT_LABEL = {};
 const catLabel = c => CAT_LABEL[c] || c;
 const BUDGETS = [["u1000", "Under", "₹1,000"], ["1000", "₹1,000 –", "₹1,999"], ["2000", "₹2,000 –", "₹2,999"], ["3000", "From", "₹3,000"]];
 const imgTag = (src, alt = "") => src ? `<img src="${esc(safeUrl(imgUrl(src)))}" alt="${esc(alt)}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` : "";

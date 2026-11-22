@@ -420,3 +420,36 @@
   .hero.evergreen .stats span { font-size: 14px; }
   .hero.evergreen { margin-bottom: 0; }
   .home { gap: 0; padding-top: 20px; }
+
+  /* ===== headings centred with a gold divider ===== */
+  .sechead { flex-direction: column; align-items: center; text-align: center; gap: 6px; margin-bottom: 26px; }
+  .sechead > div::before { content: ""; display: block; width: 132px; height: 14px; margin: 0 auto 12px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='14'%3E%3Cpath d='M0 7h52M80 7h52' stroke='%23E69B0F' stroke-width='1.5'/%3E%3Cpath d='M66 0l7 7-7 7-7-7z' fill='%23E69B0F'/%3E%3Ccircle cx='56' cy='7' r='2' fill='%23E69B0F'/%3E%3Ccircle cx='76' cy='7' r='2' fill='%23E69B0F'/%3E%3C/svg%3E") no-repeat center; }
+  .sec h2 { font-size: clamp(30px, 2.4vw, 46px); }
+  .sechead p { max-width: 40em; margin: 8px auto 0; }
+  .sechead a { margin-top: 2px; }
+  /* ===== category photo cards, name on the photo ===== */
+  #hcats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .ctile { position: relative; display: block; aspect-ratio: 3 / 4; border-radius: 18px; overflow: hidden; background: var(--tint); text-decoration: none; }
+  .ctile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+  .ctile:hover img { transform: scale(1.05); }
+  .ctile .cap { position: absolute; inset: auto 0 0 0; padding: 48px 16px 16px; display: flex; flex-direction: column; gap: 4px;
+    background: linear-gradient(to top, rgba(20,8,14,.82), rgba(20,8,14,.45) 55%, transparent); color: #fff; }
+  .ctile .cap b { font-family: var(--serif); font-size: clamp(22px, 1.6vw, 30px); font-weight: 700; line-height: 1.05; }
+  .ctile .cap span { font-size: 14px; font-weight: 700; color: #FFE3B0; }
+  /* ===== craft cards ===== */
+  .crail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 290px); gap: 16px; overflow-x: auto; overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory; padding-bottom: 14px; scrollbar-width: thin; }
+  .ccard { scroll-snap-align: start; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+    background: var(--card); text-decoration: none; color: var(--ink); box-shadow: var(--shadow); }
+  .ccard:hover { border-color: var(--gold); }
+  .ccard .cimg { display: block; aspect-ratio: 4 / 3; background: var(--tint); overflow: hidden; }
+  .ccard .cimg img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s; }
+  .ccard:hover .cimg img { transform: scale(1.04); }
+  .ccard .cbody { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; flex: 1; }
+  .ccard small { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-text); }
+  .ccard b { font-family: var(--serif); font-size: 26px; line-height: 1.05; }
+  .ccard .blurb { font-size: 14px; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ccard em { margin-top: auto; padding-top: 4px; font-style: normal; font-size: 14px; font-weight: 700; color: var(--accent); }
+  @media (max-width: 560px) { #hcats { grid-template-columns: repeat(2, 1fr); gap: 10px; } .crail { grid-auto-columns: 78%; } }
+  @media (min-width: 1000px) { #hcats { grid-template-columns: repeat(5, 1fr); } }

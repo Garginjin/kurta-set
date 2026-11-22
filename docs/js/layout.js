@@ -105,14 +105,8 @@ function renderHome() {
   const realDeal = p => p.disc > 0 && p.disc <= 80 && p.price >= 499;
   const mx = {}; for (const p of inStock) if (realDeal(p) && p.disc > (mx[p.category] || 0)) mx[p.category] = p.disc;
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
-    return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles${mx[c] ? ` · up to ${mx[c]}% off` : ""}</span></a>`; }).join("");
+    return `<a class="ctile" href="${shopLink({ cat: c })}">${p ? imgTag(p.image, "") : ""}<span class="cap"><b>${esc(c)}</b><span>${mx[c] ? `Up to ${mx[c]}% off · ` : ""}${nf(cc[c])} styles</span></span></a>`; }).join("");
   $("catnav").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => `<a href="${shopLink({ cat: c })}">${esc(c)}</a>`).join("") + `<a href="#/brands">All brands</a>`;
-  const per = {}, deals = [];
-  for (const p of [...inStock].filter(p => realDeal(p) && p.image).sort((a, b) => b.disc - a.disc)) {
-    if ((per[p.source] = (per[p.source] || 0) + 1) > 2) continue;
-    deals.push(p); if (deals.length >= 24) break;
-  }
-  $("hnew").innerHTML = deals.map(p => card(p)).join("");
   $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
     const n = inStock.reduce((k, p) => k + (p.A[g] && p.A[g].includes(v) ? 1 : 0), 0);
     if (n < 20) return "";
@@ -237,3 +231,20 @@ function renderSlides(cc, used) {
   el.addEventListener("touchend", e => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { go(cur + (dx < 0 ? 1 : -1)); play(); } x0 = null; });
   play();
 }
+
+/* ---------------- home crafts as cards (photo, name, region, first lines of the write-up) ----------------
+   filters.js wraps renderHome() on DOMContentLoaded to draw craft circles; this wrapper is registered after it,
+   so it runs last and redraws #hcrafts as cards. Uses CRAFTS / craftLink / CRAFT_MIN from filters.js read-only. */
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof renderHome !== "function") return;
+  const base = renderHome;
+  renderHome = function () {
+    base();
+    if (typeof CRAFTS === "undefined" || !CRAFTS.length) return;
+    const used = new Set(), first = t => { const m = String(t || "").match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : String(t || ""); };
+    const list = CRAFTS.filter(c => !c.bucket && !c.virtual && c.blurb && c.in_stock >= CRAFT_MIN).sort((a, b) => b.in_stock - a.in_stock);
+    $("hcrafts").innerHTML = list.map(c => { const p = pickImg(q => q.A.craft && q.A.craft.includes(c.name), used);
+      return `<a class="ccard" href="${craftLink(c)}"><span class="cimg">${p ? imgTag(p.image, "") : ""}</span><span class="cbody">
+        ${c.region ? `<small>${esc(c.region)}</small>` : ""}<b>${esc(c.name)}</b><span class="blurb">${esc(first(c.blurb))}</span><em>${nf(c.in_stock)} styles →</em></span></a>`; }).join("");
+  };
+});

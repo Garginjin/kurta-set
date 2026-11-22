@@ -3,7 +3,7 @@
 
   "_domain_help": "Set to saubag.in only AFTER the DNS records are in place (see GOLIVE.md). Empty = site stays on github.io.",
   "domain": "",
-  "github_pages_url": "https://garginjin.github.io/kurta-set",
+  "github_pages_url": "https://saubag.github.io",
 
   "_contact_help": "Shown on the Privacy and Takedown pages. Those two pages are not published until this is filled in.",
   "contact_email": "",

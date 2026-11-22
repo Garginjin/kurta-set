@@ -60,9 +60,9 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    C: add brands by the section Garima sends (use "keep"), and check the new brand's category mix before it goes live.
    22 Nov CATEGORY NAMES (exact strings in products.json; A: use these in HOME_CATS / menus):
    "Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts", "Pants", "Skirts", "Lehengas", "Sarees",
-   "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery", "Nightwear & loungewear", "Accessories", "Other".
+   "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery", "Bags", "Nightwear & loungewear", "Accessories", "Other".
    "Bottoms" no longer exists (split into Pants / Skirts). Dupattas = dupattas, stoles, shawls, phulkari baghs.
-   Accessories = bags, hair, belts, caps/hats etc. Hidden: Kidswear, Menswear, Innerwear, Home & gifts (incl. rakhis,
+   Bags = bags, potlis, clutches, wallets, pouches, slings, laptop sleeves. Accessories = hair, bows, neck warmers, belts, caps/hats, spectacle cases etc. Hidden: Kidswear, Menswear, Innerwear, Home & gifts (incl. rakhis,
    beauty, decor, promo freebies, test listings). core.js CATEGORY_ORDER (shared) still lacks the new names, so the
    filter lists them last: A + B to agree and update it to the order above.
    Image check: image_check.py + .github/workflows/image-check.yml (free CLIP, daily, report only) ->

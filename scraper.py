@@ -183,7 +183,7 @@ SOURCES = [
 # then its tags. Edit the word lists to fix any product in the wrong place.
 # ---------------------------------------------------------------------------
 CATEGORIES = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts",
-              "Pants", "Skirts", "Lehengas", "Sarees", "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery",
+              "Pants", "Skirts", "Lehengas", "Sarees", "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery", "Bags",
               "Nightwear & loungewear", "Menswear", "Kidswear", "Innerwear", "Home & gifts", "Accessories", "Other"]
 # Still detected (so kids/men pieces don't land in Kurtas etc.) but never
 # saved or shown on the site.
@@ -271,12 +271,18 @@ _HOME = _R(r"\b(bed\s?(cover|sheet|spread)s?|bedsheets?|cushions?(\s+covers?)?|p
            r"rakhis?|serums?|creams?|gels?|under\s?eye|kajal|sindoor|lipsticks?|moisturi[sz]ers?|face\s?(wash|packs?|masks?)|soaps?|lip\s?balms?|perfumes?|attars?|"
            r"fragrances?|body\s?(oil|lotion|butter)|hair\s?oil|skin\s?care|skincare|glow\s?boosters?|greeting\s?cards?|"
            r"paintings?|scrolls?|brass|wooden|diyas?|idols?|dinner\s?sets?|plates?|bowls?|tea\s?cos(y|ies)|"
-           r"bath\s?robes?|pooja|puja|chowki|ornaments?|ghee\s?pots?|pots?|thali|bookmarks?|magnets?|key\s?holders?)\b")
+           r"bath\s?robes?|candles?|wax|scented|incense|agarbattis?|dhoop|kumkum|vases?|showpieces?|figurines?|wind\s?chimes?|"
+           r"christmas|decorations?|wreaths?|boards?|chopping|carafes?|karaffe|decanters?|bottles?|fridge|handle\s?covers?|"
+           r"toys?|dolls?|puzzles?|games?|pens?|journals?|planners?|calendars?|stickers?|pooja|puja|chowki|ornaments?|ghee\s?pots?|pots?|thali|bookmarks?|magnets?|key\s?holders?)\b")
 _NONSALE = _R(r"^\W*(\d+\s+)?test(\s+test)*\W*$|\b(at|for)\s+just\s+(₹|rs)|\bon\s+orders\s+above\b|\bgift\s?wraps?\b|\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
 _FOOTWEAR = _R(r"\b(juttis?|mojaris?|sandals?|heels|shoes|kolhapuris?|footwear|slippers?|wedges|stilettos?|flip[- ]?flops?)\b")
 _JEWELLERY = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|jhumkis?|studs|necklaces?|chokers?|bangles?|bracelets?|"
-                r"kadas?|rings|anklets?|payals?|nose\s?(pins?|rings?)|maang\s?tikkas?|haath\s?phool|pendants?|kundan|polki)\b")
-_BAG_ETC = _R(r"\b(bags?|potli|clutch(es)?|totes?|wallets?|pouch(es)?|hair|scrunchies?|clips?|masks?|keychains?|belts?|socks|"
+                r"kadas?|(?<!napkin\s)(?<!key\s)rings?|finger\s?rings?|anklets?|payals?|nose\s?(pins?|rings?)|maang\s?tikkas?|haath\s?phool|pendants?|kundan|polki)\b")
+_BAGS = _R(r"\b(bags?|handbags?|potlis?|clutch(es)?|totes?|wallets?|purses?|pouch(es)?|slings?|backpacks?|satchels?|batuas?|"
+           r"(laptop|i-?pad|tablet|mobile)\s?(sleeves?|covers?|cases?))\b")
+_ACC_FIRST = _R(r"\b(hair|scrunchies?|clips?|bows?|neck\s?warmers?|bag\s?charms?|key\s?(chains?|rings?)|keychains?|"
+                r"spectacle|chashma|eyewear|sunglasses)\b")
+_BAG_ETC = _R(r"\b(hair|scrunchies?|clips?|masks?|keychains?|belts?|socks|"
               r"caps?|hats?|visors?|gloves|umbrellas?|brooch(es)?|latkans?|tassels?)\b")
 _FABRIC = _R(r"\bfabrics?\b|\b(running|yardage)\b|\bby\s+the\s+met(er|re)\b|\bper\s+met(er|re)\b|\bwidth\s*-?\s*\d+\s*in\b")
 _SAREE_ADDON = _R(r"\b(sarees?|saris?)\s+(falls?|pins?|brooch(es)?|tassels?|belts?|covers?|bags?|clips?|organi[sz]ers?|holders?)\b|"
@@ -321,16 +327,21 @@ def _what(text):
         return "Nightwear & loungewear"
     garment = any(g[k] for k in ("lehenga", "saree", "material", "kurta", "suit", "top", "bottom", "dress", "jacket", "coord", "piece3"))
     if not garment:
+        if re.search(r"\b(rakhis?|christmas|santa|podi|pickles?|masalas?|spices?|chutneys?|honey|ghee|"
+                     r"tea|coffee|snacks?|sweets|namkeen|papad)\b", t, re.I):  # gifts and food, even with a potli or brooch
+            return "Home & gifts"
+        if _ACC_FIRST.search(t):  # "Hair Clip with Scarf", bows, neck warmers, bag charms
+            return "Accessories"
         if _JEWELLERY.search(t):  # "Fabric & Wood Statement Necklace"
             return "Jewellery"
-        if re.search(r"\b(hair|scrunchies?|clips?)\b", t, re.I):  # "Hair Clip with Scarf"
-            return "Accessories"
+        if _BAGS.search(t):
+            return "Bags"
         if g["dupatta"] or g["stole"]:  # "Gift Box of Pashmina Stole" is a stole
             return "Dupattas"
+        if _HOME.search(t):  # before Fabrics: "Kalamkari Fabric Cover Notebook"
+            return "Home & gifts"
         if _FABRIC.search(t):
             return "Fabrics"
-        if _HOME.search(t):
-            return "Home & gifts"
         if _FOOTWEAR.search(t):
             return "Footwear"
         if _JEWELLERY.search(t):

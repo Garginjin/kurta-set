@@ -153,7 +153,8 @@ SOURCES = [
     # added 4 Nov: shawls, dupattas, phulkari (platform not checked; the run log shows OK/FAILED per brand)
     {"source": "The Shawl Studio", "type": "shopify", "base": "https://theshawlstudio.in"},
     {"source": "Pashtush", "type": "shopify", "base": "https://pashtush.in"},
-    {"source": "Sikh Accessories", "type": "woocommerce", "base": "https://sikhaccessories.com"},  # WordPress URLs
+    {"source": "Sikh Accessories", "type": "woocommerce", "base": "https://sikhaccessories.com",
+     "keep": r"phulkari"},  # Garima sent the Phulkari section only; rest is turbans, kirpans, men's wear  # WordPress URLs
     {"source": "Dupatta Bazaar", "type": "shopify", "base": "https://www.dupattabazaar.com"},
     {"source": "Gaatha", "type": "shopify", "base": "https://shop.gaatha.com"},
     {"source": "Rana Phulkari", "type": "shopify", "base": "https://ranaphulkari.com"},
@@ -183,10 +184,10 @@ SOURCES = [
 # ---------------------------------------------------------------------------
 CATEGORIES = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts",
               "Bottoms", "Lehengas", "Sarees", "Jackets & overlays",
-              "Nightwear & loungewear", "Menswear", "Kidswear", "Accessories", "Other"]
+              "Nightwear & loungewear", "Menswear", "Kidswear", "Innerwear", "Home & gifts", "Accessories", "Other"]
 # Still detected (so kids/men pieces don't land in Kurtas etc.) but never
 # saved or shown on the site.
-EXCLUDED_CATEGORIES = {"Kidswear", "Menswear"}
+EXCLUDED_CATEGORIES = {"Kidswear", "Menswear", "Innerwear", "Home & gifts"}
 # Brands removed from SOURCES whose old rows must be dropped from the record.
 REMOVED_SOURCES = {"Style Union", "Kisah", "Kalpraag"}  # Kisah, Kalpraag: menswear labels
 # A style whose own tags include exactly "Men"/"Menswear" (and no women tag) is menswear,
@@ -219,6 +220,7 @@ CATEGORY_RULES = [
     ("Accessories", r"\bbags?\b|\btotes?\b|\bpouch(es)?\b|\bpotli\b|\bclutch\b|\bjewell?e?ry\b|\bearrings?\b|\bnecklaces?\b|\bbracelets?\b|\bbangles?\b|\brings?\b|\bscrunchies?\b|\bhair\b|\bkeychains?\b|\bmasks?\b|\bstoles?\b|\bscarf\b|\bdupattas?\b|\bbelts?\b|\bwallets?\b|\bgameboard\b|\bsocks\b"),
 ]
 _RULES = [(c, re.compile(p, re.I)) for c, p in CATEGORY_RULES]
+_SOURCE_KEEP = {c["source"]: re.compile(c["keep"], re.I) for c in SOURCES if c.get("keep")}
 _KURTA_RE = re.compile(r"\b(" + _KURTA_WORDS + r")s?\b", re.I)
 
 # Zlaata's own category (from its product URLs) -> our category
@@ -233,30 +235,158 @@ ZLAATA_CATEGORY = {
 SKIP_TYPES = re.compile(r"gift ?card|e-?gift|insurance|shipping|donation", re.I)
 
 
-def _match(text):
+# ---------------------------------------------------------------------------
+# Product identification (rewritten 22 Nov after Garima's audit).
+# 1. Blocks first (title + brand's product type): innerwear, men's garments,
+#    baby items, home goods, gift hampers, services and test listings.
+# 2. Then find WHAT the product is from its garment words, not just any word:
+#    "Saree Fall" is a fall, "Combo of 3 Dupattas" is dupattas, "Kurta with
+#    Palazzo & Dupatta" is a kurta set, "Set of 2 towels" is a multipack.
+# Hand fixes: data/category_overrides.json {"<product url>": "<category>"}.
+# ---------------------------------------------------------------------------
+_R = lambda p: re.compile(p, re.I)
+_INNERWEAR = _R(r"\binner\s?wear\b|\bbras?\b|\bbrassieres?\b|\bbralettes?\b|\bshape\s?wear\b|\bshapers?\b|\bpetticoats?\b|\bin[- ]?skirts?\b|"
+                r"\bunder[- ]?skirts?\b|\blingerie\b|\bpant(y|ies)\b|\bsweat\s?pads?\b|\bdress\s?shields?\b|\bintimacy\b|"
+                r"\bthermals?\b|\bvests?\b(?=.*\b(inner|thermal|cotton\s+vest)\b)")
+_MEN_GARMENT = _R(r"\bsherwanis?\b|\bkurta\s?(pyjama|pajama|payjama)s?\b|\bpathani\b|\bachkans?\b|\bjodhpuri\b|"
+                  r"\bbandh\s?galas?\b|\bturbans?\b|\bpagri\b|\bsafa\b|\bdastar\b|\bpatkas?\b|\bkirpans?\b|\bgatra\b|"
+                  r"\bnihang\b|\bchola\b|\bfor\s+him\b|\bgroom\b|\bdulha\b|\bhis\s*(and|&|n)\s*hers?\b|\bnehru\s+jacket\b(?=.*\bmen\b)")
+_BABY = _R(r"\bbaby\b(?!\s*(pink|blue|yellow|green|doll|lilac|peach))|\bnapp(y|ies)\b|\bnew\s?born\b|\bbibs?\b|\bjhabla\b|\boh\s+baby\b")
+_HOME = _R(r"\b(bed\s?(cover|sheet|spread)s?|bedsheets?|cushions?(\s+covers?)?|pillows?(\s+covers?)?|curtains?|"
+           r"table\s?(cover|runner|cloth|linen|mat)s?|napkins?(\s+rings?)?|towels?|quilts?|dohars?|razai|blankets?|coasters?|"
+           r"rugs?|dhurries?|aprons?(?!\s*neck)|wall\s?hangings?|home\s?decor|placemats?|torans?|mugs?|diar(y|ies)|notebooks?|"
+           r"stationery|candles?|planters?|trays?|boxes|baskets?|lamps?|frames?|rumala|throws?|gift\s?box(es)?|running\s+fabric|"
+           r"dress\s?making\s+fabric|fabric\s+(by|per)\s+(the\s+)?met(er|re)s?)\b")
+_NONSALE = _R(r"\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
+_FOOTWEAR = _R(r"\b(juttis?|mojaris?|sandals?|heels|shoes|kolhapuris?|footwear|slippers?|wedges|stilettos?|flip[- ]?flops?)\b")
+_JEWEL_BAG = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|necklaces?|bangles?|bracelets?|rings|anklets?|nose\s?pins?|maang\s?tikka|"
+                r"bags?|potli|clutch(es)?|totes?|wallets?|pouch(es)?|hair|scrunchies?|clips?|masks?|keychains?|belts?|socks)\b")
+_SAREE_ADDON = _R(r"\b(sarees?|saris?)\s+(falls?|pins?|brooch(es)?|tassels?|belts?|covers?|bags?|clips?|organi[sz]ers?|holders?)\b|"
+                  r"\b(falls?|pico)\s+(for\s+)?(sarees?|saris?)\b")
+
+# garment words: what the product is made of
+_G = {
+    "lehenga": _R(r"\blehe?n?ga|\bghagras?\b|\bchaniya\b"),
+    "saree": _R(r"\bsarees?\b|\bsaris?\b"),
+    "material": _R(r"\bdress\s?materials?\b|\bsuit\s?(materials?|pieces?|fabric)\b|\bunstitched\b|\bsemi[- ]?stitched\b"),
+    "kurta": _R(r"\b(kurtas?|kurtis?|anarkalis?|kameez|angrakhas?|kaftans?|afghani|chogas?|pherans?|phirans?)\b"),
+    "suit": _R(r"\b(salwar\s+)?suits?\b|\bpatiala\b"),
+    "top": _R(r"\b(tops?|shirts?|tunics?|blouses?|crop|peplums?|cuffs?|bustiers?|corsets?|camis?|tees?|t-shirts?|cholis?)\b"),
+    "bottom": _R(r"\b(pants?|palazzos?|plazzos?|pallazos?|trousers?|sharara|gharara|salwar|churidars?|skirts?|dhoti|leggings?|"
+                 r"culottes?|shorts|jeans|bottoms?|farshi|farsi|tights?|jeggings?|joggers?)\b"),
+    "dupatta": _R(r"\b(dupattas?|odhnis?|chunnis?)\b"),
+    "stole": _R(r"\b(stoles?|shawls?|scarf|scarves|wraps?|mufflers?)\b"),
+    "dress": _R(r"\b(dress(es)?|gowns?|jumpsuits?|playsuits?)\b(?!\s?materials?)|\b(maxi|midi)\b(?!\s+skirts?)"),
+    "jacket": _R(r"\b(jackets?|shrugs?|overlays?|capes?|coats?|waistcoats?|bandi|kimonos?|cardigans?|blazers?)\b"),
+    "coord": _R(r"\bco[- ]?c?ords?\b|\bcoords?\b"),
+    "piece3": _R(r"\b3\s?-?\s?(pc|pcs|piece)s?\b|\bthree[- ]piece\b"),
+    "set": _R(r"\bsets?\b|\bcombos?\b|\b2\s?-?\s?(pc|pcs|piece)s?\b|\btwo[- ]piece\b|\bwith\b|&|\band\b|\+"),
+    "night": _R(r"\bnight\s?wear\b|\bnight\s?suits?\b|\bnighty\b|\bnightdress\b|\bpyjamas?\b|\bpajamas?\b|\blounge\s?wear\b|"
+                r"\bsleep\s?wear\b|\bnight\s?gowns?\b"),
+}
+_MULTIPACK = _R(r"\b(set|pack|combo)\s+of\s+\d+\b|\b\d+\s*(pcs?|pieces?)\s+set\b|\bcombo\b")
+
+
+def _what(text):
+    """Category from what the product IS (garment words), or None."""
     if not text:
         return None
-    for cat, rx in _RULES:
-        if rx.search(text):
-            if cat == "SET":
-                return "Kurta sets" if _KURTA_RE.search(text) else "Co-ord sets"
-            return cat
+    t = text
+    if _INNERWEAR.search(t):
+        return "Innerwear"
+    if _SAREE_ADDON.search(t):
+        return "Accessories"
+    if _NONSALE.search(t):
+        return "Home & gifts"
+    g = {k: bool(rx.search(t)) for k, rx in _G.items()}
+    if g["night"]:
+        return "Nightwear & loungewear"
+    garment = any(g[k] for k in ("lehenga", "saree", "material", "kurta", "suit", "top", "bottom", "dress", "jacket", "coord", "piece3"))
+    if not garment:
+        if g["dupatta"] or g["stole"]:  # "Gift Box of Pashmina Stole" is a stole
+            return "Accessories"
+        if _HOME.search(t):
+            return "Home & gifts"
+        if _FOOTWEAR.search(t) or _JEWEL_BAG.search(t):
+            return "Accessories"
+        return None
+    if g["lehenga"]:
+        return "Lehengas"
+    if g["saree"]:
+        # "Saree Blouse" / "Saree Blouse Piece" with no saree in the deal = a blouse
+        rest = re.sub(r"\b(sarees?|saris?)\s+blouses?\b|\bfor\b[^|.]{0,40}?\b(sarees?|saris?)\b", " blouse ", t, flags=re.I)
+        rest = rest if re.search(r"\bblouses?\b", t, re.I) else t
+        if g["top"] and not _G["saree"].search(rest):
+            return "Tops & shirts"
+        return "Sarees"
+    if re.search(r"\bblouse\s+(piece|material|fabric)s?\b", t, re.I):
+        return "Tops & shirts"
+    if g["material"]:
+        return "Kurta sets"
+    if g["kurta"]:
+        if g["bottom"] or g["dupatta"] or g["suit"] or g["piece3"] or g["coord"] or re.search(r"\bsets?\b", t, re.I):
+            return "Kurta sets"
+        return "Kurtas"
+    if g["suit"] and not g["jacket"]:
+        return "Kurta sets"
+    if g["coord"] or g["piece3"] or (g["top"] and g["bottom"]):
+        # a 3-piece or any set with a dupatta is an Indian suit set
+        return "Kurta sets" if (g["dupatta"] or g["piece3"]) else "Co-ord sets"
+    if g["dress"]:
+        return "Dresses"
+    if g["jacket"]:  # "Cape Set" = a whole outfit
+        return "Co-ord sets" if re.search(r"\bsets?\b", t, re.I) else "Jackets & overlays"
+    if g["top"]:
+        return "Tops & shirts"
+    if g["bottom"]:
+        # "Palazzo Set", "Sharara Set", "Pant Set" = a whole outfit; "Pack of 2 leggings" = bottoms
+        if re.search(r"\bsets?\b", t, re.I) and not _MULTIPACK.search(t):
+            return "Kurta sets" if re.search(r"\b(salwar|sharara|gharara|farshi|farsi|churidars?|patiala)\b", t, re.I) or g["dupatta"] else "Co-ord sets"
+        if re.search(r"\b(salwar|sharara|gharara)\b.*\b(with|&|and)\b|\b(with|&|and)\b.*\b(salwar|sharara|gharara)\b", t, re.I):
+            return "Kurta sets"
+        return "Bottoms"
     return None
+
+
+def _match(text):  # kept for old callers
+    return _what(text)
+
+
+_CATEGORY_OVERRIDES = None
+
+
+def category_override(url):
+    global _CATEGORY_OVERRIDES
+    if _CATEGORY_OVERRIDES is None:
+        try:
+            with open("data/category_overrides.json", encoding="utf-8") as fh:
+                _CATEGORY_OVERRIDES = {k: v for k, v in json.load(fh).items() if not k.startswith("_")}
+        except (OSError, ValueError):
+            _CATEGORY_OVERRIDES = {}
+    return _CATEGORY_OVERRIDES.get(url or "")
 
 
 def classify(title, product_type="", tags="", hint=None):
     """Return one of CATEGORIES for a product."""
     head = f"{title} {product_type}"
-    # kids / men first, but only from title + type (tags are often noisy)
+    # blocks first, from title + the brand's own product type (tags are often noisy)
     for cat in ("Kidswear", "Menswear"):
         rx = dict(_RULES)[cat]
         if rx.search(head):
             return cat
+    if _MEN_GARMENT.search(head):
+        return "Menswear"
+    if _BABY.search(head):
+        return "Kidswear"
+    if _INNERWEAR.search(head):
+        return "Innerwear"
     if hint:
-        return hint
+        w = _what(title)
+        return w if (w == "Kurta sets" and hint == "Co-ord sets") else hint
+    # what the title says it is; then the brand's product type; tags last
     for text in (title, product_type, tags):
-        cat = _match(text)
-        if cat and cat not in ("Kidswear", "Menswear"):
+        cat = _what(text)
+        if cat:
             return cat
     return "Other"
 
@@ -997,9 +1127,15 @@ def scrape_zlaata(f, cfg, max_pages=150):
 def write_out(rows, out):
     seen, uniq = set(), []
     for r in rows:  # never write the same product twice
-        if tagged_menswear(r.get("tags")):
+        ov = category_override(r.get("url"))
+        if ov:
+            r["category"] = ov
+        elif tagged_menswear(r.get("tags")):
             r["category"] = "Menswear"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:
+            continue
+        keep = _SOURCE_KEEP.get(r["source"])
+        if keep and not keep.search(f"{r.get('product_type') or ''} {r.get('title') or ''}"):
             continue
         key = (r["source"], str(r["product_id"]))
         if key not in seen:

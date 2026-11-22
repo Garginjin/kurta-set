@@ -1,0 +1,3 @@
+{
+  "_readme": "Hand fixes for product categories. Key = the product's full URL on the brand site, value = a category name from CATEGORIES in scraper.py (e.g. \"Kurta sets\", \"Accessories\", \"Home & gifts\"). Applied after the automatic rules."
+}

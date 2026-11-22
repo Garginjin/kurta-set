@@ -47,6 +47,11 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    No brand tags, no brand-wide defaults (Garima: check every style). "Bandhani print" etc. -> Printed (other).
    Hand fixes: data/craft_overrides.json. Write-ups: data/crafts.json (casual, <=100 words, sourced) -> docs/crafts.json.
    Craft pages = #/shop?a=craft:<Name>; craft pages need 20+ in-stock styles.
+   22 Nov: product identification rewritten (_what() in scraper.py): blocks first (Innerwear, men's garments, baby,
+   Home & gifts – all hidden via EXCLUDED_CATEGORIES), then category from garment words (saree add-ons, saree blouses,
+   multipacks, kurta set = kurta/suit + bottom/dupatta or dress material, co-ord = top + bottom, no kurta).
+   Hand fixes: data/category_overrides.json {url: category}. Per-brand "keep" regex in SOURCES (Sikh Accessories: phulkari only).
+   C: add brands by the section Garima sends (use "keep"), and check the new brand's category mix before it goes live.
    6 Nov: crafts only for CRAFT_CATEGORIES (Kurtas, Kurta sets, Sarees, Co-ord sets, Dresses, Tops & shirts, Lehengas).
    LIVE 4 Nov (Garima approved): craft pages, grouped Craft filter (replaces Work/Print groups), 36 home craft tiles.
    Home tiles are set by a DOMContentLoaded wrapper of renderHome() at the end of js/filters.js; workstream A may

@@ -101,8 +101,18 @@ function renderHome() {
 
   const cc = {}; for (const p of inStock) cc[p.category] = (cc[p.category] || 0) + 1;
   renderSlides(cc, used);
+  // believable discounts only: source data has test items, ₹1-5 promo add-ons and inflated MRPs
+  const realDeal = p => p.disc > 0 && p.disc <= 80 && p.price >= 499;
+  const mx = {}; for (const p of inStock) if (realDeal(p) && p.disc > (mx[p.category] || 0)) mx[p.category] = p.disc;
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
-    return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles</span></a>`; }).join("");
+    return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles${mx[c] ? ` · up to ${mx[c]}% off` : ""}</span></a>`; }).join("");
+  $("catnav").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => `<a href="${shopLink({ cat: c })}">${esc(c)}</a>`).join("") + `<a href="#/brands">All brands</a>`;
+  const per = {}, deals = [];
+  for (const p of [...inStock].filter(p => realDeal(p) && p.image).sort((a, b) => b.disc - a.disc)) {
+    if ((per[p.source] = (per[p.source] || 0) + 1) > 2) continue;
+    deals.push(p); if (deals.length >= 24) break;
+  }
+  $("hnew").innerHTML = deals.map(p => card(p)).join("");
   $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
     const n = inStock.reduce((k, p) => k + (p.A[g] && p.A[g].includes(v) ? 1 : 0), 0);
     if (n < 20) return "";
@@ -110,7 +120,9 @@ function renderHome() {
     return `<a class="tile" href="${shopLink({ a: g + ":" + v })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(v.replace(" & ", " / "))}</b><span>${nf(n)} styles</span></a>`;
   }).join("");
   const feat = BRANDS.filter(b => b.in_stock > 0).sort((a, b) => b.in_stock - a.in_stock).slice(0, 30);
-  $("hbrands").innerHTML = feat.map(brandCard).join("");
+  $("hbrands").innerHTML = feat.map(b => `<a class="ltile" href="#/brand/${esc(b.slug)}" title="${esc(b.n)}">${b.logo
+    ? `<img src="${esc(safeUrl(b.logo.startsWith("//") ? "https:" + b.logo : b.logo))}" alt="${esc(b.n)}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:this.alt}))">`
+    : `<span>${esc(b.n)}</span>`}<small>${nf(b.in_stock)} styles</small></a>`).join("");
   $("hbrandsub").textContent = BRANDS.length ? `${BRANDS.length} independent labels, from Jaipur block printers to Lucknow chikankari houses.` : "";
 }
 

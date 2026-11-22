@@ -50,6 +50,7 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    22 Nov: product identification rewritten (_what() in scraper.py): blocks first (Innerwear, men's garments, baby,
    Home & gifts – all hidden via EXCLUDED_CATEGORIES), then category from garment words (saree add-ons, saree blouses,
    multipacks, kurta set = kurta/suit + bottom/dupatta or dress material, co-ord = top + bottom, no kurta).
+   Kids: "kidswear" word, brand tags (kids-only, Boys, or kids-tagged with no adult size) -> hidden.
    Hand fixes: data/category_overrides.json {url: category}. Per-brand "keep" regex in SOURCES (Sikh Accessories: phulkari only).
    C: add brands by the section Garima sends (use "keep"), and check the new brand's category mix before it goes live.
    6 Nov: crafts only for CRAFT_CATEGORIES (Kurtas, Kurta sets, Sarees, Co-ord sets, Dresses, Tops & shirts, Lehengas).

@@ -196,6 +196,18 @@ _MEN_TAGS = {"men", "mens", "men's", "menswear", "man", "for men", "male", "gent
 _WOMEN_TAGS = {"women", "womens", "women's", "womenswear", "woman", "ladies", "female", "for women"}
 
 
+_KIDS_TAGS = {"kids", "kid", "kidswear", "kids wear", "children", "childrens", "child", "baby", "infant", "toddler", "boys", "boy"}
+
+
+def tagged_kidswear(tags, sizes=""):
+    """Brand's own tags: only kids (no women tag), tagged Boys, or tagged kids with no adult size
+    (kids' age sizes like "2-3 Y" are dropped by the size step, so the size list is empty)."""
+    t = {x.strip().lower() for x in (tags or "").split("|")}
+    if not (t & _KIDS_TAGS):
+        return False
+    return not (t & _WOMEN_TAGS) or bool(t & {"boys", "boy"}) or not (sizes or "").strip()
+
+
 def tagged_menswear(tags):
     t = {x.strip().lower() for x in (tags or "").split("|")}
     return bool(t & _MEN_TAGS) and not (t & _WOMEN_TAGS)
@@ -205,7 +217,7 @@ _SET = (r"\bsets?\b|\bcombos?\b|\bskirt\s+tops?\b|\bsuits?\b|\b3\s?-?\s?(pc|pcs|
         r"\bwith\s+(\w+\s+){0,3}(palazzo|plazzo|pants?|sharara|salwar|dupatta|churidar|farshi|farsi|skirt|trousers?)\b|"
         r"\b(kurta|kurti|kaftan|tunic|top)\s*(&|and|\+)\s*(\w+\s+){0,2}(pants?|palazzo|sharara|salwar|skirt|dupatta|trousers?)\b")
 CATEGORY_RULES = [
-    ("Kidswear", r"\bkids?\b|\bgirls?\b|\bboys?\b|\binfants?\b|\btoddlers?\b"),
+    ("Kidswear", r"\bkids?\b|\bkids?\s?wear\b|\bgirls?\b|\bboys?\b|\binfants?\b|\btoddlers?\b|\bcrib\b|\bbaby\s?wear\b"),
     ("Menswear", r"\bmen'?s?\b|\bmale\b|\bgents\b"),
     ("Co-ord sets", r"\bco[- ]?c?ords?\b|\bcoords?\b"),
     ("Lehengas", r"\blehenga|\blehnga"),
@@ -1132,6 +1144,8 @@ def write_out(rows, out):
             r["category"] = ov
         elif tagged_menswear(r.get("tags")):
             r["category"] = "Menswear"
+        elif tagged_kidswear(r.get("tags"), r.get("sizes_all")):
+            r["category"] = "Kidswear"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:
             continue
         keep = _SOURCE_KEEP.get(r["source"])

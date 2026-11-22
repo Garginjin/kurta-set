@@ -48,7 +48,9 @@ let BRANDS = [], BRAND_BY = {};
 const FEATURED_CRAFTS = [["work", "Chikankari"], ["print", "Hand block print"], ["print", "Bandhani & leheriya"], ["work", "Gota patti"],
   ["work", "Mirror work"], ["print", "Ajrakh"], ["print", "Ikat"], ["work", "Zari & zardozi"], ["print", "Woven & jacquard"], ["print", "Hand painted"]];
 const NOT_CLOTHES = new Set(["Accessories", "Other"]);
-const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Bottoms", "Jackets & overlays", "Accessories"];
+const HOME_CATS = ["Kurta sets", "Kurtas", "Co-ord sets", "Sarees", "Lehengas", "Dresses", "Tops & shirts", "Pants", "Skirts", "Dupattas", "Fabrics", "Jewellery", "Footwear", "Jackets & overlays", "Accessories"];
+const CAT_LABEL = { "Accessories": "Bags & more" }; // home display name only; the data category is still "Accessories"
+const catLabel = c => CAT_LABEL[c] || c;
 const BUDGETS = [["u1000", "Under", "₹1,000"], ["1000", "₹1,000 –", "₹1,999"], ["2000", "₹2,000 –", "₹2,999"], ["3000", "From", "₹3,000"]];
 const imgTag = (src, alt = "") => src ? `<img src="${esc(safeUrl(imgUrl(src)))}" alt="${esc(alt)}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` : "";
 const shopLink = q => "#/shop" + (q ? "?" + new URLSearchParams(q).toString() : "");
@@ -105,8 +107,8 @@ function renderHome() {
   const realDeal = p => p.disc > 0 && p.disc <= 80 && p.price >= 499;
   const mx = {}; for (const p of inStock) if (realDeal(p) && p.disc > (mx[p.category] || 0)) mx[p.category] = p.disc;
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
-    return `<a class="ctile" href="${shopLink({ cat: c })}">${p ? imgTag(p.image, "") : ""}<span class="cap"><b>${esc(c)}</b><span>${mx[c] ? `Up to ${mx[c]}% off · ` : ""}${nf(cc[c])} styles</span></span></a>`; }).join("");
-  $("catnav").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => `<a href="${shopLink({ cat: c })}">${esc(c)}</a>`).join("") + `<a href="#/brands">All brands</a>`;
+    return `<a class="ctile" href="${shopLink({ cat: c })}">${p ? imgTag(p.image, "") : ""}<span class="cap"><b>${esc(catLabel(c))}</b><span>${mx[c] ? `Up to ${mx[c]}% off · ` : ""}${nf(cc[c])} styles</span></span></a>`; }).join("");
+  $("catnav").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => `<a href="${shopLink({ cat: c })}">${esc(catLabel(c))}</a>`).join("") + `<a href="#/brands">All brands</a>`;
   $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
     const n = inStock.reduce((k, p) => k + (p.A[g] && p.A[g].includes(v) ? 1 : 0), 0);
     if (n < 20) return "";

@@ -413,9 +413,10 @@ def main():
         for p in stock:
             cats[p["cat"]] = cats.get(p["cat"], 0) + 1
         facts = []
-        if b.get("based"):
+        story_l = (b.get("story") or "").lower()
+        if b.get("based") and str(b["based"]).lower() not in story_l:   # don't repeat what the story already says
             facts.append(f"Based in {e(b['based'])}")
-        if b.get("founded"):
+        if b.get("founded") and str(b["founded"]) not in story_l:
             facts.append(f"Founded {e(str(b['founded']))}")
         top = ""
         if b.get("logo"):
@@ -426,7 +427,7 @@ def main():
             intro += f'</p><p class="gl-story">{e(b["story"])}' + (
                 f' <a href="{e(b["story_source"])}" rel="nofollow noopener" target="_blank">From the brand\'s site</a>' if b.get("story_source") else "")
         chip_html = '<h2 class="gl-h2">Categories</h2>' + chips(
-            [(f"{c} ({n})", f"#/shop?cat={quote(c)}&brand={quote(name)}") for c, n in sorted(cats.items(), key=lambda x: -x[1])], root2) if cats else ""
+            [(f"{c} ({n})", f"#/shop?cat={quote(c)}&brand={quote(name)}") for c, n in sorted(cats.items(), key=lambda x: -x[1]) if c != "Other"], root2) if cats else ""
         if b.get("site"):
             chip_html += f'<p class="gl-site">Shop the full range on <a href="{e(out_link(b["site"], name))}" rel="nofollow sponsored noopener" target="_blank">{e(re.sub(r"^https?://(www\.)?", "", b["site"]).rstrip("/"))}</a></p>'
         app = f"{root2}#/brand/{b['slug']}"

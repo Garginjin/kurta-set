@@ -1,6 +1,8 @@
 # saubag – handoff notes (read this first)
 
-Site: https://garginjin.github.io/kurta-set/  ·  Repo: Garginjin/kurta-set (main)
+Site: https://saubag.github.io/  ·  Repo: saubag/saubag.github.io (main)
+Moved 22 Nov 2026 from Garginjin/kurta-set (old site address garginjin.github.io/kurta-set no longer used).
+Every chat: re-clone from saubag/saubag.github.io; old clones/remotes point at the old name.
 Owner: Garima. Wants direct, list-format answers, tool-verified facts, no invented data.
 Show a preview/mockup BEFORE changing the live site's look.
 

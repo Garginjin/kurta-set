@@ -1,0 +1,50 @@
+name: Image check (free CLIP model, report only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_new:
+        description: "Most new images to check this run"
+        default: "12000"
+  push:
+    branches: [main]
+    paths: [image_check.py, .github/workflows/image-check.yml]
+  schedule:
+    - cron: "41 3 * * *"   # daily, after the 00:17 UTC scrape
+
+permissions:
+  contents: write
+
+concurrency:
+  group: image-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (CPU only)
+        run: |
+          pip install --index-url https://download.pytorch.org/whl/cpu torch torchvision
+          pip install open_clip_torch pillow requests beautifulsoup4
+      - name: Build product data
+        run: python scraper.py --renormalise
+      - name: Check images
+        env:
+          MAX_NEW: ${{ inputs.max_new || '12000' }}
+        run: python image_check.py
+      - name: Save results to the repo
+        run: |
+          git config user.name "image-check-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -- data/listings.json.gz 2>/dev/null || true
+          git add data/image_checks.json.gz data/image_review.csv data/image_check_summary.md
+          git diff --cached --quiet || git commit -m "Image check $(date -u +'%Y-%m-%d %H:%M UTC')"
+          for i in 1 2 3; do git pull --rebase -X theirs && git push && break; sleep 10; done

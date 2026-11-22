@@ -183,7 +183,7 @@ SOURCES = [
 # then its tags. Edit the word lists to fix any product in the wrong place.
 # ---------------------------------------------------------------------------
 CATEGORIES = ["Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts",
-              "Bottoms", "Lehengas", "Sarees", "Jackets & overlays",
+              "Pants", "Skirts", "Lehengas", "Sarees", "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery",
               "Nightwear & loungewear", "Menswear", "Kidswear", "Innerwear", "Home & gifts", "Accessories", "Other"]
 # Still detected (so kids/men pieces don't land in Kurtas etc.) but never
 # saved or shown on the site.
@@ -227,7 +227,7 @@ CATEGORY_RULES = [
     ("Dresses", r"\bdress(es)?\b|\bgowns?\b|\bjumpsuits?\b|\bmaxi\b|\bmidi\b"),
     ("Kurtas", r"\b(kurta|kurti|kurtas|kurtis|anarkali|kaftan)\b"),
     ("Tops & shirts", r"\btops?\b|\bshirts?\b|\bblouses?\b|\btunics?\b|\bcrop\b|\btees?\b|\bt-shirts?\b"),
-    ("Bottoms", r"\bpants?\b|\bpalazzos?\b|\bplazzos?\b|\btrousers?\b|\bskirts?\b|\bshorts\b|\bsharara\b|\bsalwar\b|\bleggings?\b|\bculottes?\b|\bdhoti\b|\bbottoms?\b|\bjeans\b"),
+    ("Pants", r"\bpants?\b|\bpalazzos?\b|\bplazzos?\b|\btrousers?\b|\bskirts?\b|\bshorts\b|\bsharara\b|\bsalwar\b|\bleggings?\b|\bculottes?\b|\bdhoti\b|\bbottoms?\b|\bjeans\b"),
     ("Jackets & overlays", r"\bjackets?\b|\bshrugs?\b|\boverlays?\b|\bcapes?\b|\bcoats?\b|\bwaistcoats?\b|\bbandi\b|\bkimonos?\b|\bcardigans?\b|\bblazers?\b"),
     ("Accessories", r"\bbags?\b|\btotes?\b|\bpouch(es)?\b|\bpotli\b|\bclutch\b|\bjewell?e?ry\b|\bearrings?\b|\bnecklaces?\b|\bbracelets?\b|\bbangles?\b|\brings?\b|\bscrunchies?\b|\bhair\b|\bkeychains?\b|\bmasks?\b|\bstoles?\b|\bscarf\b|\bdupattas?\b|\bbelts?\b|\bwallets?\b|\bgameboard\b|\bsocks\b"),
 ]
@@ -238,7 +238,7 @@ _KURTA_RE = re.compile(r"\b(" + _KURTA_WORDS + r")s?\b", re.I)
 # Zlaata's own category (from its product URLs) -> our category
 ZLAATA_CATEGORY = {
     "kurta-set": "Kurta sets", "co-ords": "Co-ord sets", "kurtas-kurtis": "Kurtas",
-    "dresses": "Dresses", "tops-tunics": "Tops & shirts", "bottoms": "Bottoms",
+    "dresses": "Dresses", "tops-tunics": "Tops & shirts", "bottoms": "Pants",
     "lehengas": "Lehengas", "overlays": "Jackets & overlays",
     "hair": "Accessories", "bags-pouches": "Accessories", "gameboard": "Accessories",
     "keychain": "Accessories", "all-accessories": "Accessories",
@@ -268,11 +268,17 @@ _HOME = _R(r"\b(bed\s?(cover|sheet|spread)s?|bedsheets?|cushions?(\s+covers?)?|p
            r"table\s?(cover|runner|cloth|linen|mat)s?|napkins?(\s+rings?)?|towels?|quilts?|dohars?|razai|blankets?|coasters?|"
            r"rugs?|dhurries?|aprons?(?!\s*neck)|wall\s?hangings?|home\s?decor|placemats?|torans?|mugs?|diar(y|ies)|notebooks?|"
            r"stationery|candles?|planters?|trays?|boxes|baskets?|lamps?|frames?|rumala|throws?|gift\s?box(es)?|running\s+fabric|"
-           r"dress\s?making\s+fabric|fabric\s+(by|per)\s+(the\s+)?met(er|re)s?)\b")
-_NONSALE = _R(r"\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
+           r"rakhis?|serums?|creams?|gels?|under\s?eye|kajal|sindoor|lipsticks?|moisturi[sz]ers?|face\s?(wash|packs?|masks?)|soaps?|lip\s?balms?|perfumes?|attars?|"
+           r"fragrances?|body\s?(oil|lotion|butter)|hair\s?oil|skin\s?care|skincare|glow\s?boosters?|greeting\s?cards?|"
+           r"paintings?|scrolls?|brass|wooden|diyas?|idols?|dinner\s?sets?|plates?|bowls?|tea\s?cos(y|ies)|"
+           r"bath\s?robes?|pooja|puja|chowki|ornaments?|ghee\s?pots?|pots?|thali|bookmarks?|magnets?|key\s?holders?)\b")
+_NONSALE = _R(r"^\W*(\d+\s+)?test(\s+test)*\W*$|\b(at|for)\s+just\s+(₹|rs)|\bon\s+orders\s+above\b|\bgift\s?wraps?\b|\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
 _FOOTWEAR = _R(r"\b(juttis?|mojaris?|sandals?|heels|shoes|kolhapuris?|footwear|slippers?|wedges|stilettos?|flip[- ]?flops?)\b")
-_JEWEL_BAG = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|necklaces?|bangles?|bracelets?|rings|anklets?|nose\s?pins?|maang\s?tikka|"
-                r"bags?|potli|clutch(es)?|totes?|wallets?|pouch(es)?|hair|scrunchies?|clips?|masks?|keychains?|belts?|socks)\b")
+_JEWELLERY = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|jhumkis?|studs|necklaces?|chokers?|bangles?|bracelets?|"
+                r"kadas?|rings|anklets?|payals?|nose\s?(pins?|rings?)|maang\s?tikkas?|haath\s?phool|pendants?|kundan|polki)\b")
+_BAG_ETC = _R(r"\b(bags?|potli|clutch(es)?|totes?|wallets?|pouch(es)?|hair|scrunchies?|clips?|masks?|keychains?|belts?|socks|"
+              r"caps?|hats?|visors?|gloves|umbrellas?|brooch(es)?|latkans?|tassels?)\b")
+_FABRIC = _R(r"\bfabrics?\b|\b(running|yardage)\b|\bby\s+the\s+met(er|re)\b|\bper\s+met(er|re)\b|\bwidth\s*-?\s*\d+\s*in\b")
 _SAREE_ADDON = _R(r"\b(sarees?|saris?)\s+(falls?|pins?|brooch(es)?|tassels?|belts?|covers?|bags?|clips?|organi[sz]ers?|holders?)\b|"
                   r"\b(falls?|pico)\s+(for\s+)?(sarees?|saris?)\b")
 
@@ -287,7 +293,7 @@ _G = {
     "bottom": _R(r"\b(pants?|palazzos?|plazzos?|pallazos?|trousers?|sharara|gharara|salwar|churidars?|skirts?|dhoti|leggings?|"
                  r"culottes?|shorts|jeans|bottoms?|farshi|farsi|tights?|jeggings?|joggers?)\b"),
     "dupatta": _R(r"\b(dupattas?|odhnis?|chunnis?)\b"),
-    "stole": _R(r"\b(stoles?|shawls?|scarf|scarves|wraps?|mufflers?)\b"),
+    "stole": _R(r"\b(stoles?|shawls?|scarf|scarves|wraps?|mufflers?|baghs?|vehl|phulkari)\b"),
     "dress": _R(r"\b(dress(es)?|gowns?|jumpsuits?|playsuits?)\b(?!\s?materials?)|\b(maxi|midi)\b(?!\s+skirts?)"),
     "jacket": _R(r"\b(jackets?|shrugs?|overlays?|capes?|coats?|waistcoats?|bandi|kimonos?|cardigans?|blazers?)\b"),
     "coord": _R(r"\bco[- ]?c?ords?\b|\bcoords?\b"),
@@ -315,11 +321,21 @@ def _what(text):
         return "Nightwear & loungewear"
     garment = any(g[k] for k in ("lehenga", "saree", "material", "kurta", "suit", "top", "bottom", "dress", "jacket", "coord", "piece3"))
     if not garment:
-        if g["dupatta"] or g["stole"]:  # "Gift Box of Pashmina Stole" is a stole
+        if _JEWELLERY.search(t):  # "Fabric & Wood Statement Necklace"
+            return "Jewellery"
+        if re.search(r"\b(hair|scrunchies?|clips?)\b", t, re.I):  # "Hair Clip with Scarf"
             return "Accessories"
+        if g["dupatta"] or g["stole"]:  # "Gift Box of Pashmina Stole" is a stole
+            return "Dupattas"
+        if _FABRIC.search(t):
+            return "Fabrics"
         if _HOME.search(t):
             return "Home & gifts"
-        if _FOOTWEAR.search(t) or _JEWEL_BAG.search(t):
+        if _FOOTWEAR.search(t):
+            return "Footwear"
+        if _JEWELLERY.search(t):
+            return "Jewellery"
+        if _BAG_ETC.search(t):
             return "Accessories"
         return None
     if g["lehenga"]:
@@ -352,11 +368,13 @@ def _what(text):
         return "Tops & shirts"
     if g["bottom"]:
         # "Palazzo Set", "Sharara Set", "Pant Set" = a whole outfit; "Pack of 2 leggings" = bottoms
+        if re.search(r"\bsets?\b", t, re.I) and re.search(r"\b(salwar|sharara|gharara|farshi|farsi|patiala)\b", t, re.I):
+            return "Kurta sets"
         if re.search(r"\bsets?\b", t, re.I) and not _MULTIPACK.search(t):
             return "Kurta sets" if re.search(r"\b(salwar|sharara|gharara|farshi|farsi|churidars?|patiala)\b", t, re.I) or g["dupatta"] else "Co-ord sets"
         if re.search(r"\b(salwar|sharara|gharara)\b.*\b(with|&|and)\b|\b(with|&|and)\b.*\b(salwar|sharara|gharara)\b", t, re.I):
             return "Kurta sets"
-        return "Bottoms"
+        return "Skirts" if re.search(r"\bskirts?\b", t, re.I) else "Pants"
     return None
 
 
@@ -394,7 +412,9 @@ def classify(title, product_type="", tags="", hint=None):
         return "Innerwear"
     if hint:
         w = _what(title)
-        return w if (w == "Kurta sets" and hint == "Co-ord sets") else hint
+        if (w == "Kurta sets" and hint == "Co-ord sets") or (hint == "Pants" and w == "Skirts"):
+            return w
+        return hint
     # what the title says it is; then the brand's product type; tags last
     for text in (title, product_type, tags):
         cat = _what(text)
@@ -683,7 +703,8 @@ GROUPS_FOR = {
     "Tops & shirts": ["work", "print", "fabric", "neck", "sleeve", "occasion"],
     "Lehengas": ["work", "print", "fabric", "occasion"],
     "Sarees": ["work", "print", "fabric", "occasion"],
-    "Bottoms": ["work", "print", "fabric", "bottom"],
+    "Pants": ["work", "print", "fabric", "bottom"],
+    "Skirts": ["work", "print", "fabric"],
     "Jackets & overlays": ["work", "print", "fabric", "sleeve", "occasion"],
 }
 

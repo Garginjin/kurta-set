@@ -100,6 +100,7 @@ function renderHome() {
   $("hstats").innerHTML = `<div><b>${nf(inStock.length)}</b><span>styles in stock</span></div><div><b>${nb}</b><span>brands</span></div><div><b>6 hrs</b><span>prices refreshed</span></div>`;
 
   const cc = {}; for (const p of inStock) cc[p.category] = (cc[p.category] || 0) + 1;
+  renderSlides(cc, used);
   $("hcats").innerHTML = HOME_CATS.filter(c => cc[c] > 20).map(c => { const p = pickImg(q => q.category === c, used);
     return `<a class="tile" href="${shopLink({ cat: c })}"><div class="ti">${p ? imgTag(p.image, "") : ""}</div><b>${esc(c)}</b><span>${nf(cc[c])} styles</span></a>`; }).join("");
   $("hcrafts").innerHTML = FEATURED_CRAFTS.map(([g, v]) => {
@@ -188,3 +189,39 @@ document.body.insertAdjacentHTML("afterbegin", LIGHT_DEFS);
   const hero = document.querySelector(".hero.festive");
   decorate();
 })();
+
+/* ---------------- home banner: product photo slideshow ---------------- */
+const SLIDE_CATS = ["Kurta sets", "Sarees", "Lehengas", "Co-ord sets", "Dresses"];
+let slideTimer = null;
+function renderSlides(cc, used) {
+  const el = $("hslides"); if (!el) return;
+  const slides = SLIDE_CATS.filter(c => cc[c] > 20).map(c => {
+    const seen = new Set(), ps = [];
+    for (let i = 0; i < 3; i++) { const p = pickImg(q => q.category === c && !seen.has(q.source), used); if (p) { seen.add(p.source); ps.push(p); } }
+    return { c, n: cc[c], ps };
+  }).filter(s => s.ps.length === 3);
+  if (!slides.length) { el.hidden = true; return; }
+  el.innerHTML = `<div class="track">${slides.map((s, i) => `<a class="slide" href="${shopLink({ cat: s.c })}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${slides.length}: ${esc(s.c)}"${i ? ' aria-hidden="true" tabindex="-1"' : ""}>
+      <span class="pics">${s.ps.map(p => `<span class="pic">${imgTag(p.image, "")}<small>${esc(p.source)}</small></span>`).join("")}</span>
+      <span class="cap"><b>${esc(s.c)}</b><span>${nf(s.n)} styles · Shop now →</span></span></a>`).join("")}</div>
+    <button class="snav prev" type="button" aria-label="Previous slide">‹</button><button class="snav next" type="button" aria-label="Next slide">›</button>
+    <div class="dots">${slides.map((s, i) => `<button type="button" aria-label="Show ${esc(s.c)}"${i ? "" : ' aria-current="true"'}></button>`).join("")}</div>`;
+  let cur = 0;
+  const go = i => {
+    cur = (i + slides.length) % slides.length;
+    el.querySelector(".track").style.transform = `translateX(-${cur * 100}%)`;
+    el.querySelectorAll(".slide").forEach((a, j) => { a.setAttribute("aria-hidden", j !== cur); a.tabIndex = j === cur ? 0 : -1; });
+    el.querySelectorAll(".dots button").forEach((d, j) => j === cur ? d.setAttribute("aria-current", "true") : d.removeAttribute("aria-current"));
+  };
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const play = () => { clearInterval(slideTimer); if (!still) slideTimer = setInterval(() => go(cur + 1), 5000); };
+  el.querySelector(".prev").onclick = () => { go(cur - 1); play(); };
+  el.querySelector(".next").onclick = () => { go(cur + 1); play(); };
+  el.querySelectorAll(".dots button").forEach((d, j) => d.onclick = () => { go(j); play(); });
+  el.onmouseenter = el.onfocusin = () => clearInterval(slideTimer);
+  el.onmouseleave = play;
+  let x0 = null;
+  el.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+  el.addEventListener("touchend", e => { if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) { go(cur + (dx < 0 ? 1 : -1)); play(); } x0 = null; });
+  play();
+}

@@ -20,6 +20,7 @@ identifies itself with a plain User-Agent.
 """
 import argparse
 import gzip
+import html
 import os
 import csv
 import json
@@ -1147,7 +1148,7 @@ def write_site_data(rows, path):
                 if z in SIZE_ORDER:
                     mask |= 1 << SIZE_ORDER.index(z)
         stock = 1 if r.get("in_stock") or any(v[3] for v in vs) else 0
-        products.append([si, cat_ix.get(r["category"], len(cats) - 1), r["title"], url, price,
+        products.append([si, cat_ix.get(r["category"], len(cats) - 1), html.unescape(r["title"]), url, price,  # some stores send "&amp;"
                          mrp if mrp > price else 0, col_ix.get(r.get("colour") or "Other", len(colours) - 1),
                          mask, stock, img, ai, vs])
     data = {"v": 2, "updated": now(), "sources": sources, "cats": cats, "colours": colours,

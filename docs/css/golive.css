@@ -36,3 +36,4 @@
 .gl-prose h2 { font-family: var(--serif); font-size: 28px; margin: 28px 0 8px; }
 .gl-prose ul { padding-left: 20px; }
 @media (max-width: 600px) { .gl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; } }
+.gl-region { display: block; margin-top: 6px; font-size: 13px; color: var(--soft); }

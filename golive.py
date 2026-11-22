@@ -19,7 +19,7 @@ import sys
 from datetime import datetime
 from urllib.parse import quote
 
-from scraper import CRAFTS, slugify
+from scraper import slugify
 
 SRC, OUT = "docs", "_site"
 PER_PAGE = 60            # products shown on each landing page
@@ -284,6 +284,7 @@ f'''<p>Right now, links on {SITE_NAME} go straight to each brand's website and {
 
 
 INFO_LINKS = []
+CRAFT_BY_NAME = {}
 
 
 def main():
@@ -291,6 +292,9 @@ def main():
         sys.exit("run from the repo root")
     d, rows = products()
     bd = load_json(os.path.join(SRC, "brands.json"), {"brands": []})
+    CRAFT_BY_NAME.clear()
+    CRAFT_BY_NAME.update({c["name"]: c for c in (load_json(os.path.join(SRC, "crafts.json"), {}) or {}).get("crafts", [])
+                          if not c.get("bucket")})   # skip catch-alls like "Printed (other)"
     brands = {b["n"]: b for b in bd.get("brands", [])}
     updated = d.get("updated", "")
     try:
@@ -363,8 +367,8 @@ def main():
         crafts = {}
         for p in items:
             for a in p["attrs"]:
-                v = a.split(":", 1)[1]
-                if v in CRAFTS:
+                g, v = a.split(":", 1)
+                if g == "craft" and v in CRAFT_BY_NAME:   # the site's own craft list (crafts.json)
                     crafts.setdefault((a, v), []).append(p)
         craft_pages = [(a, v, ps) for (a, v), ps in sorted(crafts.items(), key=lambda x: -len(x[1])) if len(ps) >= MIN_CRAFT]
         top_brands = sorted(by_brand.items(), key=lambda x: -x[1])[:12]
@@ -372,7 +376,7 @@ def main():
                  f"{price_line(items)}. Updated {e(updated_h)}. Buy straight from each brand.")
         chip_html = ""
         if craft_pages:
-            chip_html += '<h2 class="gl-h2">By craft</h2>' + chips([(f"{v} ({len(ps)})", f"c/{cslug}/{slugify(v)}/") for a, v, ps in craft_pages], root2)
+            chip_html += '<h2 class="gl-h2">By craft</h2>' + chips([(f"{v} ({len(ps)})", f"c/{cslug}/{CRAFT_BY_NAME[v]['id']}/") for a, v, ps in craft_pages], root2)
         chip_html += '<h2 class="gl-h2">Top brands</h2>' + chips([(f"{b} ({n})", f"brand/{slugify(b)}/") for b, n in top_brands if b in brands], root2)
         app = f"{root2}#/shop?cat={quote(cat)}"
         body, ld = landing(f"c/{cslug}/", cat, intro, items, len(items), app, f"Filter all {len(items):,} {cat.lower()}", root2, chip_html)
@@ -383,13 +387,16 @@ def main():
         for a, v, ps in craft_pages:
             nb = len({p["source"] for p in ps})
             h1 = f"{v} {cat.lower()}"
+            cr = CRAFT_BY_NAME[v]
             intro = (f"{len(ps):,} {e(h1.lower())} in stock from {nb} brands, {price_line(ps)}. "
                      f"Craft is detected from each brand's product name and description. Updated {e(updated_h)}.")
+            if cr.get("blurb"):
+                intro += f'</p><p class="gl-story">{e(cr["blurb"])}' + (f' <span class="gl-region">{e(cr["region"])}</span>' if cr.get("region") else "")
             app = f"{root3}#/shop?cat={quote(cat)}&a={quote(a)}"
             crumbs = f'<nav class="gl-crumbs" aria-label="Breadcrumb"><a href="{root3}#/">Home</a> / <a href="{root3}c/{cslug}/">{e(cat)}</a> / <span>{e(v)}</span></nav>'
             body, ld = landing("", h1, intro, ps, len(ps), app, f"Filter all {len(ps):,}", root3)
             body = re.sub(r'^<nav class="gl-crumbs".*?</nav>', crumbs, body, count=1, flags=re.S)
-            rel = f"c/{cslug}/{slugify(v)}"
+            rel = f"c/{cslug}/{cr['id']}"
             write(rel, shell(rel + "/", f"{h1[0].upper() + h1[1:]} from {nb} brands | {SITE_NAME}",
                              f"{len(ps):,} {h1.lower()} from {nb} Indian brands in one place. Prices {price_line(ps)}.",
                              body, root3, ld))

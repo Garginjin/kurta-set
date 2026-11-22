@@ -40,6 +40,11 @@ A. Design/layout – LIVE 4 Nov: Garima's palette (bg #FFFBFA, card #FFF, banner
    brand cards = logo on off-white with lights. Banner copy "Light up your Diwali · Diwali 2026" is seasonal: swap after the festive period.
    Design previews go in `docs/preview/` (own site.css + layout.js, loads shared files from ../, noindex) before changing live files.
 B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles in `similar()`; search is plain substring.
+   TODO (Garima, 22 Nov, asked in chat A): every Shop filter must look like the Category filter – a collapsible
+   dropdown (`<details class="fs" data-g=…><summary>Name <span class="sel">…</span> chevron</summary><fieldset class="fbody">…`).
+   Applies to ALL groups (brand, price, colour, size, craft, fabric, occasion, discount and every attribute group).
+   Closed by default except Category; summary shows the selected count/value; same spacing, chevron and font as Category.
+   She finds the current filter look "horrible". Build it in a preview first, then ask her before going live.
    4 Nov: Kidswear, Menswear, Style Union, Kisah, Kalpraag removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES); styles whose
    own tags say exactly "Men"/"Menswear" (no women tag) are dropped too (tagged_menswear).
    Crafts: fixed ids in CRAFT_RULES (scraper.py); every clothing style gets 1+ crafts or exactly one bucket

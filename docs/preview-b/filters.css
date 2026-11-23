@@ -5,7 +5,8 @@
   details.fs summary { list-style: none; display: flex; align-items: center; gap: 8px; min-height: 52px; cursor: pointer;
     font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink); }
   details.fs summary::-webkit-details-marker { display: none; }
-  details.fs summary .sel { font-weight: 600; letter-spacing: 0; text-transform: none; color: #fff; background: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 12px; }
+  details.fs summary .sel { font-weight: 600; letter-spacing: 0; text-transform: none; color: #fff; background: var(--accent); border-radius: 10px; padding: 1px 8px; font-size: 12px;
+    max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   details.fs summary .chev { margin-left: auto; width: 18px; height: 18px; transition: transform .2s; color: var(--soft); }
   details.fs[open] summary .chev { transform: rotate(180deg); }
   details.fs summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

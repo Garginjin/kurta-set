@@ -5,13 +5,13 @@ const FILTERS_HTML = `
       <details class="fs" open data-g="category"><summary>Category<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <fieldset class="fbody"><legend class="visually-hidden">Category</legend><div id="f-cat"></div></fieldset></details>
       <div id="f-attrs"></div>
-      <details class="fs" open data-g="brand"><summary>Brand<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <details class="fs" data-g="brand"><summary>Brand<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <fieldset class="fbody"><legend class="visually-hidden">Brand</legend>
           <input type="search" id="bq" class="bq" aria-label="Search brands" placeholder="Search brands">
           <div id="f-brand"></div>
           <button type="button" class="linkbtn" id="bmore" hidden>Show all brands</button>
         </fieldset></details>
-      <details class="fs" open data-g="price"><summary>Price<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+      <details class="fs" data-g="price"><summary>Price<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <fieldset class="fbody"><legend class="visually-hidden">Price</legend><div id="f-price"></div></fieldset></details>
       <details class="fs" data-g="disc"><summary>Discount<span class="sel" hidden></span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
         <fieldset class="fbody"><legend class="visually-hidden">Discount</legend><div id="f-disc"></div></fieldset></details>
@@ -51,7 +51,7 @@ const DISCOUNTS = [[0, "Any discount"], [20, "20% off or more"], [40, "40% off o
 // Shown when no category is picked; the rest appear once a category is chosen
 // Craft replaces the old "Work & embroidery" and "Print & craft" groups
 const ATTR_DEFAULT_GROUPS = ["craft", "fabric", "occasion"];
-const ATTR_OPEN = new Set(["craft"]);
+const ATTR_OPEN = new Set();  // every group closed by default except Category (Garima, 22 Nov)
 const ATTR_HIDDEN = new Set(["work", "print"]);
 
 /* ---------------- crafts: names, families, write-ups (crafts.json) ---------------- */
@@ -70,7 +70,7 @@ fetch("crafts.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null).th
 const craftLink = c => "#/shop?" + new URLSearchParams({ a: "craft:" + c.name }).toString();
 // "Others": clothing styles that aren't in any home craft tile. Bottoms, accessories, nightwear, Other stay out.
 const OTHERS = "Others";
-const OTHERS_SKIP = new Set(["Bottoms", "Jackets & overlays", "Accessories", "Nightwear & loungewear", "Other"]);
+const OTHERS_SKIP = new Set(["Bottoms", "Pants", "Skirts", "Jackets & overlays", "Dupattas", "Fabrics", "Footwear", "Jewellery", "Accessories", "Nightwear & loungewear", "Other"]);
 const OTHERS_INFO = { id: "others", name: OTHERS, family: "Other", bucket: false, virtual: true, region: "",
   blurb: "Everything else in clothing: styles whose listing doesn't name one of the crafts on our craft tiles. That covers other embroidery, prints, plain styles and pieces the brand doesn't describe. Only kurtas, kurta sets, sarees, co-ords, dresses, tops and lehengas are included.", sources: [] };
 let TILE_SET = null;
@@ -235,6 +235,8 @@ function craftPills(counts, sel) {
   }).join("");
 }
 
+// What a closed section's summary shows: the picked value when one, the count when several
+const selText = vals => vals.length === 1 ? vals[0] : vals.length ? `${vals.length} selected` : "";
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 const ATTR_NOTE = "Based on what each brand writes in its listing. Styles that don't mention this are hidden while it's picked.";
 function renderAttrs() {
@@ -246,7 +248,7 @@ function renderAttrs() {
     const keys = shownKeys(counts, sel, META.order[g]);
     if (!keys.length) return "";
     const open = known.has("a-" + g) ? openNow.has("a-" + g) : (ATTR_OPEN.has(g) || sel.size > 0);
-    return `<details class="fs" data-g="a-${g}"${open ? " open" : ""}><summary>${esc(META.labels[g])}<span class="sel"${sel.size ? "" : " hidden"}>${sel.size}</span>${CHEV}</summary>
+    return `<details class="fs" data-g="a-${g}"${open ? " open" : ""}><summary>${esc(META.labels[g])}<span class="sel"${sel.size ? "" : " hidden"}>${esc(selText([...sel]))}</span>${CHEV}</summary>
       <fieldset class="fbody"><legend class="visually-hidden">${esc(META.labels[g])}</legend>${g === "craft" ? craftPills(counts, sel) : `<div class="pills">${
         keys.map(v => opt("checkbox", "a-" + g, v, v, counts[v] || 0, sel.has(v))).join("")}</div>`}
       ${g === "craft" || g === "work" || g === "neck" || g === "sleeve" ? `<p class="note">${ATTR_NOTE}</p>` : ""}</fieldset></details>`;
@@ -264,8 +266,11 @@ function renderFilters() {
   $("size-note").textContent = NOSIZE.size ? "Some styles show sizes only on the brand's site, so they're hidden when you pick a size." : "";
   $("f-colour").innerHTML = shownKeys(C.colour, st.colours, Object.keys(COLOUR_HEX)).map(c => opt("checkbox", "colour", c, c, null, st.colours.has(c),
     `<span class="dot" aria-hidden="true" style="background:${COLOUR_HEX[c] || COLOUR_HEX.Other}"></span>`)).join("");
-  const picked = { category: st.cats.size, brand: st.brands.size, price: +(st.price !== "all"), disc: +(st.disc > 0), size: st.sizes.size, colour: st.colours.size };
-  document.querySelectorAll("aside > details.fs").forEach(d => { const n = picked[d.dataset.g] || 0, el = d.querySelector(".sel"); el.hidden = !n; el.textContent = n; });
+  const picked = { category: [...st.cats], brand: [...st.brands], size: [...st.sizes], colour: [...st.colours],
+    price: st.price !== "all" ? [(PRICE_BUCKETS.find(b => b.k === st.price) || {}).label || st.price] : [],
+    disc: st.disc > 0 ? [(DISCOUNTS.find(d => d[0] == st.disc) || [])[1] || `${st.disc}% off or more`] : [] };
+  document.querySelectorAll("#filters details.fs:not([data-g^='a-'])").forEach(d => {
+    const t = selText(picked[d.dataset.g] || []), el = d.querySelector(".sel"); el.hidden = !t; el.textContent = t; el.title = t; });
   const attrN = Object.values(st.attr).reduce((n, s) => n + s.size, 0);
   const active = st.cats.size + st.brands.size + st.sizes.size + st.colours.size + attrN + (st.price !== "all") + (st.disc > 0) + (st.q.trim() ? 1 : 0);
   $("clear").hidden = !active;

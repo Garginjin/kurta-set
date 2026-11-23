@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>saubag | Indian ethnic wear from the brands you love, in one place</title>
+<meta name="robots" content="noindex">
 <meta name="description" content="saubag brings kurta sets, co-ords, kurtas, sarees and more from India's best ethnic-wear brands into one place. Filter, compare and shop direct from each brand.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,27 +21,24 @@
     </nav>
     <div class="search"><input type="search" id="q" aria-label="Search products" placeholder="Search styles, fabrics, brands…"></div>
   </div>
+  <nav class="wrap catnav" id="catnav" aria-label="Categories"></nav>
 </header>
 
 <div class="wrap">
 <div class="view home" id="view-home" hidden>
-  <section class="hero festive">
-    <div class="lights-slot" data-lights="hero" aria-hidden="true"></div>
+  <section class="hero evergreen">
     <div class="hcopy">
-      <p class="eyebrow">The festive edit</p>
-      <h1>Light up <em>the festive season</em></h1>
-      <p>Kurta sets, sarees, lehengas and more from independent Indian labels. Compare across brands, then buy straight from the brand.</p>
+      <p class="hbrand">saubag</p>
+      <h1>India's ethnic-wear brands, <em>in one place</em></h1>
+      <p class="hsub">Kurta sets, sarees, lehengas and more from independent Indian labels. Compare in one place, then buy straight from the brand.</p>
       <div class="stats" id="hstats"></div>
-      <div class="ctas" id="hctas"><a class="btnp" href="#/shop?cat=Kurta%20sets">Shop kurta sets</a><a class="btns" href="#/brands">Explore the brands</a></div>
     </div>
-    <div class="arches" id="hcollage"></div>
-    <div class="base" aria-hidden="true"></div>
+    <div class="slides" id="hslides" role="region" aria-roledescription="carousel" aria-label="Shop by category"></div>
   </section>
-  <section class="sec"><div class="sechead"><div><h2>Shop by category</h2></div><a href="#/shop">See all styles</a></div><div class="tiles" id="hcats"></div></section>
-  <section class="sec"><div class="sechead"><div><h2>Shop by craft</h2><p>Chikankari, block prints, bandhani and more, across every brand.</p></div></div><div class="tiles round" id="hcrafts"></div></section>
-  <section class="sec"><div class="sechead"><div><h2>Shop by budget</h2></div></div><div class="prices" id="hprices"></div></section>
-  <section class="sec"><div class="sechead"><div><h2>Meet the brands</h2><p id="hbrandsub"></p></div><a href="#/brands">All brands</a></div><div class="bgrid" id="hbrands"></div></section>
-  <section class="sec"><div class="sechead"><div><h2>Just in</h2><p>Newest styles from across the brands.</p></div><a href="#/shop">Shop all</a></div><div class="rail cards" id="hnew"></div></section>
+  <div id="hnew" hidden></div><!-- kept empty: core.js and filters.js attach listeners to #hnew -->
+  <section class="sec"><div class="sechead"><div><h2>Shop by category</h2><p>Kurta sets to lehengas, every category in one place.</p></div><a href="#/shop">See all styles</a></div><div class="tiles" id="hcats"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Shop by craft</h2><p>Chikankari, block prints, bandhani and more, across every brand.</p></div></div><div class="crail" id="hcrafts"></div></section>
+  <section class="sec"><div class="sechead"><div><h2>Meet the brands</h2><p id="hbrandsub"></p></div><a href="#/brands">All brands</a></div><div class="lstrip" id="hbrands"></div></section>
 </div>
 
 <div class="view home" id="view-brands" hidden>
@@ -114,7 +111,6 @@
 </script>
 <script src="filters.js"></script>
 <script src="../js/layout.js"></script>
-<script src="home-crafts.js"></script>
 <script src="../js/core.js"></script>
 </body>
 </html>

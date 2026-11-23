@@ -45,6 +45,9 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    Applies to ALL groups (brand, price, colour, size, craft, fabric, occasion, discount and every attribute group).
    Closed by default except Category; summary shows the selected count/value; same spacing, chevron and font as Category.
    She finds the current filter look "horrible". Build it in a preview first, then ask her before going live.
+   23 Nov (B): built in docs/preview-b (https://saubag.github.io/preview-b/): every section closed except Category,
+   summary shows the picked value (one) or "N selected" (several), incl. Price/Discount labels. Waiting for Garima's OK;
+   going live = copy docs/preview-b/filters.js + filters.css over docs/js/filters.js + docs/css/filters.css.
    4 Nov: Kidswear, Menswear, Style Union, Kisah, Kalpraag removed (EXCLUDED_CATEGORIES / REMOVED_SOURCES); styles whose
    own tags say exactly "Men"/"Menswear" (no women tag) are dropped too (tagged_menswear).
    Crafts: fixed ids in CRAFT_RULES (scraper.py); every clothing style gets 1+ crafts or exactly one bucket

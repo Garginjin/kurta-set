@@ -1224,6 +1224,25 @@ def photo_shows_man(r):
     return r.get("source") in _MEN_BRANDS and not _WOMEN_RX.search(s)
 
 
+_AGE = None
+
+
+def photo_shows_child(r):
+    """Free image check (data/image_age.json.gz: [p_child, p_adult, p_innerwear, p_none]): photo >= 85% a child,
+    only for brands that sell kidswear, and no women/adult word on the product. Wrongly hidden? -> category_overrides.json."""
+    global _AGE
+    if _AGE is None:
+        try:
+            with gzip.open("data/image_age.json.gz", "rt") as fh:
+                _AGE = {_img_key(k): v for k, v in json.load(fh).items()}
+        except (OSError, ValueError):
+            _AGE = {}
+    a = _AGE.get(_img_key(r.get("image") or ""))
+    if not (a and a[0] >= 0.85) or r.get("source") not in _KID_BRANDS:
+        return False
+    return not _WOMEN_RX.search(f"{r.get('tags') or ''}|{r.get('product_type') or ''}|{r.get('title') or ''}")
+
+
 def placed_from_description_or_photo(r):
     """For a product the title/type rules couldn't place: the description's first line,
     then the free image check (data/image_checks.json.gz) when it is >= 90% sure of a garment."""
@@ -1244,12 +1263,27 @@ def placed_from_description_or_photo(r):
 
 
 _MEN_BRANDS = set()
+_KID_BRANDS = set()
+BRAND_LINES = "data/brand_lines.json"
 
 
 def write_out(rows, out):
     seen, uniq = set(), []
     _MEN_BRANDS.update(r.get("source") for r in rows
                        if tagged_menswear(r.get("tags"), r.get("product_type"), r.get("title")))
+    _KID_BRANDS.update(r.get("source") for r in rows
+                       if r.get("category") == "Kidswear" or tagged_kidswear(r.get("tags"), r.get("sizes_all")))
+    # remembered across runs: the saved record drops hidden rows, so a rebuild alone can't see them
+    try:
+        with open(BRAND_LINES, encoding="utf-8") as fh:
+            saved = json.load(fh)
+        _MEN_BRANDS.update(saved.get("menswear", [])); _KID_BRANDS.update(saved.get("kidswear", []))
+    except (OSError, ValueError):
+        pass
+    _MEN_BRANDS.discard(None); _KID_BRANDS.discard(None)
+    with open(BRAND_LINES, "w", encoding="utf-8") as fh:
+        json.dump({"_readme": "Brands that also sell menswear / kidswear: only these lose products on the photo check alone.",
+                   "menswear": sorted(_MEN_BRANDS), "kidswear": sorted(_KID_BRANDS)}, fh, indent=1)
     for r in rows:  # never write the same product twice
         ov = category_override(r.get("url"))
         if ov:
@@ -1260,6 +1294,8 @@ def write_out(rows, out):
             r["category"] = "Kidswear"
         elif photo_shows_man(r):
             r["category"] = "Menswear"
+        elif photo_shows_child(r):
+            r["category"] = "Kidswear"
         elif r["category"] == "Other":
             r["category"] = placed_from_description_or_photo(r) or "Other"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:

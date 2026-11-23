@@ -25,6 +25,16 @@ GENDER = {
     "woman": ["a photo of a woman wearing clothes", "a female model posing", "a woman wearing a kurta", "a woman wearing a saree"],
     "none": ["clothing laid flat with no person", "a garment on a hanger", "folded fabric", "a product photo with no model"],
 }
+# second check on the same photos: child model / adult / innerwear shot / no person
+AGE_CACHE = "data/image_age.json.gz"   # image url -> [p_child, p_adult, p_innerwear, p_no_person]
+AGE = {
+    "child": ["a photo of a child wearing clothes", "a little girl posing", "a young kid model", "a baby wearing clothes"],
+    "adult": ["a photo of an adult woman wearing clothes", "an adult model posing", "a grown woman wearing a kurta",
+              "a woman wearing a saree"],
+    "inner": ["a woman wearing a bra", "a lingerie set", "a woman in underwear", "a bra and panty product photo"],
+    "none": ["clothing laid flat with no person", "a garment on a hanger", "folded fabric", "a product photo with no model"],
+}
+SAVE_EVERY = 5000   # write the caches every N images so a timed-out run keeps its work
 CHEAPEST, SAMPLE = 200, 200
 CACHE = "data/image_checks.json.gz"
 
@@ -118,9 +128,18 @@ def main():
         gcache = json.load(gzip.open(GENDER_CACHE, "rt"))
     except (OSError, ValueError):
         gcache = {}
+    try:
+        acache = json.load(gzip.open(AGE_CACHE, "rt"))
+    except (OSError, ValueError):
+        acache = {}
     gpick = [r for r in rows if cats[r[1]] in GENDER_CATS]
     todo = list(dict.fromkeys([r[9] for r in pick if r[9] not in cache or r[9] not in gcache]
-                              + [r[9] for r in gpick if r[9] not in gcache]))[:MAX_NEW]
+                              + [r[9] for r in gpick if r[9] not in gcache or r[9] not in acache]))[:MAX_NEW]
+
+    def save():
+        for path, obj in ((CACHE, cache), (GENDER_CACHE, gcache), (AGE_CACHE, acache)):
+            with gzip.open(path, "wt") as fh:
+                json.dump(obj, fh, separators=(",", ":"))
     print(f"products picked {len(pick):,}; new images to check {len(todo):,} (cache {len(cache):,})", flush=True)
 
     if todo:
@@ -145,6 +164,13 @@ def main():
                 G.append(e.mean(0))
             G = torch.stack(G)
             G = G / G.norm(dim=-1, keepdim=True)
+            A = []
+            for k in ("child", "adult", "inner", "none"):
+                e = model.encode_text(tok(AGE[k]))
+                e = e / e.norm(dim=-1, keepdim=True)
+                A.append(e.mean(0))
+            A = torch.stack(A)
+            A = A / A.norm(dim=-1, keepdim=True)
         t0, done = time.time(), 0
         with ThreadPoolExecutor(24) as ex:
             for i in range(0, len(todo), 64):
@@ -159,18 +185,19 @@ def main():
                     f = f / f.norm(dim=-1, keepdim=True)
                     p = (100 * f @ T.T).softmax(-1)
                     pg = (100 * f @ G.T).softmax(-1)
-                for (u, _), gr in zip(batch, pg):
+                    pa = (100 * f @ A.T).softmax(-1)
+                for (u, _), gr, ar in zip(batch, pg, pa):
                     gcache[u] = [round(float(x), 3) for x in gr]
+                    acache[u] = [round(float(x), 3) for x in ar]
                 for (u, _), pr in zip(batch, p):
                     v, ix = pr.topk(2)
                     cache[u] = [names[ix[0]], round(float(v[0]), 3), names[ix[1]], round(float(v[1]), 3), str(date.today())]
                 done += len(batch)
+                if (i // 64) % (SAVE_EVERY // 64) == 0 and i:
+                    save()
                 if (i // 64) % 20 == 0:
                     print(f"  {i + 64:,}/{len(todo):,} checked, {done / max(time.time() - t0, 1):.1f} img/s", flush=True)
-        with gzip.open(CACHE, "wt") as fh:
-            json.dump(cache, fh, separators=(",", ":"))
-        with gzip.open(GENDER_CACHE, "wt") as fh:
-            json.dump(gcache, fh, separators=(",", ":"))
+        save()
 
     # ---- review list + summary ------------------------------------------------
     out, agree = [], {}
@@ -202,11 +229,24 @@ def main():
         w.writerow(["p_man", "brand", "category", "price", "title", "url", "image"])
         for r in sorted(men, key=lambda r: -gcache[r[9]][0]):
             w.writerow([gcache[r[9]][0], src[r[0]], cats[r[1]], r[4], r[2], r[3], r[9]])
+    for name, col, path in (("child", 0, "data/image_kids.csv"), ("innerwear", 2, "data/image_innerwear.csv")):
+        hits = [r for r in gpick if r[9] in acache and acache[r[9]][col] >= 0.85]
+        with open(path, "w", newline="", encoding="utf-8") as fh:
+            w = csv.writer(fh)
+            w.writerow([f"p_{name}", "brand", "category", "price", "title", "url", "image"])
+            for r in sorted(hits, key=lambda r: -acache[r[9]][col]):
+                w.writerow([acache[r[9]][col], src[r[0]], cats[r[1]], r[4], r[2], r[3], r[9]])
+    kids = [r for r in gpick if r[9] in acache and acache[r[9]][0] >= 0.85]
+    inner = [r for r in gpick if r[9] in acache and acache[r[9]][2] >= 0.85]
     from collections import Counter as _C
     lines = [f"# Image check {date.today()}", "",
              f"- Man/woman check: {sum(1 for r in gpick if r[9] in gcache):,} of {len(gpick):,} clothing photos;"
              f" photo >= 85% a man: {len(men):,} (data/image_men.csv)",
-             "- Men by brand: " + ", ".join(f"{b} {n}" for b, n in _C(src[r[0]] for r in men).most_common(15)), "",
+             "- Men by brand: " + ", ".join(f"{b} {n}" for b, n in _C(src[r[0]] for r in men).most_common(15)),
+             f"- Child model >= 85%: {len(kids):,} (data/image_kids.csv): "
+             + ", ".join(f"{b} {n}" for b, n in _C(src[r[0]] for r in kids).most_common(15)),
+             f"- Innerwear shot >= 85%: {len(inner):,} (data/image_innerwear.csv): "
+             + ", ".join(f"{b} {n}" for b, n in _C(src[r[0]] for r in inner).most_common(15)), "",
              f"- Products looked at: {len(pick):,} (all in-stock Other, cheapest {CHEAPEST} + below-floor + random {SAMPLE} per category)",
              f"- Images checked so far (cache): {len(cache):,}", f"- Flagged for review: {len(out):,}", "",
              "## Flags", ""]

@@ -37,14 +37,17 @@ jobs:
       - name: Build product data
         run: python scraper.py --renormalise
       - name: Check images
+        timeout-minutes: 270   # leaves time to save; the caches are written every 5,000 photos
+        continue-on-error: true
         env:
           MAX_NEW: ${{ inputs.max_new || '120000' }}
         run: python image_check.py
       - name: Save results to the repo
+        if: always()
         run: |
           git config user.name "image-check-bot"
           git config user.email "actions@users.noreply.github.com"
           git checkout -- data/listings.json.gz 2>/dev/null || true
-          git add data/image_checks.json.gz data/image_gender.json.gz data/image_men.csv data/image_review.csv data/image_check_summary.md
+          for f in data/image_checks.json.gz data/image_gender.json.gz data/image_age.json.gz data/image_men.csv data/image_kids.csv data/image_innerwear.csv data/image_review.csv data/image_check_summary.md; do [ -f "$f" ] && git add "$f"; done
           git diff --cached --quiet || git commit -m "Image check $(date -u +'%Y-%m-%d %H:%M UTC')"
           for i in 1 2 3; do git pull --rebase -X theirs && git push && break; sleep 10; done

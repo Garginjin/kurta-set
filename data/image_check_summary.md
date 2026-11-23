@@ -1,62 +1,71 @@
-# Image check 2026-11-22
+# Image check 2026-11-23
 
-- Products looked at: 11,600 (all in-stock Other, cheapest 200 + below-floor + random 200 per category)
-- Images checked so far (cache): 11,572
-- Flagged for review: 7,297
+- Man/woman check: 107,511 of 107,516 clothing photos; photo >= 85% a man: 275 (data/image_men.csv)
+- Men by brand: Dash and Dot 191, Aachho 21, iTokri 18, Tjori 7, Ridhi Mehra 6, Dupatta Bazaar 5, The Yarn Story 4, Gaia Coutures 4, Lashkaraa 3, Gulabo Jaipur 2, The Fashion Station 2, Pratapsons 2, The Far Store 1, Sheetal Batra 1, Lakshita 1
+
+- Products looked at: 6,771 (all in-stock Other, cheapest 200 + below-floor + random 200 per category)
+- Images checked so far (cache): 113,430
+- Flagged for review: 3,165
 
 ## Flags
 
-- Other: photo suggests a category | rule: Other | photo: Dupatta / stole | 1756
-- Other: photo suggests a category | rule: Other | photo: Kurta set | 1336
-- Other: photo suggests a category | rule: Other | photo: Fabric | 1038
-- Other: photo suggests a category | rule: Other | photo: Bag | 761
-- Other: photo suggests a category | rule: Other | photo: Saree | 597
-- Other: photo suggests a category | rule: Other | photo: Jewellery | 532
-- photo shows something we hide | rule: Other | photo: Home | 146
-- photo shows something we hide | rule: Other | photo: Innerwear | 93
-- Other: photo suggests a category | rule: Other | photo: Kurta | 79
-- photo shows something we hide | rule: Accessories | photo: Turban | 73
-- photo disagrees with category | rule: Jackets & overlays | photo: Kurta set | 64
-- Other: photo suggests a category | rule: Other | photo: Lehenga | 62
-- photo shows something we hide | rule: Other | photo: Turban | 59
-- Other: photo suggests a category | rule: Other | photo: Text / chart | 48
-- photo disagrees with category | rule: Tops & shirts | photo: Lehenga | 46
-- Other: photo suggests a category | rule: Other | photo: Co-ord set | 44
-- photo shows something we hide | rule: Other | photo: Man | 43
-- photo disagrees with category | rule: Co-ord sets | photo: Kurta | 36
+- photo disagrees with category | rule: Bags | photo: Bag | 372
+- photo disagrees with category | rule: Jewellery | photo: Jewellery | 332
+- photo disagrees with category | rule: Footwear | photo: Footwear | 319
+- photo disagrees with category | rule: Pants | photo: Bottom | 254
+- photo disagrees with category | rule: Fabrics | photo: Dupatta / stole | 232
+- photo disagrees with category | rule: Dupattas | photo: Kurta set | 193
+- photo disagrees with category | rule: Skirts | photo: Lehenga | 127
+- photo shows something we hide | rule: Accessories | photo: Turban | 91
+- photo disagrees with category | rule: Skirts | photo: Top | 80
+- photo disagrees with category | rule: Dupattas | photo: Dupatta / stole | 76
+- photo disagrees with category | rule: Jackets & overlays | photo: Kurta set | 70
+- Other: photo suggests a category | rule: Other | photo: Bag | 68
+- Other: photo suggests a category | rule: Other | photo: Jewellery | 64
+- photo disagrees with category | rule: Fabrics | photo: Fabric | 62
+- photo disagrees with category | rule: Skirts | photo: Bottom | 49
+- photo disagrees with category | rule: Pants | photo: Kurta set | 46
+- photo disagrees with category | rule: Tops & shirts | photo: Lehenga | 41
+- photo disagrees with category | rule: Co-ord sets | photo: Kurta | 39
 - photo disagrees with category | rule: Tops & shirts | photo: Kurta set | 35
-- photo disagrees with category | rule: Lehengas | photo: Kurta set | 35
-- Other: photo suggests a category | rule: Other | photo: Dress | 34
-- photo disagrees with category | rule: Accessories | photo: Kurta set | 29
-- photo shows something we hide | rule: Jackets & overlays | photo: Man | 26
-- Other: photo suggests a category | rule: Other | photo: Top | 20
-- Other: photo suggests a category | rule: Other | photo: Bottom | 20
-- Other: photo suggests a category | rule: Other | photo: Jacket | 19
+- photo disagrees with category | rule: Lehengas | photo: Kurta set | 33
+- photo shows something we hide | rule: Jackets & overlays | photo: Man | 28
+- photo shows something we hide | rule: Other | photo: Turban | 27
+- photo disagrees with category | rule: Tops & shirts | photo: Saree | 24
+- photo disagrees with category | rule: Pants | photo: Co-ord set | 24
+- photo disagrees with category | rule: Dupattas | photo: Saree | 23
+- Other: photo suggests a category | rule: Other | photo: Fabric | 20
 - photo disagrees with category | rule: Sarees | photo: Kurta set | 16
-- photo disagrees with category | rule: Tops & shirts | photo: Saree | 15
-- photo disagrees with category | rule: Bottoms | photo: Top | 15
-- photo disagrees with category | rule: Co-ord sets | photo: Lehenga | 14
+- photo shows something we hide | rule: Accessories | photo: Innerwear | 16
+- Other: photo suggests a category | rule: Other | photo: Kurta set | 15
+- photo shows something we hide | rule: Other | photo: Home | 14
 - photo disagrees with category | rule: Accessories | photo: Saree | 13
-- Other: photo suggests a category | rule: Other | photo: Footwear | 11
+- photo disagrees with category | rule: Fabrics | photo: Saree | 13
 - photo disagrees with category | rule: Jackets & overlays | photo: Lehenga | 11
-- photo shows something we hide | rule: Accessories | photo: Innerwear | 11
-- photo shows something we hide | rule: Other | photo: Child | 10
-- photo disagrees with category | rule: Bottoms | photo: Lehenga | 9
-- photo disagrees with category | rule: Jackets & overlays | photo: Dress | 9
-- photo disagrees with category | rule: Kurtas | photo: Co-ord set | 9
-- photo disagrees with category | rule: Bottoms | photo: Dupatta / stole | 8
-- photo disagrees with category | rule: Kurta sets | photo: Dress | 7
+- photo shows something we hide | rule: Other | photo: Innerwear | 11
+- Other: photo suggests a category | rule: Other | photo: Kurta | 10
+- photo disagrees with category | rule: Co-ord sets | photo: Lehenga | 10
+- photo disagrees with category | rule: Pants | photo: Top | 10
+- photo disagrees with category | rule: Kurtas | photo: Co-ord set | 10
+- photo disagrees with category | rule: Dupattas | photo: Lehenga | 9
+- photo disagrees with category | rule: Dupattas | photo: Fabric | 9
 
 ## Random sample: photo agrees with category (or photo unsure, conf < 0.5)
 
 - Accessories: 148/200 = 74%
-- Bottoms: 164/200 = 82%
-- Co-ord sets: 166/200 = 83%
-- Dresses: 191/200 = 96%
-- Jackets & overlays: 124/200 = 62%
-- Kurta sets: 191/200 = 96%
-- Kurtas: 192/200 = 96%
-- Lehengas: 180/200 = 90%
+- Bags: 1/200 = 0%
+- Co-ord sets: 158/200 = 79%
+- Dresses: 194/200 = 97%
+- Dupattas: 19/200 = 10%
+- Fabrics: 15/200 = 8%
+- Footwear: 1/200 = 0%
+- Jackets & overlays: 121/200 = 60%
+- Jewellery: 9/200 = 4%
+- Kurta sets: 193/200 = 96%
+- Kurtas: 187/200 = 94%
+- Lehengas: 185/200 = 92%
 - Nightwear & loungewear: 200/200 = 100%
-- Sarees: 189/200 = 94%
-- Tops & shirts: 101/200 = 50%
+- Pants: 7/200 = 4%
+- Sarees: 191/200 = 96%
+- Skirts: 21/200 = 10%
+- Tops & shirts: 100/200 = 50%

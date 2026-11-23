@@ -142,6 +142,7 @@ SOURCES = [
     {"source": "Vastranand", "type": "shopify", "base": "https://www.vastranand.in"},
     {"source": "iTokri", "type": "shopify", "base": "https://itokri.com"},
     {"source": "Kisseh", "type": "shopify", "base": "https://kisseh.in"},
+    {"source": "Handme", "type": "shopify", "base": "https://handme.co.in"},
     {"source": "Teejh", "type": "shopify", "base": "https://www.teejh.com"},
     {"source": "Shrus", "type": "shopify", "base": "https://shrus.com"},
     {"source": "Manis Fashion", "type": "shopify", "base": "https://www.manisfashionshnk.com"},

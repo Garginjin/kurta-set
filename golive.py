@@ -155,7 +155,7 @@ def shell(path, title, desc, body, root, extra_head="", noindex=False):
 <footer>
   <div class="wrap">
     <span class="logo">{SITE_NAME}</span><br>
-    Prices and stock are refreshed every few hours. Always check the final price on the brand's site.
+    Prices and stock are refreshed about twice a day. Always check the final price on the brand's site.
     <div class="golive-links">
       {f'<p class="golive-disc">Some links are affiliate links: {SITE_NAME} may earn a commission at no extra cost to you. <a href="{root}disclosure.html">How this works</a></p>' if AFF_ON else ''}
       <nav aria-label="About {SITE_NAME}">{"".join(f'<a href="{root}{p["href"]}">{e(p["label"])}</a>' for p in INFO_LINKS)}</nav>
@@ -198,7 +198,8 @@ def landing(path, h1, intro, items, total, app_href, app_label, root, chips_html
 {chips_html}
 <ul class="gl-grid">{"".join(card(p) for p in show)}</ul>
 {f'<p class="gl-more"><a class="gl-cta" href="{e(app_href)}">See all {total:,} with filters</a></p>' if total > len(show) else ''}"""
-    return body, item_list_ld(show, h1)
+    og = f'<meta property="og:image" content="{e(show[0]["image"])}">' if show and show[0]["image"] else ""
+    return body, og
 
 
 def price_line(items):
@@ -228,9 +229,8 @@ def info_pages(n_brands, n_styles, updated):
 <p>{SITE_NAME} does not sell anything. Every product links to the brand's own website, and you buy there, at the brand's price, under the brand's shipping, return and exchange policies.</p>
 <h2>Where the information comes from</h2>
 <ul>
-<li>Product names, prices, sizes, stock and photos are read from each brand's public online store and refreshed every few hours.</li>
+<li>Product names, prices, sizes, stock and photos are read from each brand's public online store and refreshed about twice a day.</li>
 <li>Categories, colours and details such as fabric or work are worked out automatically from the brand's own product name and description, so they can occasionally be wrong. The brand's page is always the final word.</li>
-<li>Brand stories are written only from each brand's own About page.</li>
 </ul>
 <p>Last refreshed: {e(updated)}.</p>
 <h2>For brands</h2>
@@ -284,6 +284,7 @@ f'''<p>Right now, links on {SITE_NAME} go straight to each brand's website and {
 
 
 INFO_LINKS = []
+BUILT_CATS, BUILT_BRANDS = [], []
 CRAFT_BY_NAME = {}
 
 
@@ -312,7 +313,7 @@ def main():
     urls = [("", "daily")]
 
     info = info_pages(n_brands, len(rows), updated_h)
-    INFO_LINKS[:] = [{"href": k, "label": v[0]} for k, v in info.items()]
+    INFO_LINKS[:] = [{"href": "brands/", "label": "All brands"}] + [{"href": k, "label": v[0]} for k, v in info.items()]
 
     # ---- site-config.js for the app + hook into index.html
     cfg_js = {"affiliate": {"url_template": AFF.get("url_template") or "", "per_brand": AFF.get("per_brand") or {}},
@@ -384,6 +385,7 @@ def main():
                                   f"Shop {len(items):,} {cat.lower()} from {len(by_brand)} Indian ethnic-wear brands in one place. Prices {price_line(items)}.",
                                   body, root2, ld))
         n_cat += 1
+        BUILT_CATS.append((cat, f"c/{cslug}/", len(items)))
         for a, v, ps in craft_pages:
             nb = len({p["source"] for p in ps})
             h1 = f"{v} {cat.lower()}"
@@ -437,6 +439,30 @@ def main():
                                           f"Browse {len(stock):,} {name} styles ({', '.join(list(cats)[:3]).lower()}) and compare with other Indian brands on {SITE_NAME}.",
                                           body, root2, ld))
         n_brand += 1
+        BUILT_BRANDS.append((name, f"brand/{b['slug']}/", len(stock)))
+
+    # ---- crawlable entry points: /brands/ directory page + static links in the homepage footer
+    cat_links = "".join(f'<li><a href="{root2[:0]}{h}">{e(c)} ({n:,})</a></li>' for c, h, n in BUILT_CATS)
+    body = (f'<nav class="gl-crumbs" aria-label="Breadcrumb"><a href="../#/">Home</a> / <span>All brands</span></nav>'
+            f'<h1 class="gl-h1">All brands</h1><p class="gl-intro">{len(BUILT_BRANDS)} Indian ethnic-wear brands on {SITE_NAME}, '
+            f'with the number of styles in stock. Updated {e(updated_h)}.</p>'
+            '<h2 class="gl-h2">Categories</h2>' + chips([(f"{c} ({n:,})", h) for c, h, n in BUILT_CATS], "../") +
+            '<h2 class="gl-h2">Brands</h2>' + chips([(f"{b} ({n:,})", h) for b, h, n in sorted(BUILT_BRANDS, key=lambda x: x[0].lower())], "../"))
+    os.makedirs(os.path.join(OUT, "brands"), exist_ok=True)
+    with open(os.path.join(OUT, "brands", "index.html"), "w", encoding="utf-8") as fh:
+        fh.write(shell("brands/", f"All {len(BUILT_BRANDS)} brands | {SITE_NAME}",
+                       f"Every Indian ethnic-wear brand on {SITE_NAME}: {len(BUILT_BRANDS)} brands, browse by category or brand.", body, "../"))
+    urls.append(("brands/", "daily"))
+    with open(idx_path, encoding="utf-8") as fh:
+        idx = fh.read()
+    nav = ('<nav class="golive-browse" aria-label="Browse"><b>Browse:</b> '
+           + " · ".join(f'<a href="{h}">{e(c)}</a>' for c, h, n in BUILT_CATS) + ' · <a href="brands/">All brands</a></nav>')
+    marker = "  </div>\n</footer>"
+    if marker not in idx:
+        sys.exit("index.html footer layout changed: can't add browse links")
+    idx = idx.replace(marker, "    " + nav + "\n" + marker, 1)
+    with open(idx_path, "w", encoding="utf-8") as fh:
+        fh.write(idx)
 
     # ---- 404, sitemap, robots, CNAME
     with open(os.path.join(OUT, "404.html"), "w", encoding="utf-8") as fh:

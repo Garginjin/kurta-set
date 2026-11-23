@@ -204,13 +204,24 @@ _WOMEN_TAGS = {"women", "womens", "women's", "womenswear", "woman", "ladies", "f
 _KIDS_TAGS = {"kids", "kid", "kidswear", "kids wear", "children", "childrens", "child", "baby", "infant", "toddler", "boys", "boy"}
 
 
-def tagged_kidswear(tags, sizes=""):
+def tagged_kidswear(tags, sizes="", title=""):
     """Brand's own tags: only kids (no women tag), tagged Boys, or tagged kids with no adult size
     (kids' age sizes like "2-3 Y" are dropped by the size step, so the size list is empty)."""
+    if _KIDS_TAG_RX.search(tags or ""):
+        return True
+    if _GIRLS_TAG_RX.search(tags or "") and not re.search(r"\bwom[ae]n", title or "", re.I):
+        return True
     t = {x.strip().lower() for x in (tags or "").split("|")}
     if not (t & _KIDS_TAGS):
         return False
     return not (t & _WOMEN_TAGS) or bool(t & {"boys", "boy"}) or not (sizes or "").strip()
+
+
+# Kids lines named inside longer tags (23 Nov photo review): Aachho "kidswear-size" / "Little Joys",
+# Aurelia "8 12 years ethnic set" / "girls ethnic set" / "festive wear for girls".
+_KIDS_TAG_RX = re.compile(r"(?<![a-z])(kids?wear[- ]size|little joys|\d{1,2}\s*-?\s*\d{1,2}\s*(years|yrs))(?![a-z])", re.I)
+# girls' sets: only when the title doesn't say women ("girls wear" is an SEO tag on women's kurtas at Jaipur Handblock)
+_GIRLS_TAG_RX = re.compile(r"(?<![a-z])(girls?\s+(salwar|ethnic|festive|kurta|lehenga)|(wear|sets?)\s+for\s+girls)(?![a-z])", re.I)
 
 
 # Men word anywhere in the brand's tags/product type ("festive-shoot2-men", "Mens Diwali'25",
@@ -1305,6 +1316,9 @@ def photo_shows_man(r):
 
 
 _AGE = None
+# Off after the 23 Nov review: the real child-model hits (Aachho Little Joys, Aurelia girls' sets) are caught by their
+# tags; the rest are adult styles from women's labels. The photo list stays in data/image_kids.csv for review.
+KIDS_PHOTO_HIDE = False
 
 
 def photo_shows_child(r):
@@ -1318,7 +1332,7 @@ def photo_shows_child(r):
         except (OSError, ValueError):
             _AGE = {}
     a = _AGE.get(_img_key(r.get("image") or ""))
-    if not (a and a[0] >= 0.85) or r.get("source") not in _KID_BRANDS:
+    if not KIDS_PHOTO_HIDE or not (a and a[0] >= 0.85) or r.get("source") not in _KID_BRANDS:
         return False
     return not _WOMEN_RX.search(f"{r.get('tags') or ''}|{r.get('product_type') or ''}|{r.get('title') or ''}")
 
@@ -1352,7 +1366,7 @@ def write_out(rows, out):
     _MEN_BRANDS.update(r.get("source") for r in rows
                        if tagged_menswear(r.get("tags"), r.get("product_type"), r.get("title")))
     _KID_BRANDS.update(r.get("source") for r in rows
-                       if r.get("category") == "Kidswear" or tagged_kidswear(r.get("tags"), r.get("sizes_all")))
+                       if r.get("category") == "Kidswear" or tagged_kidswear(r.get("tags"), r.get("sizes_all"), r.get("title")))
     # remembered across runs: the saved record drops hidden rows, so a rebuild alone can't see them
     try:
         with open(BRAND_LINES, encoding="utf-8") as fh:
@@ -1370,7 +1384,7 @@ def write_out(rows, out):
             r["category"] = ov
         elif tagged_menswear(r.get("tags"), r.get("product_type"), r.get("title")):
             r["category"] = "Menswear"
-        elif tagged_kidswear(r.get("tags"), r.get("sizes_all")):
+        elif tagged_kidswear(r.get("tags"), r.get("sizes_all"), r.get("title")):
             r["category"] = "Kidswear"
         elif photo_shows_man(r):
             r["category"] = "Menswear"

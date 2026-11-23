@@ -208,9 +208,19 @@ def tagged_kidswear(tags, sizes=""):
     return not (t & _WOMEN_TAGS) or bool(t & {"boys", "boy"}) or not (sizes or "").strip()
 
 
-def tagged_menswear(tags):
+# Men word anywhere in the brand's tags/product type ("festive-shoot2-men", "Mens Diwali'25",
+# "RTS-MEN", type "Menswear"), with no women/unisex word in tags, type or title.
+_MEN_RX = re.compile(r"(?<![a-z])(men|mens|men's|men’s|menswear|gents)(?![a-z])", re.I)
+_WOMEN_RX = re.compile(r"(?<![a-z])(women|womens|women's|women’s|womenswear|woman|ladies|lady|female|"
+                       r"unisex|girls?|her|she)(?![a-z])", re.I)
+
+
+def tagged_menswear(tags, ptype="", title=""):
     t = {x.strip().lower() for x in (tags or "").split("|")}
-    return bool(t & _MEN_TAGS) and not (t & _WOMEN_TAGS)
+    if t & _MEN_TAGS and not (t & _WOMEN_TAGS):
+        return True
+    s = f"{tags or ''}|{ptype or ''}"
+    return bool(_MEN_RX.search(s)) and not _WOMEN_RX.search(s + "|" + (title or ""))
 
 _KURTA_WORDS = r"kurta|kurti|anarkali|sharara|salwar|suit|kaftan|churidar|afghani|dupatta"
 _SET = (r"\bsets?\b|\bcombos?\b|\bskirt\s+tops?\b|\bsuits?\b|\b3\s?-?\s?(pc|pcs|piece)\b|\btwo[- ]piece\b|"
@@ -1198,7 +1208,15 @@ def photo_shows_man(r):
         except (OSError, ValueError):
             _GENDER = {}
     g = _GENDER.get(_img_key(r.get("image") or ""))
-    return bool(g and g[0] >= 0.85 and not _WOMEN_TITLE.search(r.get("title") or ""))
+    if not (g and g[0] >= 0.85) or _WOMEN_RX.search(r.get("title") or ""):
+        return False
+    s = f"{r.get('tags') or ''}|{r.get('product_type') or ''}"
+    t = {x.strip().lower() for x in (r.get("tags") or "").split("|")}
+    if _MEN_RX.search(s) and not (t & _WOMEN_TAGS):  # photo + a men tag (Tjori "Gender_Men"); men+women tags = unisex, keep
+        return True
+    # photo alone: only for brands that sell menswear, and no women/unisex tag on the product.
+    # Women-only labels (Gulabo Jaipur, Sheetal Batra, Dupatta Bazaar...) never lose a product on the photo alone.
+    return r.get("source") in _MEN_BRANDS and not _WOMEN_RX.search(s)
 
 
 def placed_from_description_or_photo(r):
@@ -1220,13 +1238,18 @@ def placed_from_description_or_photo(r):
     return None
 
 
+_MEN_BRANDS = set()
+
+
 def write_out(rows, out):
     seen, uniq = set(), []
+    _MEN_BRANDS.update(r.get("source") for r in rows
+                       if tagged_menswear(r.get("tags"), r.get("product_type"), r.get("title")))
     for r in rows:  # never write the same product twice
         ov = category_override(r.get("url"))
         if ov:
             r["category"] = ov
-        elif tagged_menswear(r.get("tags")):
+        elif tagged_menswear(r.get("tags"), r.get("product_type"), r.get("title")):
             r["category"] = "Menswear"
         elif tagged_kidswear(r.get("tags"), r.get("sizes_all")):
             r["category"] = "Kidswear"

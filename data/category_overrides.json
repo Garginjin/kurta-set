@@ -1,3 +1,10 @@
 {
-  "_readme": "Hand fixes for product categories. Key = the product's full URL on the brand site, value = a category name from CATEGORIES in scraper.py (e.g. \"Kurta sets\", \"Accessories\", \"Home & gifts\"). Applied after the automatic rules."
+ "_readme": "Hand fixes for product categories. Key = the product's full URL on the brand site, value = a category name from CATEGORIES in scraper.py (e.g. \"Kurta sets\", \"Accessories\", \"Home & gifts\"). Applied after the automatic rules.",
+ "https://www.tjori.com/products/grey-waist-coat": "Menswear",
+ "https://www.tjori.com/products/classic-beige-cotton-slub-shirt": "Menswear",
+ "https://www.tjori.com/products/handcrafted-aqua-blue-mangalgiri-kurta": "Menswear",
+ "https://www.tjori.com/products/set-of-2-white-kurta-pyjama": "Menswear",
+ "https://www.tjori.com/products/coral-ikat-nehru-jacket-tj-mw-13-11": "Menswear",
+ "https://www.tjori.com/products/slate-blue-ikat-nehru-jacket-tj-mw-13-9": "Menswear",
+ "https://www.tjori.com/products/sea-green-kurta": "Menswear"
 }

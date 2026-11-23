@@ -292,8 +292,9 @@ _HOME = _R(r"\b(bed\s?(cover|sheet|spread)s?|bedsheets?|cushions?(\s+covers?)?|p
 _NONSALE = _R(r"^\W*(\d+\s+)?test(\s+test)*\W*$|\b(at|for)\s+just\s+(₹|rs)|\bon\s+orders\s+above\b|\bgift\s?wraps?\b|\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
 _FOOTWEAR = _R(r"\b(jut+is?|juti|mojr?is?|mojaris?|mojdis?|khussas?|nagras?|peshawaris?|bellies|loafers?|mules|sandals?|heels|"
                r"shoes?|kolhapuris?|footwear|slippers?|chappals?|sneakers?|boots?|wedges|stilettos?|flip[- ]?flops?)\b")
-_JEWELLERY = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|jhumkis?|studs|necklaces?|chokers?|bangles?|bracelets?|"
+_JEWELLERY = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earr?ings?|jhumkas?|jhumkis?|studs|necklaces?|chokers?|bangles?|bracelets?|"
                 r"kadas?|(?<!napkin\s)(?<!key\s)rings?|finger\s?rings?|anklets?|payals?|nose\s?(pins?|rings?)|maang\s?tikkas?|haath\s?phool|pendants?|kundan|polki)\b")
+_JEWEL_ITEM = _R(r"\b(earr?ings?|jhumk[ai]s?|necklaces?|chokers?|bangles?|bracelets?|rings?|anklets?|pendants?|maang\s?tikkas?)\b")
 _BAGS = _R(r"\b(bags?|handbags?|potlis?|clutch(es)?|totes?|wallets?|purses?|pouch(es)?|slings?|backpacks?|satchels?|batuas?|"
            r"(laptop|i-?pad|tablet|mobile)\s?(sleeves?|covers?|cases?))\b")
 _ACC_FIRST = _R(r"\b(hair|scrunchies?|clips?|bows?|neck\s?warmers?|bag\s?charms?|key\s?(chains?|rings?)|keychains?|"
@@ -348,8 +349,10 @@ def _what(text):
             return "Home & gifts"
         if _ACC_FIRST.search(t):  # "Hair Clip with Scarf", bows, neck warmers, bag charms
             return "Accessories"
-        if _JEWELLERY.search(t):  # "Fabric & Wood Statement Necklace"
-            return "Jewellery"
+        if re.search(r"\bjewell?e?ry\s+(box(es)?|organi[sz]ers?|cases?|stands?)\b", t, re.I):
+            return "Home & gifts"
+        if _JEWELLERY.search(t) and not ((g["dupatta"] or g["stole"]) and not _JEWEL_ITEM.search(t)):
+            return "Jewellery"  # "Fabric & Wood Statement Necklace"; "Banarasi Kundan Dupatta" stays a dupatta
         if _BAGS.search(t):
             return "Bags"
         if _FOOTWEAR.search(t):  # "Phulkari Shoe" is a shoe, not a phulkari shawl
@@ -453,7 +456,7 @@ def classify(title, product_type="", tags="", hint=None):
 
 
 FIELDS = ["source", "category", "product_type", "product_id", "title", "brand", "url",
-          "price", "mrp", "discount_pct", "sizes_available", "sizes_all",
+          "price", "mrp", "discount_pct", "sizes_available", "sizes_all", "bangle_sizes",
           "colour", "colour_raw", "in_stock", "image", "tags", "desc_attrs", "published_at", "scraped_at"]
 
 
@@ -489,6 +492,17 @@ def normalise_size(raw):
     if m and int(m.group(1)) in _BUST:
         return _BUST[int(m.group(1))]
     return None
+
+
+def bangle_sizes(values):
+    """Bangle sizes as brands write them ("2.4", "2-6", "2/8", "Size 2.10") -> "2.4" ...; kept apart from clothing sizes."""
+    out = []
+    for v in values:
+        m = re.search(r"\b2\s?[.\-/]\s?(2|4|6|8|10|12)\b", str(v))
+        z = m and f"2.{m.group(1)}"
+        if z and z not in out:
+            out.append(z)
+    return out
 
 
 def normalise_sizes(values):
@@ -721,7 +735,57 @@ ATTR_RULES = {
         ("Unstitched", r"unstitch\w*|un-stitch\w*|dress\s?material|ready\s?to\s?stitch|semi[- ]stitch\w*|fabric\s?set"),
     ],
 }
+COMPILED = None  # built after ATTR_RULES is complete (below)
+
+# Jewellery & accessories filters (Garima's QA sheet, Filters tab rows 1036+, 23 Nov)
+ATTR_RULES.update({
+    "jtype": [  # order matters: first match wins ("Necklace Set" is a set)
+        ("Jewellery sets", r"(?:jewell?e?ry|necklaces?|chokers?|earr?ings?|bridal|kundan|polki|pendant|mala|haar|temple)\s+sets?|"
+                            r"(?:necklaces?|chokers?|pendants?|mala|haar)\s+(?:with|&|and|\+)\s+(?:\w+\s+)?(?:earr?ings?|jhumk[ai]s?|studs?)|\bcombos?\b"),
+        ("Earrings", r"earr?ings?|jhumk[ai]s?|studs?\b|chand\s?bal\w*|danglers?|hoops?\b|bugadi|ear\s?cuffs?|\bbalis?\b|drops\b|sui\s?dhaga"),
+        ("Necklaces", r"necklaces?|chokers?|\bmala\b|\bhaar\b|pendants?|mangalsutras?|hasli|chains?\b"),
+        ("Rings", r"(?<!nose\s)rings?\b"),
+        ("Headpieces", r"maang|mang\s?tikka|tikkas?|matha\s?patti|passa|jhoomar|head\s?pieces?|borla|sheesh\s?phool|hair\s?pins?"),
+        ("Kamar bandh", r"kamar\s?bandh?|kamarband|waist\s?(belts?|chains?)|kardhani|tagdi"),
+        ("Haath phool", r"ha+th\s?ph?ool|hathphool|hand\s?harness"),
+        ("Anklets", r"anklets?|payals?|pajeb"),
+        ("Bracelets", r"bracelets?"),
+        ("Bangles", r"bangles?|kadas?\b|chudi|choodi"),
+    ],
+    "metal": [  # base metal, as the brand names it (title / type, then the description)
+        ("Silver (925 / sterling)", r"925|sterling|pure\s?silver|silver\s?925"),
+        ("German silver", r"german\s?silver"),
+        ("Brass", r"brass"),
+        ("Copper", r"copper"),
+        ("Alloy / metal", r"alloy|base\s?metal|white\s?metal|zinc"),
+        ("Oxidised (metal not named)", r"oxidi[sz]ed"),
+    ],
+    "earring": [
+        ("Bugadi", r"bugadi"),
+        ("Chandbalis", r"chand\s?bal\w*"),
+        ("Chandelier", r"chandelier"),
+        ("Cluster", r"cluster"),
+    ],
+    "bangle_size": [(z, re.escape(z) + r"(?!\d)") for z in ("2.2", "2.4", "2.6", "2.8", "2.10", "2.12")],
+    "atype": [
+        ("Hair accessories", r"hair|scrunchies?|clips?\b|bows?\b|bun\s?sticks?|claws?\b|head\s?bands?|parandi|paranda"),
+        ("Belts", r"belts?\b|kamarbandh"),
+        ("Caps & hats", r"caps?\b|hats?\b|visors?"),
+        ("Socks & gloves", r"socks|gloves|mittens"),
+        ("Neck warmers", r"neck\s?warmers?"),
+        ("Spectacle cases & chains", r"spectacle|chashma|eyewear|sunglass"),
+        ("Keychains & charms", r"key\s?(chains?|rings?)|keychains?|charms?"),
+        ("Saree add-ons", r"sarees?\s+(falls?|pins?|brooch(es)?|belts?|covers?)|falls?\s+for\s+sarees?|tassels?|latkans?"),
+        ("Brooches & pins", r"brooch(es)?|pins?\b"),
+        ("Masks", r"masks?"),
+        ("Umbrellas", r"umbrellas?"),
+    ],
+})
+ATTR_LABELS_EXTRA = {"jtype": "Type", "metal": "Base metal", "earring": "Earring style", "bangle_size": "Bangle size", "atype": "Type"}
+_OTHERS_GROUPS = ("jtype", "atype")  # nothing matched -> "Others"
+
 COMPILED = {g: [(v, re.compile(r"\b(?:" + p + r")", re.I)) for v, p in rules] for g, rules in ATTR_RULES.items()}
+_FIRST_ONLY = ("jtype", "earring", "atype")  # one value per product
 
 # Which groups are shown / computed for which categories
 GROUPS_FOR = {
@@ -735,6 +799,8 @@ GROUPS_FOR = {
     "Pants": ["work", "print", "fabric", "bottom"],
     "Skirts": ["work", "print", "fabric"],
     "Jackets & overlays": ["work", "print", "fabric", "sleeve", "occasion"],
+    "Jewellery": ["jtype", "metal", "earring", "bangle_size"],
+    "Accessories": ["atype"],
 }
 
 # Words that read like attributes but name a collection/person; strip before matching
@@ -757,7 +823,7 @@ def match_group(group, text):
 
 
 # Which groups count for which categories (others get no attributes)
-ATTR_LABELS = {"work": "Work & embroidery", "print": "Print & craft", "fabric": "Fabric",
+ATTR_LABELS = {**ATTR_LABELS_EXTRA, "work": "Work & embroidery", "print": "Print & craft", "fabric": "Fabric",
                "silhouette": "Shape", "bottom": "Bottom style", "dupatta": "Dupatta",
                "neck": "Neckline", "sleeve": "Sleeves", "occasion": "Occasion", "stitch": "Stitching"}
 # From the title + product type only. Brand tags are too often store-wide
@@ -765,7 +831,7 @@ ATTR_LABELS = {"work": "Work & embroidery", "print": "Print & craft", "fabric": 
 # only for occasion and unstitched.
 _TAG_GROUPS = ("occasion", "stitch")
 # Description text is used for these when the title doesn't say
-_DESC_GROUPS = ("neck", "sleeve", "fabric")
+_DESC_GROUPS = ("neck", "sleeve", "fabric", "metal")
 _FABRIC_LINE = re.compile(r"(?:fabric|material|composition)\s*[:\-–]?\s*([^.;\n]{2,80})", re.I)
 
 
@@ -775,7 +841,7 @@ def desc_attrs(html):
         return ""
     text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)[:3000]
     found = []
-    for g in ("neck", "sleeve"):
+    for g in ("neck", "sleeve", "metal"):
         found += [f"{g}:{v}" for v in match_group(g, text)]
     fab = " ".join(m.group(1) for m in _FABRIC_LINE.finditer(text))
     found += [f"fabric:{v}" for v in match_group("fabric", fab)]
@@ -802,8 +868,21 @@ def product_attrs(r):
             g, v = item.split(":", 1)
             from_desc.setdefault(g, []).append(v)
     out = []
+    jtype = None
     for g in groups:
+        if g == "bangle_size":
+            if jtype != "Bangles":
+                continue
+            vals = match_group(g, (r.get("bangle_sizes") or "").replace("|", " ; ")) or ["Others"]
+            out += [f"{g}:{v}" for v in vals]
+            continue
+        if g == "earring" and jtype != "Earrings":
+            continue
         vals = match_group(g, tagtext if g in _TAG_GROUPS else base)
+        if g in _FIRST_ONLY:
+            vals = vals[:1] or ["Others"]
+        if g == "jtype":
+            jtype = vals[0]
         if not vals and g in _DESC_GROUPS:
             vals = from_desc.get(g, [])
         if g == "stitch" and not vals and r.get("category") in ("Kurta sets", "Kurtas", "Co-ord sets"):
@@ -994,6 +1073,7 @@ def parse_shopify_product(p, base, source):
         "discount_pct": disc(price, mrp),
         "sizes_available": "|".join(normalise_sizes(sizes_avail)),
         "sizes_all": "|".join(normalise_sizes(sizes_all)),
+        "bangle_sizes": "|".join(bangle_sizes(sizes_all)),
         "colour": colour_for(colours[0] if colours else "", p.get("title", "")),
         "colour_raw": "|".join(colours),
         "in_stock": any(v.get("available") for v in variants),

@@ -1180,6 +1180,24 @@ _PHOTO_CAT = {"Kurta set": "Kurta sets", "Saree": "Sarees", "Lehenga": "Lehengas
               "Co-ord set": "Co-ord sets", "Top": "Tops & shirts", "Jacket": "Jackets & overlays"}
 
 
+_GENDER = None
+_WOMEN_TITLE = re.compile(r"\b(women|womens|women's|woman|ladies|lady|her|she)\b", re.I)
+
+
+def photo_shows_man(r):
+    """Free image check (data/image_gender.json.gz): photo >= 85% a man, and the title doesn't say women.
+    Wrongly hidden? Put the product link in data/category_overrides.json."""
+    global _GENDER
+    if _GENDER is None:
+        try:
+            with gzip.open("data/image_gender.json.gz", "rt") as fh:
+                _GENDER = {_img_key(k): v for k, v in json.load(fh).items()}
+        except (OSError, ValueError):
+            _GENDER = {}
+    g = _GENDER.get(_img_key(r.get("image") or ""))
+    return bool(g and g[0] >= 0.85 and not _WOMEN_TITLE.search(r.get("title") or ""))
+
+
 def placed_from_description_or_photo(r):
     """For a product the title/type rules couldn't place: the description's first line,
     then the free image check (data/image_checks.json.gz) when it is >= 90% sure of a garment."""
@@ -1209,6 +1227,8 @@ def write_out(rows, out):
             r["category"] = "Menswear"
         elif tagged_kidswear(r.get("tags"), r.get("sizes_all")):
             r["category"] = "Kidswear"
+        elif photo_shows_man(r):
+            r["category"] = "Menswear"
         elif r["category"] == "Other":
             r["category"] = placed_from_description_or_photo(r) or "Other"
         if r["category"] in EXCLUDED_CATEGORIES or r["source"] in REMOVED_SOURCES:

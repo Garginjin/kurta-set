@@ -66,6 +66,7 @@ B. Filters/search UX – filters in `compute()`/`renderAttrs()`; Similar styles 
    beauty, decor, promo freebies, test listings). core.js CATEGORY_ORDER (shared) still lacks the new names, so the
    filter lists them last: A + B to agree and update it to the order above.
    Other -> placed by description first line ("cat:" in desc_attrs, from next scrape) then photo >= 90% (image check cache).
+   Men by photo: data/image_gender.json.gz (man/woman/no person per photo); >= 85% man and title not "women" -> hidden.
    Image check: image_check.py + .github/workflows/image-check.yml (free CLIP, daily) ->
    data/image_review.csv, data/image_check_summary.md.
    6 Nov: crafts only for CRAFT_CATEGORIES (Kurtas, Kurta sets, Sarees, Co-ord sets, Dresses, Tops & shirts, Lehengas).

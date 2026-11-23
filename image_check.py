@@ -15,7 +15,16 @@ from datetime import date
 import requests
 from PIL import Image
 
-MAX_NEW = int(os.environ.get("MAX_NEW", "12000"))
+MAX_NEW = int(os.environ.get("MAX_NEW", "120000"))
+GENDER_CACHE = "data/image_gender.json.gz"   # image url -> [p_man, p_woman, p_no_person]
+# every in-stock product in these categories gets the man/woman check
+GENDER_CATS = {"Kurta sets", "Co-ord sets", "Kurtas", "Dresses", "Tops & shirts", "Pants", "Skirts", "Lehengas", "Sarees",
+               "Jackets & overlays", "Dupattas", "Nightwear & loungewear", "Other"}
+GENDER = {
+    "man": ["a photo of a man wearing clothes", "a male model posing", "a man wearing a kurta", "a bearded man"],
+    "woman": ["a photo of a woman wearing clothes", "a female model posing", "a woman wearing a kurta", "a woman wearing a saree"],
+    "none": ["clothing laid flat with no person", "a garment on a hanger", "folded fabric", "a product photo with no model"],
+}
 CHEAPEST, SAMPLE = 200, 200
 CACHE = "data/image_checks.json.gz"
 
@@ -105,7 +114,13 @@ def main():
             if id(r) not in seen:
                 seen.add(id(r))
                 pick.append(r)
-    todo = [r[9] for r in pick if r[9] not in cache][:MAX_NEW]
+    try:
+        gcache = json.load(gzip.open(GENDER_CACHE, "rt"))
+    except (OSError, ValueError):
+        gcache = {}
+    gpick = [r for r in rows if cats[r[1]] in GENDER_CATS]
+    todo = list(dict.fromkeys([r[9] for r in pick if r[9] not in cache or r[9] not in gcache]
+                              + [r[9] for r in gpick if r[9] not in gcache]))[:MAX_NEW]
     print(f"products picked {len(pick):,}; new images to check {len(todo):,} (cache {len(cache):,})", flush=True)
 
     if todo:
@@ -123,6 +138,13 @@ def main():
                 T.append(e.mean(0))
             T = torch.stack(T)
             T = T / T.norm(dim=-1, keepdim=True)
+            G = []
+            for k in ("man", "woman", "none"):
+                e = model.encode_text(tok(GENDER[k]))
+                e = e / e.norm(dim=-1, keepdim=True)
+                G.append(e.mean(0))
+            G = torch.stack(G)
+            G = G / G.norm(dim=-1, keepdim=True)
         t0, done = time.time(), 0
         with ThreadPoolExecutor(24) as ex:
             for i in range(0, len(todo), 64):
@@ -136,6 +158,9 @@ def main():
                     f = model.encode_image(x)
                     f = f / f.norm(dim=-1, keepdim=True)
                     p = (100 * f @ T.T).softmax(-1)
+                    pg = (100 * f @ G.T).softmax(-1)
+                for (u, _), gr in zip(batch, pg):
+                    gcache[u] = [round(float(x), 3) for x in gr]
                 for (u, _), pr in zip(batch, p):
                     v, ix = pr.topk(2)
                     cache[u] = [names[ix[0]], round(float(v[0]), 3), names[ix[1]], round(float(v[1]), 3), str(date.today())]
@@ -144,6 +169,8 @@ def main():
                     print(f"  {i + 64:,}/{len(todo):,} checked, {done / max(time.time() - t0, 1):.1f} img/s", flush=True)
         with gzip.open(CACHE, "wt") as fh:
             json.dump(cache, fh, separators=(",", ":"))
+        with gzip.open(GENDER_CACHE, "wt") as fh:
+            json.dump(gcache, fh, separators=(",", ":"))
 
     # ---- review list + summary ------------------------------------------------
     out, agree = [], {}
@@ -169,7 +196,17 @@ def main():
         w = csv.writer(fh)
         w.writerow(["flag", "brand", "rule category", "photo shows", "confidence", "2nd guess", "2nd conf", "price", "title", "url", "image"])
         w.writerows(out)
+    men = [r for r in gpick if r[9] in gcache and gcache[r[9]][0] >= 0.85]
+    with open("data/image_men.csv", "w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["p_man", "brand", "category", "price", "title", "url", "image"])
+        for r in sorted(men, key=lambda r: -gcache[r[9]][0]):
+            w.writerow([gcache[r[9]][0], src[r[0]], cats[r[1]], r[4], r[2], r[3], r[9]])
+    from collections import Counter as _C
     lines = [f"# Image check {date.today()}", "",
+             f"- Man/woman check: {sum(1 for r in gpick if r[9] in gcache):,} of {len(gpick):,} clothing photos;"
+             f" photo >= 85% a man: {len(men):,} (data/image_men.csv)",
+             "- Men by brand: " + ", ".join(f"{b} {n}" for b, n in _C(src[r[0]] for r in men).most_common(15)), "",
              f"- Products looked at: {len(pick):,} (all in-stock Other, cheapest {CHEAPEST} + below-floor + random {SAMPLE} per category)",
              f"- Images checked so far (cache): {len(cache):,}", f"- Flagged for review: {len(out):,}", "",
              "## Flags", ""]

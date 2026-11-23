@@ -275,7 +275,8 @@ _HOME = _R(r"\b(bed\s?(cover|sheet|spread)s?|bedsheets?|cushions?(\s+covers?)?|p
            r"christmas|decorations?|wreaths?|boards?|chopping|carafes?|karaffe|decanters?|bottles?|fridge|handle\s?covers?|"
            r"toys?|dolls?|puzzles?|games?|pens?|journals?|planners?|calendars?|stickers?|pooja|puja|chowki|ornaments?|ghee\s?pots?|pots?|thali|bookmarks?|magnets?|key\s?holders?)\b")
 _NONSALE = _R(r"^\W*(\d+\s+)?test(\s+test)*\W*$|\b(at|for)\s+just\s+(₹|rs)|\bon\s+orders\s+above\b|\bgift\s?wraps?\b|\bhampers?\b|\b(stitching|tailoring|alteration)\b|\bsample\s+sarees?\b|\bworking\s+bar\b|\be-?gift\b|\bgift\s?cards?\b")
-_FOOTWEAR = _R(r"\b(juttis?|mojaris?|sandals?|heels|shoes|kolhapuris?|footwear|slippers?|wedges|stilettos?|flip[- ]?flops?)\b")
+_FOOTWEAR = _R(r"\b(jut+is?|juti|mojr?is?|mojaris?|mojdis?|khussas?|nagras?|peshawaris?|bellies|loafers?|mules|sandals?|heels|"
+               r"shoes?|kolhapuris?|footwear|slippers?|chappals?|sneakers?|boots?|wedges|stilettos?|flip[- ]?flops?)\b")
 _JEWELLERY = _R(r"\b(jewell?e?ry|jewelry|oxidi[sz]ed|earrings?|jhumkas?|jhumkis?|studs|necklaces?|chokers?|bangles?|bracelets?|"
                 r"kadas?|(?<!napkin\s)(?<!key\s)rings?|finger\s?rings?|anklets?|payals?|nose\s?(pins?|rings?)|maang\s?tikkas?|haath\s?phool|pendants?|kundan|polki)\b")
 _BAGS = _R(r"\b(bags?|handbags?|potlis?|clutch(es)?|totes?|wallets?|purses?|pouch(es)?|slings?|backpacks?|satchels?|batuas?|"
@@ -336,6 +337,8 @@ def _what(text):
             return "Jewellery"
         if _BAGS.search(t):
             return "Bags"
+        if _FOOTWEAR.search(t):  # "Phulkari Shoe" is a shoe, not a phulkari shawl
+            return "Footwear"
         if g["dupatta"] or g["stole"]:  # "Gift Box of Pashmina Stole" is a stole
             return "Dupattas"
         if _HOME.search(t):  # before Fabrics: "Kalamkari Fabric Cover Notebook"
